@@ -6,6 +6,7 @@ import { User, Mail, Building2, Phone, BrainCircuit, Edit2, Camera, Save, X } fr
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
+import { useAuth } from "@/context/auth-context"
 
 import { COMPANIES } from "@/lib/companies"
 import { getDisciplineIcon } from "@/lib/utils"
@@ -17,6 +18,7 @@ export default function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const { user, updateUser } = useUser()
+    const { user: authUser } = useAuth()
     const [tempData, setTempData] = useState(user)
 
     // Sync temp data when user enters edit mode

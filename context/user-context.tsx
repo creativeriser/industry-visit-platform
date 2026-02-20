@@ -59,8 +59,27 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 .single()
 
             if (data) {
+                let metadataName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || ""
+
+                if (metadataName && typeof metadataName === 'string') {
+                    const emailPrefix = authUser.email?.split('@')[0]
+                    if (emailPrefix && metadataName.includes(emailPrefix) && metadataName !== emailPrefix) {
+                        metadataName = metadataName.replace(emailPrefix, '').trim()
+                    }
+                    metadataName = metadataName.replace(/\s+\d+$/, '').trim()
+
+                    if (metadataName === metadataName.toUpperCase() && metadataName.length > 0) {
+                        metadataName = metadataName.split(' ')
+                            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                            .join(' ')
+                    }
+                }
+
+                const isPlaceholderName = !data.full_name || data.full_name === data.email || data.full_name === authUser.email?.split('@')[0]
+                const finalName = isPlaceholderName ? metadataName : data.full_name
+
                 setUser({
-                    fullName: data.full_name || "",
+                    fullName: finalName,
                     email: data.email || authUser.email || "",
                     phone: data.phone || "",
                     school: data.school || "",

@@ -30,39 +30,71 @@ export default function AuthCallbackPage() {
 
             setStatus('Finalizing profile...')
 
-            // 2. Get pending role from local storage (set in auth-gate)
+            // 2. Update profile with Azure AD metadata and pending role
             const pendingRole = localStorage.getItem('pending_role')
-            if (pendingRole) {
-                // 3. Upsert profile with the role
-                const { user } = session
+            const { user } = session
 
-                // Get existing profile to see if we need to update role (or keep existing)
-                const { data: existingProfile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
+            // Get existing profile to see if we need to update it
+            const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('id, role, full_name')
+                .eq('id', user.id)
+                .single()
 
-                if (!existingProfile || !existingProfile.role) {
-                    // New user or missing role -> Set it
-                    const { error: profileError } = await supabase.from('profiles').upsert({
-                        id: user.id,
-                        email: user.email,
-                        full_name: user.user_metadata.full_name || user.user_metadata.name || user.email?.split('@')[0],
-                        role: pendingRole || 'faculty',
-                        // Initialize other fields if needed
-                    }, { onConflict: 'id' }) // Just update if exists, but we want to ensure Role is set
+            let metadataName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || ''
 
-                    if (profileError) {
-                        console.error("Profile creation error:", profileError)
-                    }
+            // Fix Azure providing names like "VIKRANT SINGH 2301010028"
+            // We strip out the trailing ID if it exists and formatting properly 
+            if (metadataName && typeof metadataName === 'string') {
+                // If the name ends with exactly the prefix of their email like '2301010028', remove it
+                const emailPrefix = user.email?.split('@')[0]
+                if (emailPrefix && metadataName.includes(emailPrefix) && metadataName !== emailPrefix) {
+                    metadataName = metadataName.replace(emailPrefix, '').trim()
                 }
 
-                // Clear pending role
+                // If it still has trailing digits, remove them
+                metadataName = metadataName.replace(/\s+\d+$/, '').trim()
+
+                // Title case the name if it's ALL CAPS like "VIKRANT SINGH"
+                if (metadataName === metadataName.toUpperCase() && metadataName.length > 0) {
+                    metadataName = metadataName.split(' ')
+                        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                        .join(' ')
+                }
+            }
+
+            const isPlaceholderName = !existingProfile?.full_name || existingProfile.full_name === user.email || existingProfile.full_name === user.email?.split('@')[0]
+
+            if (!existingProfile) {
+                // Insert new profile
+                const { error: insertError } = await supabase.from('profiles').insert({
+                    id: user.id,
+                    email: user.email,
+                    full_name: metadataName,
+                    role: pendingRole || 'faculty'
+                })
+                if (insertError) console.error("Profile insert error:", insertError)
+            } else if (!existingProfile.role || isPlaceholderName) {
+                // Update existing profile safely
+                const updates: any = {}
+                if (!existingProfile.role) updates.role = pendingRole || 'faculty'
+                if (isPlaceholderName) updates.full_name = metadataName
+
+                const { error: updateError } = await supabase.from('profiles').update(updates).eq('id', user.id)
+                if (updateError) console.error("Profile update error:", updateError)
+            }
+
+            // Clear pending role
+            if (pendingRole) {
                 localStorage.removeItem('pending_role')
             }
 
-            // 4. Redirect based on role
+            // 4. Redirect based on role and pending redirect
+            const pendingRedirect = localStorage.getItem('pending_redirect')
+            if (pendingRedirect) {
+                localStorage.removeItem('pending_redirect')
+            }
+
             // We fetch the profile again to be sure of the final role
             const { data: profile } = await supabase
                 .from('profiles')
@@ -73,13 +105,11 @@ export default function AuthCallbackPage() {
             const role = profile?.role || 'faculty' // Default to faculty if undefined
 
             if (role === 'faculty') {
-                router.push('/faculty')
+                router.push(pendingRedirect || '/faculty')
             } else if (role === 'student') {
-                // If a student tries to login, we can still redirect them or show error.
-                // For now, let's redirect to faculty as requested (or just default behavior)
-                router.push('/student')
+                router.push(pendingRedirect || '/student')
             } else {
-                router.push('/faculty')
+                router.push(pendingRedirect || '/faculty')
             }
         }
 

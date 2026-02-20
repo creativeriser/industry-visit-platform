@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { supabase } from "@/lib/supabase"
+import { useAuth } from "@/context/auth-context"
 import { motion } from "framer-motion"
 import {
     LayoutDashboard,
@@ -19,6 +21,14 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeHash, setActiveHash] = useState("")
     const pathname = usePathname()
+    const router = useRouter()
+    const { user, loading } = useAuth()
+
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push("/get-started")
+        }
+    }, [user, loading, router])
 
     useEffect(() => {
         setActiveHash(window.location.hash)
@@ -115,16 +125,19 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                                 {isSidebarOpen && <span className="text-xs font-semibold uppercase tracking-wider">Collapse</span>}
                             </button>
                             <div className="my-1 border-t border-slate-200/50" />
-                            <Link
-                                href="/get-started?mode=signin"
+                            <button
+                                onClick={async () => {
+                                    await supabase.auth.signOut()
+                                    router.push("/get-started")
+                                }}
                                 className={cn(
-                                    "flex items-center gap-3 px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors",
+                                    "flex items-center w-full gap-3 px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors",
                                     !isSidebarOpen && "justify-center"
                                 )}
                             >
                                 <LogOut className="w-4 h-4" />
                                 {isSidebarOpen && <span className="text-sm font-medium">Sign Out</span>}
-                            </Link>
+                            </button>
                         </div>
                     </div>
                 </motion.aside>

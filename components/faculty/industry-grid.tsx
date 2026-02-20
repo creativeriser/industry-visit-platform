@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { SlidersHorizontal, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,8 +42,21 @@ export function IndustryGrid({
     title = "Broad Discovery",
     subtitle = "Explore sites mapped to other faculties"
 }: IndustryGridProps) {
-    const [activeTab, setActiveTab] = useState("All")
+    const searchParams = useSearchParams()
+    const initialDiscipline = searchParams?.get("discipline") || "All"
+    const [activeTab, setActiveTab] = useState(initialDiscipline)
     const [isExpanded, setIsExpanded] = useState(false)
+
+    // Sync tab if URL changes
+    useEffect(() => {
+        const discipline = searchParams?.get("discipline")
+        if (discipline) {
+            setActiveTab(discipline)
+            if (SECONDARY_DISCIPLINES.includes(discipline)) {
+                setIsExpanded(true)
+            }
+        }
+    }, [searchParams])
 
     const filtered = activeTab === "All"
         ? companies

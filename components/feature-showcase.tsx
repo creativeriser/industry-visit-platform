@@ -15,7 +15,7 @@ import {
 // --- SIMULATIONS ---
 
 function FacultyWorkflowSimulation({ active }: { active: boolean }) {
-    const DURATION = 50000;
+    const DURATION = 18750;
     const [progress, setProgress] = useState(0);
     const startTimeRef = useRef<number | null>(null);
     const requestRef = useRef<number | null>(null);
@@ -210,8 +210,8 @@ function FacultyWorkflowSimulation({ active }: { active: boolean }) {
 
 
 
-function StudentWorkflowSimulation({ active }: { active: boolean }) {
-    const DURATION = 60000; // 60s Cycle
+function ExecutionWorkflowSimulation({ active }: { active: boolean }) {
+    const DURATION = 22500; // 22.5s Cycle
     const [progress, setProgress] = useState(0);
     const startTimeRef = useRef<number | null>(null);
     const requestRef = useRef<number | null>(null);
@@ -241,7 +241,7 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
     };
 
     const p = progress;
-    // 4 Scenes: Apply (0-25), Select (25-50), Pass (50-75), Itinerary (75-100)
+    // 4 Scenes: Logistics (0-25), Roster (25-50), Gate Pass (50-75), Itinerary (75-100)
     const s1 = p < 25;
     const s2 = p >= 25 && p < 50;
     const s3 = p >= 50 && p < 75;
@@ -262,11 +262,11 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
 
             <div className="absolute top-4 right-4 flex gap-2 z-50">
                 <div className="px-2 py-0.5 bg-slate-900 text-white text-[10px] font-bold rounded uppercase tracking-wider">
-                    {s1 ? "Student Portal" : s2 ? "Faculty Dashboard" : s3 ? "Student Pass" : "Live Visit"}
+                    {s1 ? "Logistics Hub" : s2 ? "Batch Roster" : s3 ? "Gate Pass" : "Live Tracking"}
                 </div>
             </div>
 
-            {/* SCENE 1: STUDENT SEES & APPLIES */}
+            {/* SCENE 1: FACULTY FINALIZES LOGISTICS */}
             <AnimatePresence>
                 {s1 && (
                     <motion.div key="s1" className="absolute inset-0 flex items-center justify-center" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.9 }}>
@@ -282,14 +282,14 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
                             </div>
                             <div className="p-4">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <div className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-100">Open for Civil</div>
-                                    <div className="text-[10px] text-slate-400 ml-auto">42/50 Slots Filled</div>
+                                    <div className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded border border-emerald-100">Status: Confirmed</div>
+                                    <div className="text-[10px] text-slate-400 ml-auto">Batch: Computer Science 23-27 (50 Students)</div>
                                 </div>
                                 <motion.button
                                     className="w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-bold shadow-md shadow-blue-500/20"
                                     animate={p > 12 ? { backgroundColor: "#10b981", scale: 0.95 } : {}}
                                 >
-                                    {p > 12 ? "Application Sent" : "Apply Now"}
+                                    {p > 12 ? "Passes Generated" : "Generate Gate Passes"}
                                 </motion.button>
                             </div>
                             {/* Simulated Cursor */}
@@ -306,20 +306,19 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
                 )}
             </AnimatePresence>
 
-            {/* SCENE 2: FACULTY SELECTS */}
+            {/* SCENE 2: BATCH ROSTER */}
             <AnimatePresence>
                 {s2 && (
                     <motion.div key="s2" className="absolute inset-0 flex items-center justify-center" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }}>
                         <div className="w-[380px] bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
                             <div className="p-3 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                                <span className="text-xs font-bold text-slate-700">Applicant Review</span>
-                                <span className="text-[10px] font-mono text-slate-400">BATCH-2026</span>
+                                <span className="text-xs font-bold text-slate-700">Digital Roster</span>
+                                <span className="text-[10px] font-mono text-slate-400">CS 23-27</span>
                             </div>
                             <div className="p-2 space-y-2">
                                 {[
-                                    { name: "Vikrant Singh", score: "9.2 CGPA", att: "88%", status: "Selected" },
-                                    { name: "Rahul Kumar", score: "8.9 CGPA", att: "92%", status: "Pending" },
-                                    { name: "Priya Sharma", score: "9.4 CGPA", att: "95%", status: "Selected" }
+                                    { name: "Shubham Sinha", id: "Computer Science 23-013", status: "Verified" },
+                                    { name: "Vikrant Singh", id: "Computer Science 23-028", status: "Scanning..." }
                                 ].map((student, i) => (
                                     <motion.div
                                         key={i}
@@ -329,30 +328,21 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
                                         <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-500">{student.name[0]}</div>
                                         <div className="flex-1">
                                             <div className="text-xs font-bold text-slate-800">{student.name}</div>
-                                            <div className="text-[10px] text-slate-400">{student.score} • {student.att} Att.</div>
+                                            <div className="text-[10px] text-slate-400">{student.id}</div>
                                         </div>
-                                        {(student.status === "Selected" || (i === 1 && p > 37)) ?
+                                        {(student.status === "Verified" || (i === 1 && p > 37)) ?
                                             <CheckCircle className="w-4 h-4 text-emerald-500" /> :
-                                            <div className="w-4 h-4 rounded-full border border-slate-300" />
+                                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-4 h-4 rounded-full border-2 border-slate-200 border-t-blue-500" />
                                         }
                                     </motion.div>
                                 ))}
                             </div>
-                            {/* Cursor approving Rahul */}
-                            <motion.div
-                                className="absolute pointer-events-none drop-shadow-xl z-50"
-                                initial={{ x: 300, y: 300, opacity: 0 }}
-                                animate={{ x: [300, 320, 320, 400], y: [300, 140, 140, 400], opacity: [0, 1, 1, 0] }} // Target Rahul's checkbox
-                                transition={{ duration: 3, delay: 1 }}
-                            >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.65376 12.3673H5.46026L5.31717 12.4976L0.500002 16.8829L0.500002 1.19138L11.4841 12.3673H5.65376Z" fill="black" stroke="white" strokeWidth="1" /></svg>
-                            </motion.div>
                         </div>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* SCENE 3: SUCCESS PASS */}
+            {/* SCENE 3: MASTER GATE PASS */}
             <AnimatePresence>
                 {s3 && (
                     <motion.div key="s3" className="absolute inset-0 flex items-center justify-center" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -50 }}>
@@ -361,17 +351,17 @@ function StudentWorkflowSimulation({ active }: { active: boolean }) {
                             <div className="p-6">
                                 <div className="flex items-center gap-2 mb-6">
                                     <div className="w-8 h-8 rounded bg-white/10 flex items-center justify-center"><Ticket className="w-4 h-4" /></div>
-                                    <span className="text-xs font-bold tracking-widest uppercase opacity-70">Boarding Pass</span>
+                                    <span className="text-xs font-bold tracking-widest uppercase opacity-70">Master Gate Pass</span>
                                 </div>
                                 <h3 className="text-xl font-bold mb-1">L&T Infrastructure</h3>
                                 <p className="text-xs opacity-60 mb-6">Industrial Visit • Oct 24</p>
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <div><div className="text-[10px] opacity-50 uppercase">Student</div><div className="text-xs font-bold">Rahul Kumar</div></div>
-                                    <div><div className="text-[10px] opacity-50 uppercase">Bus No.</div><div className="text-xs font-bold">B-42</div></div>
+                                    <div><div className="text-[10px] opacity-50 uppercase">Faculty Lead</div><div className="text-xs font-bold">Dr. Yogita Yashveer Raghav</div></div>
+                                    <div><div className="text-[10px] opacity-50 uppercase">Batch Size</div><div className="text-xs font-bold">50 Students</div></div>
                                 </div>
                                 <div className="w-full py-2 bg-emerald-500 rounded text-center text-xs font-bold text-slate-900">
-                                    Ready to Go
+                                    Approved Entry
                                 </div>
                             </div>
                             <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
@@ -499,8 +489,8 @@ const STAGE_CONFIG = [
     },
     {
         range: [0.6, 0.75, 1, 1], top: "88%",
-        data: { step: "03", label: "FULL LIFECYCLE", headline: "End-to-End Management.", sub: "From student applications and faculty selection to live itinerary tracking. The platform manages the entire journey in one cohesive workflow." },
-        Simulation: StudentWorkflowSimulation
+        data: { step: "03", label: "FULL LIFECYCLE", headline: "End-to-End Management.", sub: "From initial industry outreach and logistics coordination to live itinerary tracking. The platform empowers faculty to manage the entire journey in one cohesive workflow." },
+        Simulation: ExecutionWorkflowSimulation
     }
 ]
 

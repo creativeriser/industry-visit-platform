@@ -1,5 +1,6 @@
 "use client"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Navbar } from "@/components/navbar"
 import { ArrowRight } from "lucide-react"
@@ -11,12 +12,11 @@ import { DisciplineCard } from "@/components/discipline-card"
 import { TrustSection } from "@/components/trust-section"
 import { Footer } from "@/components/footer"
 import { PartnerModal } from "@/components/partner-modal"
-import { ExplorationWizard } from "@/components/exploration-wizard"
 import { useState } from "react"
 
 export default function Home() {
+  const router = useRouter()
   const [showPartnerModal, setShowPartnerModal] = useState(false)
-  const [showExploreModal, setShowExploreModal] = useState(false)
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -77,11 +77,11 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Button
-              onClick={() => setShowExploreModal(true)}
+              onClick={() => router.push('/get-started')}
               size="lg"
               className="bg-secondary text-white hover:bg-secondary/90 h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
             >
-              Start Exploring <ArrowRight className="ml-2 h-5 w-5" />
+              Sign In
             </Button>
             <Button
               onClick={() => setShowPartnerModal(true)}
@@ -97,7 +97,6 @@ export default function Home() {
 
       {/* Modals */}
       <PartnerModal isOpen={showPartnerModal} onClose={() => setShowPartnerModal(false)} />
-      <ExplorationWizard isOpen={showExploreModal} onClose={() => setShowExploreModal(false)} />
 
       {/* Feature Showcase */}
       <FeatureShowcase />
@@ -119,7 +118,7 @@ export default function Home() {
               Explore by Discipline
             </motion.h2>
 
-            <Link href="/discover" className="group flex items-center text-sm font-semibold text-secondary hover:text-primary transition-colors pb-1">
+            <Link href="/faculty#discovery" className="group flex items-center text-sm font-semibold text-secondary hover:text-primary transition-colors pb-1">
               <span className="relative">
                 View all
                 <span className="absolute -bottom-0.5 left-0 w-full h-px bg-primary origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
@@ -127,12 +126,12 @@ export default function Home() {
               <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {["Computer Science", "Mechanical Eng.", "Biotechnology", "Business Admin", "Civil Eng.", "Electrical Eng.", "Chemical Eng.", "Architecture"].map((discipline, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {["Computer Science", "Medical"].map((discipline, index) => (
               <DisciplineCard
                 key={discipline}
                 name={discipline}
-                href={`/discover?discipline=${encodeURIComponent(discipline)}`}
+                href={`/get-started?role=faculty&discipline=${encodeURIComponent(discipline)}#discovery`}
                 index={index}
               />
             ))}

@@ -58,14 +58,8 @@ export function Navbar() {
                     })}
                 </nav>
 
-                {/* Action Buttons (Desktop) */}
+                {/* Action Buttons (Desktop) - Removed per user request */}
                 <div className="hidden md:flex items-center gap-3">
-                    <Button variant="ghost" size="sm" className="hover:bg-transparent hover:text-primary transition-colors duration-300 font-medium text-muted-foreground" asChild>
-                        <Link href="/get-started?mode=signin">Sign In</Link>
-                    </Button>
-                    <Button size="sm" className="shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:scale-[1.02] bg-primary text-primary-foreground font-semibold rounded-full px-6" asChild>
-                        <Link href="/get-started">Get Started</Link>
-                    </Button>
                 </div>
 
                 {/* Mobile Menu Toggle */}
@@ -102,13 +96,8 @@ export function Navbar() {
                                     </Link>
                                 ))}
                             </nav>
-                            <div className="flex flex-col gap-2 pt-2 border-t">
-                                <Button variant="ghost" className="w-full justify-start" asChild onClick={() => setIsMobileMenuOpen(false)}>
-                                    <Link href="/get-started?mode=signin">Sign In</Link>
-                                </Button>
-                                <Button className="w-full bg-primary text-primary-foreground" asChild onClick={() => setIsMobileMenuOpen(false)}>
-                                    <Link href="/get-started">Get Started</Link>
-                                </Button>
+                            <div className="flex flex-col gap-2 pt-2 border-t text-center text-sm text-slate-500">
+                                UniVisit Portal
                             </div>
                         </motion.div>
                     )}

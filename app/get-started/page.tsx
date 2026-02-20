@@ -13,7 +13,7 @@ export type ActiveRole = "faculty" | "student" | null
 
 function GetStartedContent() {
     const searchParams = useSearchParams()
-    const [activeRole, setActiveRole] = useState<ActiveRole>(null)
+    const [activeRole, setActiveRole] = useState<ActiveRole>("faculty")
 
     useEffect(() => {
         const roleParam = searchParams.get("role")

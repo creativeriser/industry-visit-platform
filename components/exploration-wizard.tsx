@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { Modal } from "@/components/ui/modal"
-import { GraduationCap, School, Sparkles } from "lucide-react"
+import { School, Sparkles } from "lucide-react"
 
 interface ExplorationWizardProps {
     isOpen: boolean
@@ -40,20 +40,7 @@ export function ExplorationWizard({ isOpen, onClose }: ExplorationWizardProps) {
             </div>
 
             <div className="min-h-[200px] relative">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <button
-                        onClick={() => handleRoleSelect("student")}
-                        className="group relative p-6 rounded-2xl border-2 border-slate-100 hover:border-blue-100 hover:bg-blue-50/50 transition-all text-left space-y-4 hover:shadow-lg hover:shadow-blue-900/5"
-                    >
-                        <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center text-slate-600 group-hover:text-blue-600 group-hover:scale-110 transition-all">
-                            <GraduationCap className="w-6 h-6" />
-                        </div>
-                        <div>
-                            <h3 className="font-bold text-slate-900 group-hover:text-blue-700">Student</h3>
-                            <p className="text-xs text-slate-500 mt-1">Looking for industry visits & internships</p>
-                        </div>
-                    </button>
-
+                <div className="flex flex-col gap-4 max-w-sm mx-auto">
                     <button
                         onClick={() => handleRoleSelect("faculty")}
                         className="group relative p-6 rounded-2xl border-2 border-slate-100 hover:border-indigo-100 hover:bg-indigo-50/50 transition-all text-left space-y-4 hover:shadow-lg hover:shadow-indigo-900/5"

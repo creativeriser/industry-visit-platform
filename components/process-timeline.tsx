@@ -24,10 +24,10 @@ const steps = [
         description: "Organize logistics, student batches, and schedules in one dashboard."
     },
     {
-        id: "credit",
+        id: "execution",
         icon: Award,
-        title: "Student Insights",
-        description: "Students log in to access visit details and learning resources."
+        title: "Live Verification",
+        description: "Generate digital gate passes and track real-time student attendance on the day."
     }
 ]
 

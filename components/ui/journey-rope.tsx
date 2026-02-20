@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useScroll, useTransform, MotionValue } from "framer-motion"
+import { motion, useScroll, useTransform, MotionValue, useSpring } from "framer-motion"
 import { useRef } from "react"
 
 export function JourneyRope() {
@@ -12,18 +12,18 @@ export function JourneyRope() {
         offset: ["start center", "end center"]
     })
 
-    // MAPPING LOGIC (Restored from Phase 28):
-    // Direct mapping [0.15, 0.85] -> [0%, 100%]
-    // No Spring -> No Lag.
+    const smoothProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    })
 
-    const fillHeight = useTransform(scrollYProgress, [0.15, 0.85], ["0%", "100%"]);
+    const fillHeight = useTransform(smoothProgress, [0.15, 0.85], ["0%", "100%"]);
 
     return (
         <div ref={ref} className="relative w-full h-full flex justify-center z-0">
 
-            {/* TRACK (Grey Line) - RESTORED FATNESS */}
-            {/* User requested "Fat version" but "Slightly thinner than pointer". */}
-            {/* Pivot: w-6 (24px) is thick but less than w-8 (32px) nodes. */}
+            {/* TRACK (Grey Line) */}
             <div className="absolute top-[15%] bottom-[15%] w-6 bg-slate-200 rounded-full" />
 
             {/* FILL (Solid Blue Line) */}
@@ -35,9 +35,9 @@ export function JourneyRope() {
             </div>
 
             {/* NODES: Exact Thresholds. 32px Size. */}
-            <Node top="15%" scrollProgress={scrollYProgress} threshold={0.15} />
-            <Node top="50%" scrollProgress={scrollYProgress} threshold={0.50} />
-            <Node top="85%" scrollProgress={scrollYProgress} threshold={0.85} />
+            <Node top="15%" scrollProgress={smoothProgress} threshold={0.15} />
+            <Node top="50%" scrollProgress={smoothProgress} threshold={0.50} />
+            <Node top="85%" scrollProgress={smoothProgress} threshold={0.85} />
 
         </div>
     )
