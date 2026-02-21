@@ -18,16 +18,16 @@ export function JourneyRope() {
         restDelta: 0.001
     })
 
-    const fillHeight = useTransform(smoothProgress, [0.15, 0.85], ["0%", "100%"]);
+    const fillHeight = useTransform(smoothProgress, [0.0, 0.70], ["0%", "100%"]);
 
     return (
         <div ref={ref} className="relative w-full h-full flex justify-center z-0">
 
             {/* TRACK (Grey Line) */}
-            <div className="absolute top-[15%] bottom-[15%] w-6 bg-slate-200 rounded-full" />
+            <div className="absolute top-[18%] bottom-[12%] w-6 bg-slate-200 rounded-full" />
 
             {/* FILL (Solid Blue Line) */}
-            <div className="absolute top-[15%] bottom-[15%] w-6 rounded-full overflow-hidden">
+            <div className="absolute top-[18%] bottom-[12%] w-6 rounded-full overflow-hidden">
                 <motion.div
                     className="w-full bg-blue-600 origin-top rounded-full"
                     style={{ height: fillHeight }}
@@ -35,9 +35,9 @@ export function JourneyRope() {
             </div>
 
             {/* NODES: Exact Thresholds. 32px Size. */}
-            <Node top="15%" scrollProgress={smoothProgress} threshold={0.15} />
-            <Node top="50%" scrollProgress={smoothProgress} threshold={0.50} />
-            <Node top="85%" scrollProgress={smoothProgress} threshold={0.85} />
+            <Node top="18%" scrollProgress={smoothProgress} threshold={0.0} />
+            <Node top="53%" scrollProgress={smoothProgress} threshold={0.35} />
+            <Node top="88%" scrollProgress={smoothProgress} threshold={0.70} />
 
         </div>
     )

@@ -58,8 +58,17 @@ export function Navbar() {
                     })}
                 </nav>
 
-                {/* Action Buttons (Desktop) - Removed per user request */}
+                {/* Action Buttons (Desktop) */}
                 <div className="hidden md:flex items-center gap-3">
+                    <Link href="/get-started">
+                        <Button
+                            variant="default"
+                            size="sm"
+                            className="hidden md:flex bg-[#1e4d7a] hover:bg-[#163a5d] text-white shadow-sm"
+                        >
+                            Sign In
+                        </Button>
+                    </Link>
                 </div>
 
                 {/* Mobile Menu Toggle */}

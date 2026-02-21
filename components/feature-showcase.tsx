@@ -31,8 +31,19 @@ function FacultyWorkflowSimulation({ active }: { active: boolean }) {
             requestRef.current = requestAnimationFrame(animate);
         };
 
-        if (!active) { setTimeout(() => setProgress(0), 0); startTimeRef.current = null; if (requestRef.current) cancelAnimationFrame(requestRef.current); return; }
-        requestRef.current = requestAnimationFrame(animate);
+        if (active) {
+            // Re-initialize start time to reset animation on view
+            if (startTimeRef.current === null) {
+                setProgress(0);
+            }
+            requestRef.current = requestAnimationFrame(animate);
+        } else {
+            // Clear state completely when out of view
+            startTimeRef.current = null;
+            setProgress(0);
+            if (requestRef.current) cancelAnimationFrame(requestRef.current);
+        }
+
         return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
     }, [active]);
 
@@ -67,12 +78,14 @@ function FacultyWorkflowSimulation({ active }: { active: boolean }) {
                 </div>
             </div>
 
-            <div ref={containerRef} className="absolute bottom-0 inset-x-0 h-1 bg-slate-200 cursor-pointer z-50 transition-all"
+            <div ref={containerRef} className="absolute bottom-0 inset-x-0 h-1.5 bg-slate-200 cursor-pointer z-[100] transition-all rounded-b-xl"
                 onPointerDown={(e) => { isDragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); handleSeek(e.clientX); }}
                 onPointerMove={(e) => { if (isDragging.current) handleSeek(e.clientX); }}
                 onPointerUp={(e) => { isDragging.current = false; e.currentTarget.releasePointerCapture(e.pointerId); }}
             >
-                <div className="h-full bg-blue-600 w-full origin-left" style={{ transform: `scaleX(${p / 100})` }} />
+                <div className="h-full bg-blue-600 w-full origin-left relative rounded-bl-xl" style={{ transform: `scaleX(${p / 100})` }}>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-blue-700/50 rounded-full blur-[1px]" />
+                </div>
             </div>
 
             <AnimatePresence>
@@ -252,12 +265,14 @@ function ExecutionWorkflowSimulation({ active }: { active: boolean }) {
             {/* Background Pattern */}
             <div className="absolute inset-0 z-0 opacity-[0.4]" style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-            <div ref={containerRef} className="absolute bottom-0 inset-x-0 h-1 bg-slate-200 cursor-pointer z-50 transition-all"
+            <div ref={containerRef} className="absolute bottom-0 inset-x-0 h-1.5 bg-slate-200 cursor-pointer z-[100] transition-all rounded-b-xl"
                 onPointerDown={(e) => { isDragging.current = true; e.currentTarget.setPointerCapture(e.pointerId); handleSeek(e.clientX); }}
                 onPointerMove={(e) => { if (isDragging.current) handleSeek(e.clientX); }}
                 onPointerUp={(e) => { isDragging.current = false; e.currentTarget.releasePointerCapture(e.pointerId); }}
             >
-                <div className="h-full bg-emerald-500 w-full origin-left" style={{ transform: `scaleX(${p / 100})` }} />
+                <div className="h-full bg-emerald-500 w-full origin-left relative rounded-bl-xl" style={{ transform: `scaleX(${p / 100})` }}>
+                    <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-3 bg-emerald-600/50 rounded-full blur-[1px]" />
+                </div>
             </div>
 
             <div className="absolute top-4 right-4 flex gap-2 z-50">
@@ -416,7 +431,7 @@ function VisualBlock({ Simulation, compact, frameless }: { Simulation: React.Com
     const isInView = useInView(ref, { amount: 0.6, once: false })
     return (
         <div ref={ref} className={cn("w-full relative transition-all duration-500", frameless ? "bg-transparent overflow-visible" : "bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden", compact ? "max-w-md aspect-[4/3]" : "max-w-[900px] h-[450px]")}>
-            <Simulation active={isInView} />
+            {isInView ? <Simulation active={true} /> : null}
         </div>
     )
 }

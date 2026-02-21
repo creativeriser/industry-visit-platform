@@ -77,17 +77,23 @@ export default function Home() {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Button
-              onClick={() => router.push('/get-started')}
+              onClick={() => {
+                const target = document.getElementById('streamlined-outreach');
+                if (target) {
+                  target.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
               size="lg"
               className="bg-secondary text-white hover:bg-secondary/90 h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
             >
-              Sign In
+              Start Exploring <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button
               onClick={() => setShowPartnerModal(true)}
               size="lg"
-              variant="outline"
-              className="bg-transparent text-white border-white/30 hover:bg-white/10 h-14 px-10 text-lg hover:border-white transition-all hover:scale-[1.02]"
+              className="bg-[#1e4d7a] text-white hover:bg-[#163a5d] h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] border-none"
             >
               Partner with Us
             </Button>
@@ -99,10 +105,14 @@ export default function Home() {
       <PartnerModal isOpen={showPartnerModal} onClose={() => setShowPartnerModal(false)} />
 
       {/* Feature Showcase */}
-      <FeatureShowcase />
+      <section id="streamlined-outreach">
+        <FeatureShowcase />
+      </section>
 
       {/* How It Works */}
-      <ProcessTimeline />
+      <section id="how-it-works">
+        <ProcessTimeline />
+      </section>
 
       {/* Disciplines Section */}
       <section className="py-24">
@@ -117,21 +127,22 @@ export default function Home() {
             >
               Explore by Discipline
             </motion.h2>
-
-            <Link href="/faculty#discovery" className="group flex items-center text-sm font-semibold text-secondary hover:text-primary transition-colors pb-1">
-              <span className="relative">
-                View all
-                <span className="absolute -bottom-0.5 left-0 w-full h-px bg-primary origin-left scale-x-0 transition-transform duration-300 ease-out group-hover:scale-x-100" />
-              </span>
-              <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {["Computer Science", "Medical"].map((discipline, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              "Computer Science",
+              "Medical",
+              "Mechanical Engineering",
+              "Civil & Structural Engineering",
+              "Automotive Engineering",
+              "Electrical Engineering"
+            ].map((discipline, index) => (
               <DisciplineCard
                 key={discipline}
                 name={discipline}
-                href={`/get-started?role=faculty&discipline=${encodeURIComponent(discipline)}#discovery`}
+                href={discipline === "Computer Science"
+                  ? `/get-started?role=faculty&discipline=${encodeURIComponent(discipline)}#discovery`
+                  : "/get-started"}
                 index={index}
               />
             ))}

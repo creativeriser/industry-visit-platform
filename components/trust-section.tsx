@@ -108,7 +108,7 @@ function TrustSimulation() {
     const profiles = [
         {
             id: "ID-8942",
-            name: "Vishu Singh",
+            name: "Vikrant Singh",
             course: "Computer Science • Class of 2023",
             skills: ["React Framework", "Node.js Env", "System Design", "Academic (7.9 CGPA)", "Attendance (65%)"],
             colors: { main: "bg-emerald-500", secondary: "bg-purple-500" }
@@ -338,7 +338,7 @@ function TrustSimulation() {
                                         <GraduationCap className="w-5 h-5" />
                                     </div>
                                     <div>
-                                        <div className="text-sm font-bold text-white leading-none">Professor Preeti Rathi</div>
+                                        <div className="text-sm font-bold text-white leading-none">Dr. Yogita Yashveer Raghav</div>
                                         <div className="text-[10px] text-slate-400 mt-1">Faculty Coordinator</div>
                                     </div>
                                 </div>
