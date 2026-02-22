@@ -85,9 +85,9 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
 
                         <div className="h-px bg-slate-100" />
 
-                        {/* Industry Representative Section (Matching Sketch) */}
+                        {/* Company Representative Section (Matching Sketch) */}
                         <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200/60">
-                            <h3 className="text-base font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">Industry Representative</h3>
+                            <h3 className="text-base font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">Company Representative</h3>
 
                             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
                                 <div className="flex items-center gap-4">
@@ -109,7 +109,7 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
                                         </a>
                                     </Button>
                                     <Button variant="outline" className="flex-1 sm:flex-none border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 gap-2" asChild>
-                                        <a href={`mailto:${company.representative.email}`}>
+                                        <a href={`https://outlook.office.com/mail/deeplink/compose?to=${company.representative.email}`} target="_blank" rel="noopener noreferrer">
                                             <Mail className="w-4 h-4" />
                                             Email
                                         </a>
@@ -145,7 +145,7 @@ export default async function VisitDetailPage({ params }: { params: Promise<{ id
                                 </div>
 
                                 <Button className="w-full bg-white text-indigo-600 hover:bg-white/90 font-bold h-12 rounded-xl shadow-lg border-0 mt-2" asChild>
-                                    <a href={`mailto:${company.representative.email}?subject=Industry Visit Request: ${company.name}&body=Dear ${company.representative.name},%0D%0A%0D%0AI would like to schedule a visit for my students...`}>
+                                    <a href={company.name === 'HCL Technologies' ? 'https://www.hcltech.com/contact-us/request-for-services' : `https://outlook.office.com/mail/deeplink/compose?to=${company.representative.email}&subject=Company%20Visit%20Request:%20${encodeURIComponent(company.name)}&body=Dear%20${encodeURIComponent(company.representative.name)},%0D%0A%0D%0AI%20would%20like%20to%20schedule%20a%20visit%20for%20my%20students...`} target="_blank" rel="noopener noreferrer">
                                         Schedule Visit
                                     </a>
                                 </Button>

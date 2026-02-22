@@ -48,25 +48,25 @@ export const COMPANIES: Company[] = [
     },
     {
         id: 2,
-        name: "Boston Dynamics",
-        location: "Waltham, MA",
+        name: "HCL Technologies",
+        location: "Noida, India",
         discipline: "Computer Science",
         type: "R&D Lab",
-        image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=600&auto=format&fit=crop",
-        tags: ["AI", "Control Systems", "Kinematics"],
-        description: "Explore state-of-the-art dynamic robotics. See Spot and Atlas in action and learn about the control algorithms that enable their agility and balance.",
+        image: "/hcltech-cover.svg",
+        tags: ["Software Engineering", "Cloud Computing", "Artificial Intelligence"],
+        description: "Visit HCL Technologies to experience real-world software development, cloud infrastructure, and enterprise IT workflows. Interact with industry professionals, explore innovation-driven environments, and understand career opportunities and skills required in the modern tech industry.",
         date: "May 18, 2026",
         requirements: ["University ID", "No Photography", "Safety Glasses (Provided)"],
         itinerary: [
-            { time: "09:00 AM", title: "Welcome Presentation", description: "Overview of Boston Dynamics history and mission." },
+            { time: "09:00 AM", title: "Welcome Presentation", description: "Overview of HCL Technologies history and mission." },
             { time: "10:00 AM", title: "Demo: Spot & Atlas", description: "Live demonstration of mobile robot capabilities." },
             { time: "11:30 AM", title: "Control Systems Workshop", description: "Deep dive into the software stack powering the robots." },
             { time: "01:00 PM", title: "Lab Tour", description: "Walkthrough of the testing facilities." }
         ],
         representative: {
-            name: "Dr. Marc Raibert",
-            role: "Research Director",
-            email: "visits@bostondynamics.com",
+            name: "Nitin Shukla",
+            role: "Corporate Communications",
+            email: "nitin-shukla@hcltech.com",
             phone: "+1 (617) 555-0199"
         }
     },

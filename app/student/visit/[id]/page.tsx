@@ -91,9 +91,9 @@ export default async function StudentVisitDetailPage({ params }: { params: Promi
 
                         <div className="h-px bg-slate-100" />
 
-                        {/* Industry Representative Section (Matching Sketch) */}
+                        {/* Company Representative Section (Matching Sketch) */}
                         <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200/60">
-                            <h3 className="text-base font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">Industry Representative</h3>
+                            <h3 className="text-base font-bold text-slate-900 mb-6 uppercase tracking-wider text-xs">Company Representative</h3>
 
                             <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center justify-between">
                                 <div className="flex items-center gap-4">
