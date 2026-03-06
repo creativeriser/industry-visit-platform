@@ -1,36 +1,117 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
 
-## Getting Started
+  <h1>🏫 Industry Visit Discovery & Recommendation Platform</h1>
 
-First, run the development server:
+  <p>
+    <strong>Connecting Academic Disciplines with Premier Industry Partners</strong>
+  </p>
 
+<!-- Badges -->
+<p>
+  <img src="https://img.shields.io/github/repo-size/creativeriser/industry-visit-platform?style=for-the-badge&color=blue" alt="Repo Size" />
+  <img src="https://img.shields.io/github/languages/count/creativeriser/industry-visit-platform?style=for-the-badge&color=blue" alt="Language Count" />
+  <img src="https://img.shields.io/github/languages/top/creativeriser/industry-visit-platform?style=for-the-badge&color=blue" alt="Top Language" />
+  <br>
+  <img src="https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Framer_Motion-black?style=for-the-badge&logo=framer" alt="Framer Motion" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+</p>
+
+<h4>
+    <a href="#about">About</a>
+  <span> · </span>
+    <a href="#key-features">Key Features</a>
+  <span> · </span>
+    <a href="#tech-stack">Tech Stack</a>
+  <span> · </span>
+    <a href="#getting-started">Getting Started</a>
+  <span> · </span>
+    <a href="#team">Team CodeX</a>
+  </h4>
+</div>
+
+---
+
+## ⚡️ About The Project
+
+This project addresses the modern **"Industry Visit Discovery & Recommendation"** problem faced by academic institutions. Acting as the ultimate bridge between academia and industry, it enables university faculties to seamlessly search for, discover, and establish transformative corporate visits tailored to their exact academic curriculum and student disciplines. 
+
+By eliminating the tedious manual outreach process, the platform empowers educators to connect students with real-world technological advancements and highly relevant organizational structures.
+
+## 🚀 Key Features
+
+- 🎯 **Discipline-Specific Discovery**: Intelligent recommendations of companies that align specifically with academic branches like Computer Science, Mechanical Engineering, Medical, & more.
+- 🏢 **Dynamic Partner Profiles**: In-depth overviews of companies including visitor capacities, operational insights, and direct 'Partner with Us' onboarding for new enterprises.
+- 🎨 **Premium UI/UX Engine**: A living, interactive interface utilizing state-of-the-art animations powered by Framer Motion, micro-interactions, and premium typography.
+- 🛡️ **Secure Faculty & Industry Portals**: Role-based access for university faculties and corporate point-of-contacts utilizing Supabase Authentication structures.
+- 🔍 **Predictive Timeliness**: A sophisticated "How It Works" guided tour mapping the entire process from timeline planning to safe execution.
+
+## 💻 Tech Stack
+
+### Frontend Architecture
+- **Framework**: `Next.js 15` (App Router)
+- **Language**: `TypeScript` for robust type-safety
+- **Styling Engine**: `Tailwind CSS 4.0` (with clsx and tailwind-merge)
+- **Component Library**: Customized components utilizing `Radix UI` primitives
+- **Animation System**: `Framer Motion` for fluid structural layout interactions & `tw-animate-css`
+
+### Backend & Infrastructure
+- **Authentication & Database**: `Supabase` integration
+- **Linting & Formatting**: `ESLint`
+- **Node Environment**: Configured for `@types/node v20+`
+
+---
+
+## 🛠 Getting Started
+
+### Prerequisites
+
+Ensure you have the following installed on your local machine:
+* Node.js (v18.17 or higher)
+* npm, yarn, pnpm or bun
+
+### Local Installation
+
+**1. Clone the repository**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/creativeriser/industry-visit-platform.git
+cd industry-visit-platform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**2. Install dependencies**
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**3. Configure Environment Variables**
+Create a `.env.local` file at the root of the project with your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**4. Start the development server**
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser to experience the application.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 The Team
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Designed and developed by **Team CodeX**.
+- **Team ID**: 26E3059
+- **Year**: Third Year
+- **Category**: University / Community Based Projects
 
-## Deploy on Vercel
+> Built with passion to foster stronger bonds between tomorrow's workforce and today's industry leaders.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+<div align="center">
+  <p><i>If you like this project, consider giving it a ⭐ on GitHub!</i></p>
+</div>
