@@ -1,6 +1,6 @@
 "use client"
 
-import { motion, useScroll, useTransform, MotionValue, useSpring } from "framer-motion"
+import { motion, useScroll, useTransform } from "framer-motion"
 import { useRef } from "react"
 
 export function JourneyRope() {
@@ -12,22 +12,22 @@ export function JourneyRope() {
         offset: ["start center", "end center"]
     })
 
-    const smoothProgress = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    })
+    // MAPPING LOGIC (Restored from Phase 28):
+    // Direct mapping [0.15, 0.85] -> [0%, 100%]
+    // No Spring -> No Lag.
 
-    const fillHeight = useTransform(smoothProgress, [0.0, 0.70], ["0%", "100%"]);
+    const fillHeight = useTransform(scrollYProgress, [0.15, 0.85], ["0%", "100%"]);
 
     return (
         <div ref={ref} className="relative w-full h-full flex justify-center z-0">
 
-            {/* TRACK (Grey Line) */}
-            <div className="absolute top-[18%] bottom-[12%] w-6 bg-slate-200 rounded-full" />
+            {/* TRACK (Grey Line) - RESTORED FATNESS */}
+            {/* User requested "Fat version" but "Slightly thinner than pointer". */}
+            {/* Pivot: w-6 (24px) is thick but less than w-8 (32px) nodes. */}
+            <div className="absolute top-[15%] bottom-[15%] w-6 bg-slate-200 rounded-full" />
 
             {/* FILL (Solid Blue Line) */}
-            <div className="absolute top-[18%] bottom-[12%] w-6 rounded-full overflow-hidden">
+            <div className="absolute top-[15%] bottom-[15%] w-6 rounded-full overflow-hidden">
                 <motion.div
                     className="w-full bg-blue-600 origin-top rounded-full"
                     style={{ height: fillHeight }}
@@ -35,15 +35,15 @@ export function JourneyRope() {
             </div>
 
             {/* NODES: Exact Thresholds. 32px Size. */}
-            <Node top="18%" scrollProgress={smoothProgress} threshold={0.0} />
-            <Node top="53%" scrollProgress={smoothProgress} threshold={0.35} />
-            <Node top="88%" scrollProgress={smoothProgress} threshold={0.70} />
+            <Node top="15%" scrollProgress={scrollYProgress} threshold={0.15} />
+            <Node top="50%" scrollProgress={scrollYProgress} threshold={0.50} />
+            <Node top="85%" scrollProgress={scrollYProgress} threshold={0.85} />
 
         </div>
     )
 }
 
-function Node({ top, scrollProgress, threshold }: { top: string, scrollProgress: MotionValue<number>, threshold: number }) {
+function Node({ top, scrollProgress, threshold }: { top: string, scrollProgress: any, threshold: number }) {
     // NODE BEHAVIOR (Restored Phase 28):
     // Active if scroll >= threshold.
     // 32px (w-8) Sizing.

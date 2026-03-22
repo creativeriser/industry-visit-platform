@@ -1,3 +1,5 @@
+import { supabase } from "./supabase"
+
 export interface Company {
     id: number
     name: string
@@ -19,207 +21,2005 @@ export interface Company {
     }
 }
 
-import { supabase } from "./supabase"
-
 export const COMPANIES: Company[] = [
     {
-        id: 1,
-        name: "Tesla Gigafactory",
-        location: "Austin, Texas",
-        discipline: "Mechanical Engineering",
-        type: "Manufacturing Hub",
-        image: "https://images.unsplash.com/photo-1565514020176-db9318b76dfd?q=80&w=600&auto=format&fit=crop",
-        tags: ["Robotics", "Automation", "Mechatronics"],
-        description: "Witness the advanced robotics system and assembly line efficiency of the Model Y production. Students will observe the Giga Press in action and understand the vertically integrated manufacturing process.",
-        date: "April 12, 2026",
-        requirements: ["Closed-toe shoes", "Long pants", "University ID", "NDA Signature"],
-        itinerary: [
-            { time: "10:00 AM", title: "Safety Briefing", description: "Mandatory safety gear distribution and protocol overview." },
-            { time: "11:00 AM", title: "General Assembly Tour", description: "Walkthrough of the main production line observing robotics integration." },
-            { time: "12:30 PM", title: "Lunch with Engineers", description: "Networking session with production engineers." },
-            { time: "02:00 PM", title: "Q&A Session", description: "Open floor for technical questions regarding manufacturing challenges." }
+        "id": 1,
+        "name": "Infosys",
+        "location": "Noida / Gurugram",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science"
         ],
-        representative: {
-            name: "Sarah Connor",
-            role: "Lead Automation Engineer",
-            email: "s.connor@tesla.com",
-            phone: "+1 (512) 555-0123"
+        "description": "Global IT services, software development, AI, cloud solutions",
+        "date": "May 2, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Infosys."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contactus@infosys.com",
+            "phone": "+91-80-28520261"
         }
     },
     {
-        id: 2,
-        name: "HCL Technologies",
-        location: "Noida, India",
-        discipline: "Computer Science",
-        type: "R&D Lab",
-        image: "/hcltech-cover.svg",
-        tags: ["Software Engineering", "Cloud Computing", "Artificial Intelligence"],
-        description: "Visit HCL Technologies to experience real-world software development, cloud infrastructure, and enterprise IT workflows. Interact with industry professionals, explore innovation-driven environments, and understand career opportunities and skills required in the modern tech industry.",
-        date: "May 18, 2026",
-        requirements: ["University ID", "No Photography", "Safety Glasses (Provided)"],
-        itinerary: [
-            { time: "09:00 AM", title: "Welcome Presentation", description: "Overview of HCL Technologies history and mission." },
-            { time: "10:00 AM", title: "Demo: Spot & Atlas", description: "Live demonstration of mobile robot capabilities." },
-            { time: "11:30 AM", title: "Control Systems Workshop", description: "Deep dive into the software stack powering the robots." },
-            { time: "01:00 PM", title: "Lab Tour", description: "Walkthrough of the testing facilities." }
+        "id": 2,
+        "name": "HCL Technologies",
+        "location": "Noida",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science"
         ],
-        representative: {
-            name: "Nitin Shukla",
-            role: "Corporate Communications",
-            email: "nitin-shukla@hcltech.com",
-            phone: "+1 (617) 555-0199"
+        "description": "Software services, cybersecurity, cloud computing",
+        "date": "May 15, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at HCL Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "corporate@hcl.com",
+            "phone": "+91-120-2520977"
         }
     },
     {
-        id: 3,
-        name: "NVIDIA Computing Center",
-        location: "Santa Clara, CA",
-        discipline: "Computer Science",
-        type: "Data Center",
-        image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=600&auto=format&fit=crop",
-        tags: ["Hardware", "ML Infrastructure", "GPUs"],
-        description: "Tour the infrastructure powering the AI revolution. Understand the architecture of high-performance computing clusters and cooling systems.",
-        date: "May 30, 2026",
-        requirements: ["Government ID", "Security Clearance Check (On-site)", "No Electronics"],
-        itinerary: [
-            { time: "10:00 AM", title: "Security Check-in", description: "Badge issuance and security protocols." },
-            { time: "11:00 AM", title: "Data Center Floor", description: "Guided walk through the server aisles." },
-            { time: "12:30 PM", title: "Architecture Talk", description: "Lecture by a Systems Architect on GPU interconnects." },
-            { time: "02:00 PM", title: "Exit Procedures", description: "Badge return and debrief." }
+        "id": 3,
+        "name": "BLogic Software Company",
+        "location": "Noida",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software Development"
         ],
-        representative: {
-            name: "Jensen Huang",
-            role: "System Architecture Lead",
-            email: "outreach@nvidia.com",
-            phone: "+1 (408) 555-0100"
+        "description": "Software development and enterprise IT solutions",
+        "date": "May 4, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at BLogic Software Company."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@blogicsoftware.com",
+            "phone": "+91-120-4315258"
         }
     },
     {
-        id: 4,
-        name: "Oracle Cloud Campus",
-        type: "Corporate HQ",
-        location: "Austin, TX",
-        capacity: 40,
-        discipline: "Computer Science",
-        image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=300&auto=format&fit=crop",
-        tags: ["Cloud Infrastructure", "Database Systems"],
-        description: "Visit the hub of enterprise cloud computing. Learn about database scalability, cloud reliability engineering, and enterprise software cycles.",
-        date: "April 22, 2026",
-        requirements: ["Business Casual Attire", "Laptop (Optional for Workshop)"],
-        itinerary: [
-            { time: "09:30 AM", title: "Campus Tour", description: "Tour of the amenities and collaborative workspaces." },
-            { time: "10:30 AM", title: "Cloud Engineering Panel", description: "Q&A with the OCI team." },
-            { time: "12:00 PM", title: "Networking Lunch", description: "Lunch at the campus cafeteria." },
-            { time: "01:30 PM", title: "Database Workshop", description: "Hands-on session with Oracle DB tools." }
+        "id": 4,
+        "name": "Deloitte India",
+        "location": "Gurugram",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Finance",
+            "Consulting"
         ],
-        representative: {
-            name: "Larry Ellison",
-            role: "University Relations Manager",
-            email: "uni.relations@oracle.com",
-            phone: "+1 (737) 555-0155"
+        "description": "Audit and consulting",
+        "date": "May 7, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Deloitte India."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "inquiries@deloitte.com",
+            "phone": "+91-124-6792000"
         }
     },
     {
-        id: 5,
-        name: "SpaceX Launch Facility",
-        type: "R&D Lab",
-        location: "Boca Chica, TX",
-        capacity: 25,
-        discipline: "Mechanical Engineering",
-        image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?q=80&w=300&auto=format&fit=crop",
-        tags: ["Aerospace", "Propulsion"],
-        description: "A rare look inside Starbase. Observe the assembly of the Starship launch vehicle and learn about reusable rocket technology.",
-        date: "June 15, 2026",
-        requirements: ["US Person Status (ITAR)", "Steel-toed Boots", "Long Sleeves"],
-        itinerary: [
-            { time: "08:00 AM", title: "Gate Check", description: "Strict security verification." },
-            { time: "09:00 AM", title: "High Bay Tour", description: "View of the Starship assembly." },
-            { time: "11:00 AM", title: "Propulsion Talk", description: "Discussion on Raptor engine mechanics." },
-            { time: "01:00 PM", title: "Launch Pad View", description: "Bus tour to the launch mount." }
+        "id": 5,
+        "name": "KPMG India",
+        "location": "Gurugram",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Finance",
+            "Consulting"
         ],
-        representative: {
-            name: "Gwynne Shotwell",
-            role: "Operations Coordinator",
-            email: "starbase.visits@spacex.com",
-            phone: "+1 (956) 555-0190"
+        "description": "Consulting and audit services",
+        "date": "May 3, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at KPMG India."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "indiainfo@kpmg.com",
+            "phone": "+91-124-3074000"
         }
     },
     {
-        id: 6,
-        name: "Pfizer Research Hub",
-        type: "Medical Lab",
-        location: "Cambridge, MA",
-        capacity: 20,
-        discipline: "Biotechnology",
-        image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=300&auto=format&fit=crop",
-        tags: ["Pharmaceuticals", "Genetics"],
-        description: "Explore state-of-the-art CRISPR technology and drug discovery workflows. Understand the journey from molecule to medicine.",
-        date: "May 25, 2026",
-        requirements: ["Lab Coat (Provided)", "Closed-toe Shoes", "No Contact Lenses"],
-        itinerary: [
-            { time: "09:00 AM", title: "Safety Induction", description: "Biosafety Level protocols." },
-            { time: "10:00 AM", title: "Genomics Lab", description: "Observation of sequencing machines." },
-            { time: "11:30 AM", title: "Cheminformatics Demo", description: "Software tools for drug design." },
-            { time: "01:00 PM", title: "Scientist Roundtable", description: "Career discussion with researchers." }
+        "id": 6,
+        "name": "IBM India",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
         ],
-        representative: {
-            name: "Dr. Albert Bourla",
-            role: "Principal Investigator",
-            email: "research.outreach@pfizer.com",
-            phone: "+1 (857) 555-0140"
+        "description": "No.12, Subramanya Arcade, Bannerghatta Main Road, Bengaluru India - 560 029",
+        "date": "May 15, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at IBM India private limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "rccindia@in.ibm.com",
+            "phone": "+91-0000000000"
         }
     },
     {
-        id: 7,
-        name: "Google Bay View",
-        type: "Innovation Center",
-        location: "Mountain View, CA",
-        capacity: 50,
-        discipline: "Computer Science",
-        image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=300&auto=format&fit=crop",
-        tags: ["Search Algorithms", "AI Analysis"],
-        description: "Detailed tour of Google's sustainability-focused campus. Discussions on large-scale distributed systems and AI ethics.",
-        date: "June 05, 2026",
-        requirements: ["Visitor Badge Preregistration", "Photo ID"],
-        itinerary: [
-            { time: "10:00 AM", title: "Welcome Center", description: "Campus architecture and sustainability tour." },
-            { time: "11:30 AM", title: "Tech Talk: Gemini", description: "Presentation on the latest AI models." },
-            { time: "12:30 PM", title: "Lunch", description: "World-famous Google food experience." },
-            { time: "02:00 PM", title: "Campus Walk", description: "Free time to explore the grounds." }
+        "id": 7,
+        "name": "Huawei Technologies",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
         ],
-        representative: {
-            name: "Sundar Pichai",
-            role: "Campus Programs Lead",
-            email: "bayview.visits@google.com",
-            phone: "+1 (650) 555-0188"
+        "description": "9th Floor, Capital Cyberscape, Gurugram – Manesar Urban Complex, Sector-59, Ullahwas, Gurugram, Haryana – 122011, India.",
+        "date": "May 10, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Huawei Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "support@huawei.com",
+            "phone": "+91-0000000000"
         }
     },
     {
-        id: 8,
-        name: "BMW Assembly Plant",
-        type: "Manufacturing",
-        location: "Spartanburg, SC",
-        capacity: 60,
-        discipline: "Mechanical Engineering",
-        image: "https://images.unsplash.com/photo-1626244243673-c40217ec827d?q=80&w=300&auto=format&fit=crop",
-        tags: ["Automotive", "Robotics"],
-        description: "Observe the complete assembly process of the X-Series vehicles. Focus on supply chain logistics and robotic welding cells.",
-        date: "April 28, 2026",
-        requirements: ["Safety Vest (Provided)", "Leggings/Jeans", "Ear Plugs (Provided)"],
-        itinerary: [
-            { time: "09:00 AM", title: "Museum Tour", description: "History of BMW manufacturing." },
-            { time: "10:30 AM", title: "Body Shop", description: "Robotic welding and frame assembly." },
-            { time: "12:00 PM", title: "Paint Shop Overview", description: "Explanation of the painting process." },
-            { time: "01:30 PM", title: "Final Assembly", description: "The marriage of chassis and body." }
+        "id": 8,
+        "name": "VVDN Technologies",
+        "location": "B-22, Infocity-I,Sector-34, Gurugram,Haryana-...",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
         ],
-        representative: {
-            name: "Oliver Zipse",
-            role: "Plant Operations Manager",
-            email: "plant.tours@bmwgroup.com",
-            phone: "+1 (864) 555-0133"
+        "description": "VVDN Technologies is an Indian technology company that provides end-to-end product engineering, electronics manufacturing, and software services. Founded in 2007, it works in areas like 5G, IoT, networking, automotive, and embedded systems for global clients.",
+        "date": "May 10, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at VVDN Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "ni_dist@vvdntech.in",
+            "phone": "8595952079"
+        }
+    },
+    {
+        "id": 9,
+        "name": "Bhamashah Techno Hub",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
+        ],
+        "description": "Address : Sansthan Path, Jhalana Gram, Malviya Nagar, Jaipur, Rajasthan 302017, India",
+        "date": "May 13, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Bhamashah Techno Hub."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "helpdesk@istart.rajasthan.gov.in",
+            "phone": "0141-2922286"
+        }
+    },
+    {
+        "id": 10,
+        "name": "HCL Tech",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
+        ],
+        "description": "HCL Technologies Ltd. | Technology Hub, SEZ Plot No. 3A, Sector 126 | Noida – 201304, India",
+        "date": "May 2, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at HCL Tech."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "careers@hcl.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 11,
+        "name": "National Stock Exchange",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
+        ],
+        "description": "National Stock Exchange of India Ltd., 4th Floor, Jeevan Vihar Building, Parliament Street, New Delhi-110 001",
+        "date": "May 4, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at National Stock Exchange."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@nse.co.in",
+            "phone": "8655986573"
+        }
+    },
+    {
+        "id": 12,
+        "name": "Nokia Networks",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
+        ],
+        "description": "DLF Cyber City, Phase II Gurugram, Haryana – 122002 India",
+        "date": "May 5, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Nokia Networks Private Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "nokia.iar@nokia.com",
+            "phone": "358104488000"
+        }
+    },
+    {
+        "id": 13,
+        "name": "MediaTek India",
+        "location": "India",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Software",
+            "Technology"
+        ],
+        "description": "Noida, Uttar Pradesh India",
+        "date": "May 14, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at MediaTek India."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "rakesh.verma@mediatek.com",
+            "phone": "1206151000"
+        }
+    },
+    {
+        "id": 14,
+        "name": "Appsquadz Software",
+        "location": "Noida, Uttar Pradesh (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "IT services, software development, web & mobile application development, cloud solutions, enterprise software",
+        "date": "May 14, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Appsquadz Software Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@appsquadz.com",
+            "phone": "+91-120-423-0300"
+        }
+    },
+    {
+        "id": 15,
+        "name": "CS Soft Solution",
+        "location": "Chandigarh / Mohali (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "Software development, web applications, ERP solutions, IT training",
+        "date": "May 11, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at CS Soft Solution."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@cssoftsolution.com",
+            "phone": "+91-172-462-6323"
+        }
+    },
+    {
+        "id": 16,
+        "name": "Microsoft India",
+        "location": "Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "Cloud computing (Azure), software products, AI, enterprise solutions",
+        "date": "May 8, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Microsoft India."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "indhelp@microsoft.com",
+            "phone": "+91-80-4010-3000"
+        }
+    },
+    {
+        "id": 17,
+        "name": "Software Technology Parks of India",
+        "location": "Amritsar / Noida / Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Networking"
+        ],
+        "description": "IT infrastructure support, software exports, incubation & networking",
+        "date": "May 9, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Software Technology Parks of India."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@stpi.in",
+            "phone": "+91-11-2823-1100"
+        }
+    },
+    {
+        "id": 18,
+        "name": "JP Infotech",
+        "location": "Chennai (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "Software development, IT consulting, enterprise solutions",
+        "date": "May 2, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at JP Infotech."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@jpinfotech.org",
+            "phone": "+91-44-4266-9999"
+        }
+    },
+    {
+        "id": 19,
+        "name": "Kaashiv InfoTech",
+        "location": "Chennai (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science"
+        ],
+        "description": "Software development, AI, IoT, student industrial training",
+        "date": "May 2, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Kaashiv InfoTech."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@kaashivinfotech.com",
+            "phone": "+91-900-319-3399"
+        }
+    },
+    {
+        "id": 20,
+        "name": "SLN Technologies",
+        "location": "Chennai (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software"
+        ],
+        "description": "Software solutions, IT services, enterprise applications",
+        "date": "May 18, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at SLN Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@slntechnologies.com",
+            "phone": "+91-44-4855-0666"
+        }
+    },
+    {
+        "id": 21,
+        "name": "VI Micro Systems",
+        "location": "Chennai (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Embedded Software"
+        ],
+        "description": "Embedded systems, software solutions, defense & IT projects",
+        "date": "May 15, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at VI Micro Systems."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "marketing@vimicrosystems.com",
+            "phone": "+91-44-4358-1999"
+        }
+    },
+    {
+        "id": 22,
+        "name": "Network Bulls",
+        "location": "Gurugram / Noida (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Networking"
+        ],
+        "description": "Cisco networking, cloud, cybersecurity training & solutions",
+        "date": "May 11, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Network Bulls."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@networkbulls.com",
+            "phone": "+91-9999-666-555"
+        }
+    },
+    {
+        "id": 23,
+        "name": "Aptron Solutions",
+        "location": "Noida, Uttar Pradesh (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "IT training, software development, cloud computing, networking & cybersecurity",
+        "date": "May 18, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Aptron Solutions."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@aptronsolutions.com",
+            "phone": "+91-9560-500-666"
+        }
+    },
+    {
+        "id": 24,
+        "name": "AorBorC Technologies",
+        "location": "Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software"
+        ],
+        "description": "Software development, IT consulting, digital solutions",
+        "date": "May 14, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at AorBorC Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@aorborc.com",
+            "phone": "+91-80-4168-2020"
+        }
+    },
+    {
+        "id": 25,
+        "name": "iHorse Technologies",
+        "location": "Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "Software solutions, web & mobile app development, IT services",
+        "date": "May 19, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at iHorse Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@ihorsetech.com",
+            "phone": "+91-80-4090-7070"
+        }
+    },
+    {
+        "id": 26,
+        "name": "Cresendos",
+        "location": "Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software"
+        ],
+        "description": "IT services, software development, enterprise solutions",
+        "date": "May 9, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Cresendos Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@cresendos.com",
+            "phone": "+91-80-4203-4500"
+        }
+    },
+    {
+        "id": 27,
+        "name": "Bharat Sanchar Nigam",
+        "location": "Hyderabad / Chennai / Regional Telecom Offices ...",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Networking & Telecom"
+        ],
+        "description": "Telecom services, networking, data communication, IT infrastructure",
+        "date": "May 7, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Bharat Sanchar Nigam Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "cgmt@bsnl.co.in",
+            "phone": "+91-172-261-0010"
+        }
+    },
+    {
+        "id": 28,
+        "name": "IIT Madras Research Park",
+        "location": "Chennai, Tamil Nadu (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Research & Innovation"
+        ],
+        "description": "Technology incubation, software R&D, startups, industry–academia collaboration",
+        "date": "May 19, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at IIT Madras Research Park."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@researchpark.iitm.ac.in",
+            "phone": "+91-44-2257-8100"
+        }
+    },
+    {
+        "id": 29,
+        "name": "Virtusa Consulting Services",
+        "location": "Chennai / Hyderabad / Bengaluru (India)",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "IT",
+            "Computer Science",
+            "Software Engineering"
+        ],
+        "description": "IT consulting, software development, digital engineering",
+        "date": "May 7, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Virtusa Consulting Services."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@virtusa.com",
+            "phone": "+91-44-4621-7000"
+        }
+    },
+    {
+        "id": 30,
+        "name": "Hexaware Technologies",
+        "location": "Gurugram",
+        "discipline": "Computer Science",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Medical",
+            "Healthcare"
+        ],
+        "description": "Multi-speciality hospital & medical research",
+        "date": "May 9, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Hexaware Technologies."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "info@medanta.org",
+            "phone": "+91-124-4141414"
+        }
+    },
+    {
+        "id": 31,
+        "name": "Cipla",
+        "location": "Delhi NCR",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharma"
+        ],
+        "description": "Medicines & healthcare products",
+        "date": "May 11, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Cipla Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contactus@cipla.com",
+            "phone": "+91-22-24826000"
+        }
+    },
+    {
+        "id": 32,
+        "name": "Hi-Glance Laboratories",
+        "location": "Surajpur, Greater Noida (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical manufacturing (tablets, capsules, syrups)",
+        "date": "May 8, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Hi-Glance Laboratories Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@hi-glancelaboratoriespvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 33,
+        "name": "Indian Pharmacopoeial Commission",
+        "location": "Ghaziabad, Uttar Pradesh (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Medical",
+            "Regulatory Body"
+        ],
+        "description": "Drug quality standards, testing & regulatory support",
+        "date": "May 12, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Indian Pharmacopoeial Commission."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@indianpharmacopoeialcommission.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 34,
+        "name": "Mars Therapeutics",
+        "location": "Hyderabad, Telangana (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical manufacturing (oral solid dosage forms)",
+        "date": "May 9, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Mars Therapeutics Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@marstherapeuticspvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 35,
+        "name": "Medopharm",
+        "location": "Chennai, Tamil Nadu (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical formulations & drug manufacturing",
+        "date": "May 17, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Medopharm Private Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@medopharmprivatelimited.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 36,
+        "name": "Claroid Pharmaceuticals",
+        "location": "Ahmedabad, Gujarat (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical manufacturing & formulation plant",
+        "date": "May 20, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Claroid Pharmaceuticals Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@claroidpharmaceuticalspvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 37,
+        "name": "NuLife Pharmaceuticals",
+        "location": "Pune, Maharashtra (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Manufacturing"
+        ],
+        "description": "Pharmaceutical products (tablets, capsules, liquids)",
+        "date": "May 15, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at NuLife Pharmaceuticals."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@nulifepharmaceuticals.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 38,
+        "name": "Emmchak Pharmaceutical Company",
+        "location": "Tiruchirappalli, Tamil Nadu (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical dosage form manufacturing",
+        "date": "May 2, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Emmchak Pharmaceutical Company."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@emmchakpharmaceuticalcompany.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 39,
+        "name": "ANOD Pharma",
+        "location": "Kanpur, Uttar Pradesh (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical manufacturing, QA & QC operations",
+        "date": "May 1, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at ANOD Pharma Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@anodpharmapvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 40,
+        "name": "Medihauxe Pharma",
+        "location": "Kerala (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Medical",
+            "Herbal Industry"
+        ],
+        "description": "Pharmaceutical & herbal medicine manufacturing",
+        "date": "May 11, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Medihauxe Pharma Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@medihauxepharmapvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 41,
+        "name": "Callidus Research Laboratories",
+        "location": "Pune, Maharashtra (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Research Industry"
+        ],
+        "description": "Pharmaceutical research, formulation & analytical R&D",
+        "date": "May 4, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Callidus Research Laboratories Pvt. Ltd.."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@callidusresearchlaboratoriespvt.ltd..com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 42,
+        "name": "Hetero Drugs",
+        "location": "Hyderabad, Telangana (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical manufacturing (APIs, formulations, generics)",
+        "date": "May 15, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Hetero Drugs Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@heterodrugslimited.com",
+            "phone": "Contact: +91-40-2370-4900"
+        }
+    },
+    {
+        "id": 43,
+        "name": "Micro Labs",
+        "location": "Bengaluru, Karnataka (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Pharmaceutical Industry"
+        ],
+        "description": "Pharmaceutical formulations & healthcare products",
+        "date": "May 13, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Micro Labs Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@microlabslimited.com",
+            "phone": "Contact: +91-80-2852-0100"
+        }
+    },
+    {
+        "id": 44,
+        "name": "Biocon",
+        "location": "Bengaluru, Karnataka (India)",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharmacy",
+            "Biotechnology",
+            "Medical Industry"
+        ],
+        "description": "Biopharmaceuticals, biosimilars & research",
+        "date": "May 3, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Biocon Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@bioconlimited.com",
+            "phone": "Contact: +91-80-2808-2808"
+        }
+    },
+    {
+        "id": 45,
+        "name": "Sun Pharmaceutical Industries",
+        "location": "Mumbai, Maharashtra (India)🧾 Pharmaceutical f...",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharma",
+            "Medical",
+            "Healthcare"
+        ],
+        "description": "Industrial visit to Sun Pharmaceutical Industries Limited to explore the latest industry standards and workflows.",
+        "date": "May 7, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Sun Pharmaceutical Industries Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@sunpharmaceuticalindustrieslimited.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 46,
+        "name": "Dr. Reddy’s Laboratories",
+        "location": "Hyderabad, Telangana (India)🧾 Generic medicin...",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharma",
+            "Medical",
+            "Healthcare"
+        ],
+        "description": "Industrial visit to Dr. Reddy’s Laboratories Limited to explore the latest industry standards and workflows.",
+        "date": "May 20, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Dr. Reddy’s Laboratories Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@dr.reddy’slaboratorieslimited.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 47,
+        "name": "Aurobindo Pharma",
+        "location": "Hyderabad, Telangana (India)🧾 APIs, formulati...",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharma",
+            "Medical",
+            "Healthcare"
+        ],
+        "description": "Industrial visit to Aurobindo Pharma Limited to explore the latest industry standards and workflows.",
+        "date": "May 10, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Aurobindo Pharma Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@aurobindopharmalimited.com",
+            "phone": "+91-0000000000"
+        }
+    },
+    {
+        "id": 48,
+        "name": "Glenmark Pharmaceuticals",
+        "location": "Mumbai, Maharashtra (India)🧾 Pharmaceutical f...",
+        "discipline": "Biotechnology",
+        "type": "Industrial Visit",
+        "image": "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=600&auto=format&fit=crop",
+        "tags": [
+            "Pharma",
+            "Medical",
+            "Healthcare"
+        ],
+        "description": "Industrial visit to Glenmark Pharmaceuticals Limited to explore the latest industry standards and workflows.",
+        "date": "May 17, 2026",
+        "requirements": [
+            "University ID",
+            "Formal Attire"
+        ],
+        "itinerary": [
+            {
+                "time": "10:00 AM",
+                "title": "Arrival & Welcome",
+                "description": "Check-in and introductory presentation at Glenmark Pharmaceuticals Limited."
+            },
+            {
+                "time": "11:00 AM",
+                "title": "Facility Tour",
+                "description": "Guided walkthrough of the main working areas."
+            },
+            {
+                "time": "01:00 PM",
+                "title": "Q&A Session",
+                "description": "Interactive session with industry professionals."
+            }
+        ],
+        "representative": {
+            "name": "HR / Coordinator",
+            "role": "University Relations",
+            "email": "contact@glenmarkpharmaceuticalslimited.com",
+            "phone": "+91-0000000000"
         }
     }
-]
+];
 
 export const getCompanies = async (): Promise<Company[]> => {
     const { data, error } = await supabase.from('companies').select('*')
@@ -227,17 +2027,14 @@ export const getCompanies = async (): Promise<Company[]> => {
         console.error('Error fetching companies:', error)
         return COMPANIES
     }
-    // Type assertion or mapping might be needed if DB schema differs from Company interface slightly (e.g. JSON fields)
     if (!data || data.length === 0) return COMPANIES
-
-    // Map JSONB fields back if necessary (Supabase returns JSON as object, which matches interface mostly)
     return data as any as Company[]
 }
 
 export const getCompanyById = async (id: number): Promise<Company | undefined> => {
     const { data, error } = await supabase.from('companies').select('*').eq('id', id).single()
     if (error) {
-        console.error(`Error fetching company ${id}:`, error)
+        console.error('Error fetching company:', error)
         return COMPANIES.find(c => c.id === id)
     }
     return data as any as Company
