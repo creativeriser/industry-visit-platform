@@ -7,20 +7,29 @@ import { AppleAperture } from "@/components/auth/apple-aperture"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { useSearchParams } from "next/navigation"
+import { useSearchParams, useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 
-export type ActiveRole = "faculty" | "student" | null
+export type ActiveRole = "admin" | "faculty" | "student" | null
 
 function GetStartedContent() {
     const searchParams = useSearchParams()
+    const router = useRouter()
     const [activeRole, setActiveRole] = useState<ActiveRole>("faculty")
 
     useEffect(() => {
         const roleParam = searchParams.get("role")
-        if (roleParam === "faculty" || roleParam === "student") {
+        if (roleParam === "faculty" || roleParam === "student" || roleParam === "admin") {
             setActiveRole(roleParam)
         }
     }, [searchParams])
+
+    const handleRoleChange = (role: ActiveRole) => {
+        setActiveRole(role)
+        if (role) {
+            router.replace(`/get-started?role=${role}`, { scroll: false })
+        }
+    }
 
     return (
         <div className="min-h-screen bg-white flex flex-col md:flex-row">
@@ -42,9 +51,37 @@ function GetStartedContent() {
                 </div>
 
                 {/* Main Content Centered */}
-                <div className="flex-1 flex items-center justify-center p-4 pt-20 md:p-12 md:pt-0">
+                <div className="flex-1 flex flex-col items-center justify-center p-4 pt-20 md:p-12 md:pt-0">
+                    
+                    {/* Role Selector Tabs */}
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.1 }}
+                        className="flex items-center gap-1 p-1 bg-slate-100/80 rounded-full border border-slate-200/60 mb-2 backdrop-blur-sm z-10"
+                    >
+                        <button
+                            onClick={() => handleRoleChange("faculty")}
+                            className={cn("px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300", activeRole === "faculty" ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50")}
+                        >
+                            Faculty
+                        </button>
+                        <button
+                            onClick={() => handleRoleChange("student")}
+                            className={cn("px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300", activeRole === "student" ? "bg-white text-sky-600 shadow-sm" : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50")}
+                        >
+                            Student
+                        </button>
+                        <button
+                            onClick={() => handleRoleChange("admin")}
+                            className={cn("px-5 py-2 text-sm font-semibold rounded-full transition-all duration-300", activeRole === "admin" ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:text-slate-800 hover:bg-slate-200/50")}
+                        >
+                            Admin
+                        </button>
+                    </motion.div>
+
                     <div className="w-full max-w-md">
-                        <AuthGate activeRole={activeRole} onRoleSelect={setActiveRole} />
+                        <AuthGate activeRole={activeRole} onRoleSelect={handleRoleChange} />
                     </div>
                 </div>
             </div>

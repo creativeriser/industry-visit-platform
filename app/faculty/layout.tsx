@@ -30,7 +30,7 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push("/get-started")
+            router.replace("/get-started")
         }
     }, [user, loading, router])
 
@@ -200,7 +200,7 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
                             <button
                                 onClick={async () => {
                                     await supabase.auth.signOut()
-                                    router.push("/get-started")
+                                    router.push("/")
                                 }}
                                 className={cn(
                                     "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",

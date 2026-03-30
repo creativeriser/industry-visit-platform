@@ -18,9 +18,20 @@ interface AuthGateProps {
 export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
     const router = useRouter()
     const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
 
-    // Removed manual login as per request
+    const handleEmailLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        setLoading(true)
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+            alert(error.message)
+            setLoading(false)
+        } else {
+            router.push("/admin")
+        }
+    }
 
     const handleOAuthLogin = async (provider: 'azure') => {
         setLoading(true)
@@ -69,9 +80,8 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                             <div
                                 className="flex justify-center mb-6"
                                 style={{
-                                    // Force branding colors for the logo regardless of theme
-                                    '--primary': activeRole === 'faculty' ? '#4f46e5' : '#0ea5e9', // indigo-600 : sky-500
-                                    '--secondary': activeRole === 'faculty' ? '#4338ca' : '#0284c7', // indigo-700 : sky-600
+                                    '--primary': activeRole === 'admin' ? '#0f172a' : (activeRole === 'faculty' ? '#4f46e5' : '#0ea5e9'),
+                                    '--secondary': activeRole === 'admin' ? '#334155' : (activeRole === 'faculty' ? '#4338ca' : '#0284c7'),
                                 } as React.CSSProperties}
                             >
                                 {/* Override text-primary classes using CSS variables */}
@@ -80,27 +90,37 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                                 </div>
                             </div>
                             <h2 className="text-xl font-bold text-slate-900">
-                                {activeRole === "faculty" ? "Faculty Sign In" : "Student Sign In"}
+                                {activeRole === "admin" ? "Admin Sign In" : (activeRole === "faculty" ? "Faculty Sign In" : "Student Sign In")}
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">
-                                {activeRole === "faculty" ? "Use your university credentials or Microsoft Account" : "Enter your student ID to continue"}
+                                {activeRole === "admin" ? "Use your master administrator credentials" : (activeRole === "faculty" ? "Use your university credentials or Microsoft Account" : "Enter your student ID to continue")}
                             </p>
                         </div>
-                        <div className="space-y-5">
-                            <button
-                                onClick={() => handleOAuthLogin('azure')}
-                                disabled={loading}
-                                className="w-full h-12 bg-[#000000] hover:bg-[#1a1a1a] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-black/20 active:scale-[0.98]"
-                            >
-                                <svg className="w-5 h-5" viewBox="0 0 23 23">
-                                    <path fill="#f35325" d="M1 1h10v10H1z" />
-                                    <path fill="#81bc06" d="M12 1h10v10H12z" />
-                                    <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                                    <path fill="#ffba08" d="M12 12h10v10H12z" />
-                                </svg>
-                                {loading ? "Redirecting..." : "Sign in with Microsoft"}
-                            </button>
-                        </div>
+                        {activeRole === "admin" ? (
+                            <form onSubmit={handleEmailLogin} className="space-y-4">
+                                <input type="email" placeholder="Admin Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all" />
+                                <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all" />
+                                <button type="submit" disabled={loading} className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold flex items-center justify-center transition-all hover:shadow-lg hover:shadow-black/10 active:scale-[0.98]">
+                                    {loading ? "Authenticating..." : "Access Dashboard"}
+                                </button>
+                            </form>
+                        ) : (
+                            <div className="space-y-5">
+                                <button
+                                    onClick={() => handleOAuthLogin('azure')}
+                                    disabled={loading}
+                                    className="w-full h-12 bg-[#000000] hover:bg-[#1a1a1a] text-white rounded-xl text-sm font-bold flex items-center justify-center gap-3 transition-all hover:shadow-lg hover:shadow-black/20 active:scale-[0.98]"
+                                >
+                                    <svg className="w-5 h-5" viewBox="0 0 23 23">
+                                        <path fill="#f35325" d="M1 1h10v10H1z" />
+                                        <path fill="#81bc06" d="M12 1h10v10H12z" />
+                                        <path fill="#05a6f0" d="M1 12h10v10H1z" />
+                                        <path fill="#ffba08" d="M12 12h10v10H12z" />
+                                    </svg>
+                                    {loading ? "Redirecting..." : "Sign in with Microsoft"}
+                                </button>
+                            </div>
+                        )}
 
                         <div className="mt-8 text-center">
                             <p className="text-xs text-slate-400">
