@@ -11,12 +11,10 @@ import { ProcessTimeline } from "@/components/process-timeline"
 import { DisciplineCard } from "@/components/discipline-card"
 import { TrustSection } from "@/components/trust-section"
 import { Footer } from "@/components/footer"
-import { PartnerModal } from "@/components/partner-modal"
 import { useState } from "react"
 
 export default function Home() {
   const router = useRouter()
-  const [showPartnerModal, setShowPartnerModal] = useState(false)
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -74,35 +72,30 @@ export default function Home() {
 
           <motion.div
             variants={item}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-4"
           >
+            <Link href="/get-started">
+                <Button
+                size="lg"
+                className="bg-secondary text-white hover:bg-secondary/90 h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                >
+                Access Portal <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+            </Link>
             <Button
               onClick={() => {
-                const target = document.getElementById('streamlined-outreach');
-                if (target) {
-                  target.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
-                }
+                const target = document.getElementById('streamlined-outreach') || document.getElementById('how-it-works');
+                target?.scrollIntoView({ behavior: 'smooth' });
               }}
               size="lg"
-              className="bg-secondary text-white hover:bg-secondary/90 h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+              variant="outline"
+              className="bg-white/5 text-white hover:bg-white/10 border-white/20 hover:text-white h-14 px-10 text-lg shadow-lg backdrop-blur-sm transition-all hover:scale-[1.02]"
             >
-              Start Exploring <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              onClick={() => setShowPartnerModal(true)}
-              size="lg"
-              className="bg-[#1e4d7a] text-white hover:bg-[#163a5d] h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] border-none"
-            >
-              Partner with Us
+              Explore Features
             </Button>
           </motion.div>
         </motion.div>
       </section>
-
-      {/* Modals */}
-      <PartnerModal isOpen={showPartnerModal} onClose={() => setShowPartnerModal(false)} />
 
       {/* Feature Showcase */}
       <section id="streamlined-outreach">

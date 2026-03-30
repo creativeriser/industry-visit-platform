@@ -2,16 +2,18 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/brand-logo"
+import { useAuth } from "@/context/auth-context"
 
 export function Navbar() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const pathname = usePathname()
+    const { user, loading } = useAuth()
 
     const navLinks: { name: string; href: string }[] = []
 
@@ -59,16 +61,34 @@ export function Navbar() {
                 </nav>
 
                 {/* Action Buttons (Desktop) */}
-                <div className="hidden md:flex items-center gap-3">
-                    <Link href="/get-started">
-                        <Button
-                            variant="default"
-                            size="sm"
-                            className="hidden md:flex bg-[#1e4d7a] hover:bg-[#163a5d] text-white shadow-sm"
-                        >
-                            Sign In
-                        </Button>
+                <div className="hidden md:flex items-center gap-5">
+                    <Link href="/partner" className="text-sm font-semibold text-slate-500 hover:text-slate-800 transition-colors">
+                        Partner with Us
                     </Link>
+                    
+                    {loading ? (
+                        <div className="w-[124px] h-[36px] bg-slate-100 animate-pulse rounded-full"></div>
+                    ) : user ? (
+                        <Link href={user.email?.includes('admin') ? "/admin" : "/faculty"}>
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="hidden md:flex bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm rounded-full px-5 font-semibold transition-all"
+                            >
+                                Dashboard <ArrowRight className="w-4 h-4 ml-1.5" />
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link href="/get-started">
+                            <Button
+                                variant="default"
+                                size="sm"
+                                className="hidden md:flex bg-slate-900 hover:bg-slate-800 text-white shadow-sm rounded-full px-5 font-semibold transition-all hover:shadow-md"
+                            >
+                                Log In
+                            </Button>
+                        </Link>
+                    )}
                 </div>
 
                 {/* Mobile Menu Toggle */}
