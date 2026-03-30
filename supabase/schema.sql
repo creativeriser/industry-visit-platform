@@ -56,3 +56,43 @@ create policy "Companies are viewable by everyone." on companies
 
 -- Only admins/service role can insert/update companies for now
 -- (Policies for insert/update are left restrictive by default)
+
+-- Create a table for organization approval requests
+create table organization_requests (
+    id uuid default gen_random_uuid() primary key,
+    organization_name text not null,
+    website_url text,
+    industry_sector text not null,
+    expected_capacity text,
+    contact_name text not null,
+    contact_title text not null,
+    contact_email text not null,
+    contact_phone text,
+    additional_notes text,
+    status text default 'pending' check (status in ('pending', 'approved', 'rejected')),
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Set up RLS for organization_requests
+alter table organization_requests enable row level security;
+
+-- Anyone can submit (anonymous insert)
+create policy "Anyone can submit an organization request." on organization_requests
+  for insert with check (true);
+
+-- Only admins can view requests (or authenticated users, depending on strictness)
+create policy "Admins can view organization requests." on organization_requests
+  for select using (
+    exists (
+      select 1 from profiles
+      where profiles.id = auth.uid() and profiles.role = 'admin'
+    )
+  );
+
+create policy "Admins can update organization requests." on organization_requests
+  for update using (
+    exists (
+      select 1 from profiles
+      where profiles.id = auth.uid() and profiles.role = 'admin'
+    )
+  );
