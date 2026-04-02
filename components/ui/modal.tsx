@@ -11,11 +11,12 @@ interface ModalProps {
     onClose: () => void
     children: ReactNode
     className?: string
+    contentClassName?: string
     title?: string
     description?: string
 }
 
-export function Modal({ isOpen, onClose, children, className, title, description }: ModalProps) {
+export function Modal({ isOpen, onClose, children, className, contentClassName, title, description }: ModalProps) {
     // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
@@ -78,7 +79,7 @@ export function Modal({ isOpen, onClose, children, className, title, description
                                 </div>
                             )}
 
-                            <div className="p-6">
+                            <div className={cn("p-6", contentClassName)}>
                                 {children}
                             </div>
                         </motion.div>
