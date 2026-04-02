@@ -5,161 +5,212 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/context/auth-context"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import {
     LayoutDashboard,
-    Globe2,
+    UserCircle,
+    ClipboardList,
     LogOut,
-    Menu
+    Menu,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/brand-logo"
 import { Button } from "@/components/ui/button"
-import { UserProvider } from "@/context/user-context"
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-    const [activeHash, setActiveHash] = useState("")
+    const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const { user, loading } = useAuth()
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push("/get-started")
+            router.replace("/get-started?role=student")
+            return
         }
+
+        const checkStudentRole = async () => {
+            if (user) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', user.id)
+                    .single()
+                
+                if (error || data?.role !== 'student') {
+                    // Not authorized
+                    await supabase.auth.signOut()
+                    router.replace("/")
+                } else {
+                    setIsAuthorized(true)
+                }
+            }
+        }
+
+        checkStudentRole()
     }, [user, loading, router])
 
-    useEffect(() => {
-        setActiveHash(window.location.hash)
-        const handleHashChange = () => setActiveHash(window.location.hash)
-        window.addEventListener("hashchange", handleHashChange)
-        const handleAnchorClick = () => setTimeout(() => setActiveHash(window.location.hash), 50)
-        window.addEventListener("click", handleAnchorClick)
-        return () => {
-            window.removeEventListener("hashchange", handleHashChange)
-            window.removeEventListener("click", handleAnchorClick)
-        }
-    }, [pathname])
-
     const navItems = [
-        { name: "Dashboard", href: "/student", icon: LayoutDashboard },
-        { name: "Discover", href: "/student#discovery", icon: Globe2 },
+        { name: "My Opportunities", href: "/student", icon: LayoutDashboard },
+        { name: "My Applications", href: "/student/applications", icon: ClipboardList },
+        { name: "My Profile", href: "/student/profile", icon: UserCircle },
     ]
+
+    if (loading || (!isAuthorized && user)) {
+        return <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">Verifying Student Access...</div>
+    }
+
+    if (!user) return null; // Wait for redirect
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">
-            <UserProvider>
-                <motion.aside
-                    initial={false}
-                    animate={{ width: isSidebarOpen ? 260 : 72 }}
-                    className="fixed inset-y-4 left-4 z-40 hidden md:flex flex-col bg-white/90 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)]"
-                >
-                    <div className={cn("h-18 flex items-center px-5 mb-2", isSidebarOpen ? "justify-start" : "justify-center")}>
+            {/* Floating Sidebar (Glass Rail) */}
+            <motion.aside
+                initial={false}
+                animate={{ width: isSidebarOpen ? 260 : 72 }}
+                className="fixed inset-y-4 left-4 z-40 hidden md:flex flex-col bg-white/90 backdrop-blur-xl border border-white/20 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)]"
+            >
+                {/* Logo Area */}
+                <div className={cn("h-18 flex items-center px-5 mb-2 overflow-hidden", isSidebarOpen ? "justify-start" : "justify-center")}>
+                    <AnimatePresence mode="wait">
                         {isSidebarOpen ? (
-                            <div className="scale-90 origin-left">
+                            <motion.div
+                                key="logo-full"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0, display: "none" }}
+                                transition={{ duration: 0.2 }}
+                                className="scale-90 origin-left flex-shrink-0"
+                            >
                                 <BrandLogo id="student-sidebar-logo" />
-                            </div>
+                            </motion.div>
                         ) : (
-                            <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600">
-                                <div className="scale-50">
+                            <motion.div
+                                key="logo-mini"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0, display: "none" }}
+                                transition={{ duration: 0.2 }}
+                                className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-600 flex-shrink-0"
+                            >
+                                <div className="scale-75">
                                     <BrandLogo id="student-sidebar-mini" showText={false} />
                                 </div>
-                            </div>
+                            </motion.div>
                         )}
-                    </div>
+                    </AnimatePresence>
+                </div>
 
-                    <div className="flex-1 px-3 space-y-1.5 overflow-y-auto py-2">
-                        {navItems.map((item) => {
-                            const itemHash = item.href.includes("#") ? item.href.split("#")[1] : ""
-                            const itemPath = item.href.split("#")[0]
-                            let isActive = false
+                {/* Nav Items */}
+                <div className="flex-1 px-3 space-y-1.5 overflow-y-auto py-2">
+                    {navItems.map((item) => {
+                        const isActive = pathname === item.href
 
-                            if (itemHash) {
-                                isActive = pathname === itemPath && activeHash === `#${itemHash}`
-                            } else {
-                                const isHashLinkActive = navItems.some(n => n.href.includes("#") && pathname === n.href.split("#")[0] && activeHash === `#${n.href.split("#")[1]}`)
-                                isActive = pathname === itemPath && !isHashLinkActive
-                            }
-
-                            return (
-                                <Link
-                                    key={item.name}
-                                    href={item.href}
-                                    onClick={() => {
-                                        const newHash = item.href.includes("#") ? `#${item.href.split("#")[1]}` : ""
-                                        setActiveHash(newHash)
-                                        if (item.href === "/student") {
-                                            window.scrollTo({ top: 0, behavior: "instant" })
-                                        }
-                                    }}
-                                    className={cn(
-                                        "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                                        isActive
-                                            ? "bg-sky-50 text-sky-700 shadow-sm"
-                                            : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
-                                    )}
-                                >
-                                    <item.icon className={cn("w-5 h-5 flex-shrink-0 transition-colors", isActive ? "text-sky-600" : "text-slate-400 group-hover:text-slate-600")} />
+                        return (
+                            <Link
+                                key={item.name}
+                                href={item.href}
+                                className={cn(
+                                    "flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group relative overflow-hidden",
+                                    isActive
+                                        ? "bg-sky-50 text-sky-700 shadow-sm"
+                                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-900",
+                                    isSidebarOpen ? "justify-start" : "justify-center"
+                                )}
+                            >
+                                <item.icon className={cn("w-5 h-5 flex-shrink-0 transition-colors", isActive ? "text-sky-600" : "text-slate-400 group-hover:text-slate-600")} />
+                                <AnimatePresence>
                                     {isSidebarOpen && (
                                         <motion.span
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
+                                            initial={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                            animate={{ opacity: 1, width: "auto", marginLeft: 12 }}
+                                            exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                            transition={{ duration: 0.2 }}
                                             className="font-medium text-sm whitespace-nowrap"
                                         >
                                             {item.name}
                                         </motion.span>
                                     )}
-                                </Link>
-                            )
-                        })}
-                    </div>
-
-                    <div className="p-3 mt-auto">
-                        <div className="bg-slate-50/50 rounded-xl p-2 border border-slate-100/50">
-                            <button
-                                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                                className="w-full flex items-center gap-3 px-2 py-2 text-slate-400 hover:text-slate-600 transition-colors rounded-lg hover:bg-white/50"
-                            >
-                                {isSidebarOpen ? <Menu className="w-4 h-4" /> : <Menu className="w-4 h-4 mx-auto" />}
-                                {isSidebarOpen && <span className="text-xs font-semibold uppercase tracking-wider">Collapse</span>}
-                            </button>
-                            <div className="my-1 border-t border-slate-200/50" />
-                            <button
-                                onClick={async () => {
-                                    await supabase.auth.signOut()
-                                    router.push("/get-started")
-                                }}
-                                className={cn(
-                                    "flex items-center w-full gap-3 px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors",
-                                    !isSidebarOpen && "justify-center"
-                                )}
-                            >
-                                <LogOut className="w-4 h-4" />
-                                {isSidebarOpen && <span className="text-sm font-medium">Sign Out</span>}
-                            </button>
-                        </div>
-                    </div>
-                </motion.aside>
-
-                <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
-                    <div className="scale-90">
-                        <BrandLogo id="student-mobile-logo" />
-                    </div>
-                    <Button variant="ghost" size="icon">
-                        <Menu className="w-6 h-6 text-slate-600" />
-                    </Button>
+                                </AnimatePresence>
+                            </Link>
+                        )
+                    })}
                 </div>
 
-                <main className={cn(
-                    "flex-1 w-full max-w-full min-h-screen transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)] md:pt-4 pt-20 pr-4 pb-4",
-                    isSidebarOpen ? "md:pl-[292px]" : "md:pl-[104px]"
-                )}>
-                    <div id="student-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
-                        {children}
+                {/* Bottom Actions */}
+                <div className="p-3 mt-auto">
+                    <div className="bg-slate-50/50 rounded-xl p-2 border border-slate-100/50">
+                        <button
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className={cn("w-full flex items-center px-2 py-2 text-slate-400 hover:text-slate-600 transition-colors rounded-lg hover:bg-white/50 overflow-hidden", isSidebarOpen ? "justify-start" : "justify-center")}
+                        >
+                            <Menu className="w-4 h-4 flex-shrink-0" />
+                            <AnimatePresence>
+                                {isSidebarOpen && (
+                                    <motion.span
+                                        initial={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                        animate={{ opacity: 1, width: "auto", marginLeft: 12 }}
+                                        exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="text-xs font-semibold uppercase tracking-wider whitespace-nowrap"
+                                    >
+                                        Collapse
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </button>
+
+                        <div className="my-1 border-t border-slate-200/50" />
+
+                        <button
+                            onClick={async () => {
+                                await supabase.auth.signOut()
+                                router.push("/")
+                            }}
+                            className={cn(
+                                "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",
+                                isSidebarOpen ? "justify-start" : "justify-center"
+                            )}
+                        >
+                            <LogOut className="w-4 h-4 flex-shrink-0" />
+                            <AnimatePresence>
+                                {isSidebarOpen && (
+                                    <motion.span
+                                        initial={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                        animate={{ opacity: 1, width: "auto", marginLeft: 12 }}
+                                        exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="text-sm font-medium whitespace-nowrap"
+                                    >
+                                        Sign Out
+                                    </motion.span>
+                                )}
+                            </AnimatePresence>
+                        </button>
                     </div>
-                </main>
-            </UserProvider>
+                </div>
+            </motion.aside>
+
+            {/* Mobile Header */}
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
+                <div className="scale-90">
+                    <BrandLogo id="student-mobile-logo" />
+                </div>
+                <Button variant="ghost" size="icon">
+                    <Menu className="w-6 h-6 text-slate-600" />
+                </Button>
+            </div>
+
+            {/* Main Content Area */}
+            <main className={cn(
+                "flex-1 w-full max-w-full min-h-screen transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)] md:pt-4 pt-20 pr-4 pb-4",
+                isSidebarOpen ? "md:pl-[292px]" : "md:pl-[104px]"
+            )}>
+                <div id="student-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
+                    {children}
+                </div>
+            </main>
         </div>
     )
 }
