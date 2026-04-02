@@ -10,6 +10,7 @@ create table profiles (
   discipline text,
   designation text,
   specialization text,
+  cgpa numeric,
   shortlist int[] default array[]::int[],
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -96,3 +97,67 @@ create policy "Admins can update organization requests." on organization_request
       where profiles.id = auth.uid() and profiles.role = 'admin'
     )
   );
+
+-- Create a table for scheduled visits tracked between Faculty and HR
+create table scheduled_visits (
+    id uuid default gen_random_uuid() primary key,
+    company_id integer references companies(id),
+    faculty_id uuid references profiles(id),
+    proposed_date text not null,
+    status text default 'pending_hr' check (status in ('pending_hr', 'approved', 'rescheduled', 'completed', 'cancelled')),
+    hr_notes text,
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Set up RLS for scheduled visits
+alter table scheduled_visits enable row level security;
+
+create policy "Anyone can view scheduled visits." on scheduled_visits 
+  for select using (true);
+
+-- Only Faculty can initiate a visit schedule
+create policy "Faculty can insert scheduled visits." on scheduled_visits 
+  for insert with check (
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'faculty')
+  );
+
+-- Anyone can update (Magic link for HR to update without login)
+create policy "Anyone can update scheduled visits (for magic link HR)." on scheduled_visits 
+  for update using (true);
+
+
+-- Create a table for student visit applications
+create table visit_applications (
+    id uuid default gen_random_uuid() primary key,
+    visit_id uuid references scheduled_visits(id) on delete cascade,
+    student_id uuid references profiles(id) on delete cascade,
+    status text default 'applied' check (status in ('applied', 'accepted', 'rejected')),
+    created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+    unique(visit_id, student_id) -- Prevent double applications from same student
+);
+
+-- Set up RLS for applications
+alter table visit_applications enable row level security;
+
+-- Students can view their own, Faculty can view all
+create policy "Users can view applications securely." on visit_applications 
+  for select using (
+    auth.uid() = student_id or 
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'faculty')
+  );
+
+-- Students can apply
+create policy "Students can insert their own applications." on visit_applications 
+  for insert with check (
+    auth.uid() = student_id and 
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'student')
+  );
+
+-- Faculty can accept/reject applications
+create policy "Faculty can update application status." on visit_applications 
+  for update using (
+    exists (select 1 from profiles where profiles.id = auth.uid() and profiles.role = 'faculty')
+  );
+
+-- MIGRATION SCRIPT TO RUN MANUALLY IF PROFILES ALREADY EXISTS:
+-- ALTER TABLE profiles ADD COLUMN cgpa numeric;
