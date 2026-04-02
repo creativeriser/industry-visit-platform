@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { Calendar, Building2, User, Clock, ChevronDown } from "lucide-react"
 import { ApproveForm } from "./approve-form"
 

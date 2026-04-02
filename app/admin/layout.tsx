@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context"
 import { motion, AnimatePresence } from "framer-motion"
 import { LayoutDashboard, Users, LogOut, Menu, UserCog } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { Button } from "@/components/ui/button"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

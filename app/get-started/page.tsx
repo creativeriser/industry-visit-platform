@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react"
 import { AuthGate } from "@/components/auth/auth-gate"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { AppleAperture } from "@/components/auth/apple-aperture"
 import { motion } from "framer-motion"
 import Link from "next/link"

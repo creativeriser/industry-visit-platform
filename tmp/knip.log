@@ -1,0 +1,34 @@
+Unused files (7)
+app/faculty/visit/[id]/live-tracking.tsx        
+app/faculty/visit/[id]/schedule-visit-button.tsx
+components/auth/kinetic-hub.tsx                 
+components/auth/living-network.tsx              
+components/exploration-wizard.tsx               
+components/ui/typewriter.tsx                    
+tmp/delete.mjs                                  
+Unused dependencies (5)
+@radix-ui/react-avatar         package.json:12:6
+@radix-ui/react-dialog         package.json:13:6
+@radix-ui/react-dropdown-menu  package.json:14:6
+@radix-ui/react-separator      package.json:18:6
+@radix-ui/react-tabs           package.json:20:6
+Unused devDependencies (1)
+tw-animate-css  package.json:44:6
+Unused exports (15)
+badgeVariants           components/ui/badge.tsx:35:17    
+CalendarDayButton       components/ui/calendar.tsx:220:20
+CardHeader              components/ui/card.tsx:78:16     
+CardFooter              components/ui/card.tsx:78:28     
+CardTitle               components/ui/card.tsx:78:40     
+CardDescription         components/ui/card.tsx:78:51     
+PopoverAnchor           components/ui/popover.tsx:85:3   
+PopoverHeader           components/ui/popover.tsx:86:3   
+PopoverTitle            components/ui/popover.tsx:87:3   
+PopoverDescription      components/ui/popover.tsx:88:3   
+SelectGroup             components/ui/select.tsx:182:3   
+SelectLabel             components/ui/select.tsx:184:3   
+SelectScrollDownButton  components/ui/select.tsx:185:3   
+SelectScrollUpButton    components/ui/select.tsx:186:3   
+SelectSeparator         components/ui/select.tsx:187:3   
+Unused exported types (1)
+BadgeProps  interface  components/ui/badge.tsx:25:18

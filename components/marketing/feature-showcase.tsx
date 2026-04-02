@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, MotionValue, useInView, AnimatePresenc
 import { useRef, useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { JourneyRope } from "@/components/ui/journey-rope"
-import { IntelligentDiscoveryIcon } from "@/components/intelligent-discovery-icon"
+import { IntelligentDiscoveryIcon } from "@/components/marketing/intelligent-discovery-icon"
 import {
     Search, Building2, Calendar, Mail, Phone, Factory, Landmark, CheckCircle,
     Send, Inbox, FileCheck, User, X, Minimize, Maximize2, MapPin,

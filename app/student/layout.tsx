@@ -14,7 +14,7 @@ import {
     Menu,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { Button } from "@/components/ui/button"
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {

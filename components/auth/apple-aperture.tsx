@@ -1,7 +1,7 @@
 "use client"
 
 import { motion, AnimatePresence } from "framer-motion"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { School, GraduationCap } from "lucide-react"
 import { ActiveRole } from "@/app/get-started/page"
 

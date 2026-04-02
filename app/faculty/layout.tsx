@@ -18,7 +18,7 @@ import {
     X
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { Button } from "@/components/ui/button"
 import { UserProvider } from "@/context/user-context"
 

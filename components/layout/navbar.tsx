@@ -6,7 +6,7 @@ import { Menu, X, ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
-import { BrandLogo } from "@/components/brand-logo"
+import { BrandLogo } from "@/components/layout/brand-logo"
 import { useAuth } from "@/context/auth-context"
 
 export function Navbar() {
