@@ -11,6 +11,7 @@ import {
     Globe2,
     Bookmark,
     CalendarClock,
+    Route,
     Settings,
     LogOut,
     Menu,
@@ -56,6 +57,8 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
         { name: "Dashboard", href: "/faculty", icon: LayoutDashboard },
         { name: "Discover", href: "/faculty#discovery", icon: Globe2 },
         { name: "My Shortlist", href: "/faculty/shortlist", icon: Bookmark },
+        { name: "Active Visits", href: "/faculty/visits", icon: Route },
+        { name: "Applications", href: "/faculty/applications", icon: CalendarClock },
     ]
 
     return (
