@@ -154,6 +154,8 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         facultyName: user?.user_metadata?.full_name || "Faculty Member",
                         facultyEmail: user?.email,
                         facultyDesignation: profileUser?.designation || "Faculty Member",
+                        facultyInstitution: profileUser?.institution,
+                        facultyDepartment: profileUser?.department,
                         facultyDate,
                         startTime: formatTime12hr(startTime),
                         endTime: formatTime12hr(endTime),
@@ -224,6 +226,27 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
         }
     }
 
+    const handlePublishVisit = async (visitId: string) => {
+        setIsScheduling(true)
+        try {
+            const activeV = visitRecords.find(v => v.id === visitId)
+            const chatLog = parseChatLog(activeV?.hr_notes)
+            const newChat = [...chatLog, { id: Date.now().toString(), sender: 'system', text: 'Faculty Published Visit to Students.', timestamp: new Date().toISOString() } as ChatMessage]
+
+            const { data, error } = await supabase
+                .from('scheduled_visits')
+                .update({ status: 'published', hr_notes: JSON.stringify(newChat) })
+                .eq('id', visitId)
+                .select()
+                .single()
+            if (!error && data) setVisitRecords(prev => prev.map(v => v.id === visitId ? data : v))
+        } catch (err) {
+            console.error(err)
+        } finally {
+            setIsScheduling(false)
+        }
+    }
+
     const handleCounterPropose = async (visitId: string) => {
         if (!counterDate) return;
         setIsScheduling(true)
@@ -270,6 +293,8 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         facultyName: user?.user_metadata?.full_name || "Faculty Member",
                         facultyEmail: user?.email,
                         facultyDesignation: profileUser?.designation || "Faculty Member",
+                        facultyInstitution: profileUser?.institution,
+                        facultyDepartment: profileUser?.department,
                         facultyDate: finalDate,
                         startTime: counterStartTime ? formatTime12hr(counterStartTime) : "TBD",
                         endTime: counterEndTime ? formatTime12hr(counterEndTime) : "TBD",
@@ -726,14 +751,39 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                                         <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
                                             <CheckCircle className="w-5 h-5" />
                                         </div>
-                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Visit Confirmed</h2>
+                                        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Visit Confirmed by HR</h2>
                                     </div>
-                                    <p className="text-slate-600 font-medium leading-relaxed text-base mb-4">
-                                        HR approved <strong className="text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100/50">{activeVisit.proposed_date}</strong>. Get your students ready.
+                                    <p className="text-slate-600 font-medium leading-relaxed text-base mb-6">
+                                        HR has officially approved <strong className="text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100/50">{activeVisit.proposed_date}</strong>. You can now securely publish this to students when you're ready.
                                     </p>
-                                    <Button onClick={() => handleCancelVisit(activeVisit.id)} variant="ghost" className="text-slate-400 hover:text-red-500 hover:bg-red-50 font-bold -ml-3 h-10 mt-2">
-                                        Cancel Visit
-                                    </Button>
+                                    <div className="flex flex-wrap items-center gap-4">
+                                        <Button onClick={() => handlePublishVisit(activeVisit.id)} disabled={isScheduling} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 px-8 rounded-xl shadow-sm hover:-translate-y-0.5 transition-all">
+                                            {isScheduling ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowRight className="w-4 h-4 mr-2" />}
+                                            Publish Visit to Students
+                                        </Button>
+                                        <Button onClick={() => handleCancelVisit(activeVisit.id)} variant="ghost" className="text-slate-400 hover:text-red-500 hover:bg-red-50 font-bold h-10">
+                                            Cancel Visit
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeVisit.status === 'published' && (
+                                <div className="animate-in fade-in duration-500">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 shrink-0 shadow-inner">
+                                            <Building2 className="w-5 h-5" />
+                                        </div>
+                                        <h2 className="text-2xl font-black text-indigo-600 tracking-tight">Visit Published!</h2>
+                                    </div>
+                                    <p className="text-slate-600 font-medium leading-relaxed text-base mb-6">
+                                        This visit is mapped to <strong className="text-indigo-700 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100/50">{activeVisit.proposed_date}</strong> and is officially live on the student dashboard. Students can now directly apply.
+                                    </p>
+                                    <div className="flex items-center gap-4">
+                                        <Button onClick={() => router.push('/faculty/applications')} className="bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-bold h-11 px-8 rounded-xl shadow-sm transition-all hover:-translate-y-0.5">
+                                            View Live Applications
+                                        </Button>
+                                    </div>
                                 </div>
                             )}
 
@@ -761,29 +811,44 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                                 {/* Step 2 */}
                                 <div className="flex items-start gap-4">
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white shrink-0 mt-0.5 ${
-                                        activeVisit.status === 'approved' ? 'bg-indigo-600 text-white' 
+                                        ['approved', 'published'].includes(activeVisit.status) ? 'bg-indigo-600 text-white' 
                                         : ['pending_hr', 'rescheduled'].includes(activeVisit.status) ? 'bg-amber-400 text-amber-950 shadow-[0_0_15px_rgba(251,191,36,0.4)]'
                                         : 'bg-slate-100 text-slate-400'
                                     }`}>
-                                        {activeVisit.status === 'approved' ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <Clock className="w-3.5 h-3.5 flex-shrink-0" />}
+                                        {['approved', 'published'].includes(activeVisit.status) ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <Clock className="w-3.5 h-3.5 flex-shrink-0" />}
                                     </div>
                                     <div>
-                                        <p className={`font-bold text-sm ${['pending_hr', 'rescheduled', 'approved'].includes(activeVisit.status) ? 'text-slate-900' : 'text-slate-400'}`}>Review</p>
+                                        <p className={`font-bold text-sm ${['pending_hr', 'rescheduled', 'approved', 'published'].includes(activeVisit.status) ? 'text-slate-900' : 'text-slate-400'}`}>Review</p>
                                         <p className="text-slate-500 text-xs mt-0.5 font-medium">HR feedback</p>
                                     </div>
                                 </div>
 
-                                {/* Step 3 */}
+                                {/* Step 3: Approved */}
                                 <div className="flex items-start gap-4">
                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white shrink-0 mt-0.5 ${
-                                        activeVisit.status === 'approved' ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' 
+                                        activeVisit.status === 'published' ? 'bg-indigo-600 text-white' 
+                                        : activeVisit.status === 'approved' ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                                        : 'bg-slate-100 text-slate-400'
+                                    }`}>
+                                        {['approved', 'published'].includes(activeVisit.status) ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <Clock className="w-3.5 h-3.5 flex-shrink-0" />}
+                                    </div>
+                                    <div>
+                                        <p className={`font-bold text-sm ${['approved', 'published'].includes(activeVisit.status) ? 'text-slate-900' : 'text-slate-400'}`}>Approved</p>
+                                        <p className="text-slate-500 text-xs mt-0.5 font-medium">Dates Locked</p>
+                                    </div>
+                                </div>
+
+                                {/* Step 4: Published */}
+                                <div className="flex items-start gap-4">
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center ring-4 ring-white shrink-0 mt-0.5 ${
+                                        activeVisit.status === 'published' ? 'bg-emerald-500 text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]' 
                                         : 'bg-slate-100 text-slate-400'
                                     }`}>
                                         <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" />
                                     </div>
                                     <div>
-                                        <p className={`font-bold text-sm ${activeVisit.status === 'approved' ? 'text-slate-900' : 'text-slate-400'}`}>Scheduled</p>
-                                        <p className="text-slate-500 text-xs mt-0.5 font-medium">Final Pointers</p>
+                                        <p className={`font-bold text-sm ${activeVisit.status === 'published' ? 'text-slate-900' : 'text-slate-400'}`}>Published</p>
+                                        <p className="text-slate-500 text-xs mt-0.5 font-medium">Open to Students</p>
                                     </div>
                                 </div>
                             </div>
@@ -1079,7 +1144,7 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         <div className="space-y-4 text-lg leading-relaxed font-medium">
                             <p>Dear {company.representative.name},</p>
                             <p>
-                                I am a faculty member at <strong>UniVisit Institution</strong>. I am reaching out to formally request an industry visit for our students at <strong>{company.name}</strong> on <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{facultyDate}</strong> under the proposed timeframe of <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{formatTime12hr(startTime)} to {formatTime12hr(endTime)}</strong>.
+                                I am a faculty of <strong>{profileUser?.institution || 'UniVisit Institution'}</strong>. I am reaching out to formally request an industry visit for our students at <strong>{company.name}</strong> on <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{facultyDate}</strong> under the proposed timeframe of <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{formatTime12hr(startTime)} to {formatTime12hr(endTime)}</strong>.
                             </p>
                             
                             <div className="py-2">
@@ -1136,8 +1201,8 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                             <div className="pt-6 mt-6 border-t border-slate-100">
                                 <p className="text-slate-400 text-sm font-bold">Best regards,</p>
                                 <p className="text-slate-900 font-bold">{(user?.user_metadata?.full_name || "Faculty Member").replace(/[0-9]/g, '').trim()}</p>
-                                <p className="text-slate-500 font-medium text-sm">{profileUser?.designation || "Faculty Member"}</p>
-                                <p className="text-slate-500 font-bold text-sm">K.R. Mangalam University</p>
+                                <p className="text-slate-500 font-medium text-sm">{profileUser?.designation || "Faculty Member"}{profileUser?.department ? `, ${profileUser?.department}` : ''}</p>
+                                <p className="text-slate-500 font-bold text-sm">{profileUser?.institution || 'University / Educational Institution'}</p>
                             </div>
                         </div>
                     </div>

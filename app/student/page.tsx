@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Building2, Calendar, MapPin, CheckCircle, Clock, Loader2 } from "lucide-react"
-import { getDisciplineIcon } from "@/lib/utils"
-import { ApplyButton } from "./apply-button"
+import { Loader2, Route, ArrowRight, Compass } from "lucide-react"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
+import { motion, AnimatePresence } from "framer-motion"
+import { StudentHeader } from "@/components/student/student-header"
+import { VisitCard } from "@/components/student/visit-card"
 
 export default function StudentDashboardPage() {
     const { user, loading: authLoading } = useAuth()
@@ -15,6 +16,7 @@ export default function StudentDashboardPage() {
     const [profile, setProfile] = useState<any>(null)
     const [visits, setVisits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -36,13 +38,13 @@ export default function StudentDashboardPage() {
                 .eq('id', user!.id)
                 .single()
 
-            if (!prof || !prof.discipline) {
+            if (!prof) {
                 router.push("/student/profile")
                 return
             }
             setProfile(prof)
 
-            // Get Approved Visits matching Discipline
+            // Get ALL Approved Visits
             const { data: vts } = await supabase
                 .from('scheduled_visits')
                 .select(`
@@ -52,10 +54,11 @@ export default function StudentDashboardPage() {
                     company:companies!inner(name, location, discipline, type, image),
                     applications:visit_applications(id, status, student_id)
                 `)
-                .eq('status', 'approved')
-                .eq('company.discipline', prof.discipline)
+                .eq('status', 'published')
             
-            setVisits(vts || [])
+            if (vts) {
+                setVisits(vts)
+            }
         } catch (err) {
             console.error(err)
         } finally {
@@ -63,78 +66,138 @@ export default function StudentDashboardPage() {
         }
     }
 
-    if (loading || authLoading) return <div className="p-8 flex justify-center"><Loader2 className="w-8 h-8 animate-spin text-sky-500" /></div>
+    if (loading || authLoading) return <div className="p-8 flex justify-center h-screen items-center bg-slate-50"><Loader2 className="w-8 h-8 animate-spin text-sky-500" /></div>
+
+    // Filter Logic
+    const filteredVisits = visits.filter(v =>
+        v.company.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.company.discipline.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        v.company.location.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
+    const recommendedVisits = filteredVisits.filter(v => v.company.discipline === profile.discipline)
+    const otherVisits = filteredVisits.filter(v => v.company.discipline !== profile.discipline)
+
+    let missingFields: string[] = [];
+    if (profile) {
+        if (!profile.cgpa) missingFields.push("CGPA");
+        if (!profile.institution) missingFields.push("Institution");
+        if (!profile.department) missingFields.push("Department");
+        if (!profile.phone) missingFields.push("Phone");
+        if (!profile.discipline) missingFields.push("Discipline");
+        if (!profile.github_url) missingFields.push("GitHub Link");
+        if (!profile.linkedin_url) missingFields.push("LinkedIn Link");
+        if (!profile.resume_url) missingFields.push("Resume");
+        if (!profile.roll_number) missingFields.push("Roll Number");
+        if (!profile.section) missingFields.push("Section");
+        if (!profile.degree) missingFields.push("Degree");
+        if (!profile.attendance) missingFields.push("Attendance");
+    }
+    const isProfileIncomplete = missingFields.length > 0;
 
     return (
-        <div className="p-8 max-w-7xl mx-auto h-full overflow-y-auto">
-            <div className="mb-10">
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">Available Visits</h1>
-                <p className="text-slate-500">Industry visits curated for your discipline: <span className="font-semibold text-sky-600">{profile?.discipline}</span></p>
-                {(!profile?.cgpa) && (
-                    <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl text-amber-700 flex items-start gap-3">
-                        ⚠️ <div><strong>Profile Incomplete:</strong> Please <a href="/student/profile" className="underline font-bold">update your CGPA</a> to apply for visits.</div>
+        <div id="dashboard-scroll-container" className="h-full overflow-y-auto bg-slate-50">
+            {/* Faculty-style sticky top header */}
+            <StudentHeader onSearch={setSearchQuery} profile={profile} />
+
+            <div className="max-w-[1600px] mx-auto p-8 space-y-12">
+                
+                {/* Profile Incomplete Warning */}
+                {isProfileIncomplete && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="p-4 md:p-5 bg-red-50/80 border border-red-200/60 rounded-2xl text-red-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+                    >
+                        <div className="flex items-start sm:items-center gap-3.5">
+                            <div className="w-2.5 h-2.5 bg-red-500 rounded-full animate-pulse shrink-0 mt-1 sm:mt-0" />
+                            <div>
+                                <strong className="font-bold text-red-800 text-[15px]">Profile Incomplete</strong> 
+                                <span className="block sm:inline sm:ml-2 text-red-700/90 text-sm font-medium mt-0.5 sm:mt-0">
+                                    Please provide your <span className="font-bold">{missingFields.join(", ")}</span> to apply for enterprise visits.
+                                </span>
+                            </div>
+                        </div>
+                        <button onClick={() => router.push('/student/profile')} className="text-sm font-bold bg-white text-red-700 px-5 py-2 rounded-xl border border-red-200 hover:bg-red-100 transition-colors shrink-0 shadow-sm hover:shadow active:scale-95">
+                            Fix Now
+                        </button>
+                    </motion.div>
+                )}
+
+                {!searchQuery && recommendedVisits.length > 0 && (
+                     <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-900 flex items-center gap-3 tracking-tight">
+                            Curated for {profile?.discipline}
+                        </h2>
+                        <span className="text-sm font-bold text-sky-600 flex items-center gap-1 cursor-pointer hover:text-sky-700 transition-colors group">
+                            Explore All <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                     </div>
+                )}
+                
+                {searchQuery && (
+                    <h2 className="text-xl font-bold text-slate-900 mb-6">
+                        Search Results for <span className="text-sky-600">"{searchQuery}"</span>
+                    </h2>
+                )}
+
+                {/* Recommended Section / Search Results */}
+                {recommendedVisits.length > 0 ? (
+                    <div className="flex flex-col gap-5 w-full">
+                        {recommendedVisits.map((visit: any, idx: number) => (
+                             <motion.div key={visit.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                                 <VisitCard 
+                                     visit={visit} 
+                                     studentId={user!.id} 
+                                     hasCGPA={!!profile?.cgpa} 
+                                     onApplySuccess={loadData} 
+                                 />
+                             </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    !searchQuery && (
+                        <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-white shadow-sm flex flex-col items-center">
+                             <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 shadow-inner pointer-events-none">
+                                <Route className="w-8 h-8 text-slate-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 tracking-tight">No Exact Matches</h3>
+                            <p className="text-slate-500 mt-2 font-medium max-w-sm leading-relaxed text-sm">
+                                There are currently no approved visits specifically targeting {profile?.discipline}.
+                            </p>
+                        </div>
+                    )
+                )}
+
+                {/* Other Streams Section */}
+                {otherVisits.length > 0 && (
+                    <div className="pt-8">
+                        <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-2 tracking-tight">Broad Discovery</h2>
+                        <p className="text-slate-500 font-medium mb-6">Explore industry visits mapped to other faculties.</p>
+                        
+                        <div className="flex flex-col gap-5 w-full">
+                            {otherVisits.map((visit: any, idx: number) => (
+                                <motion.div key={visit.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }}>
+                                    <VisitCard 
+                                        visit={visit} 
+                                        studentId={user!.id} 
+                                        hasCGPA={!!profile?.cgpa} 
+                                        onApplySuccess={loadData} 
+                                        isCrossStream={true}
+                                    />
+                                </motion.div>
+                            ))}
+                        </div>
                     </div>
                 )}
+
+                {searchQuery && filteredVisits.length === 0 && (
+                     <div className="py-20 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-white">
+                         <p className="text-slate-500 font-medium">No matches found for "{searchQuery}"</p>
+                         <p className="text-slate-400 text-sm mt-1">Try searching for a different company, city, or discipline.</p>
+                     </div>
+                )}
             </div>
-
-            {visits.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {visits.map((visit: any) => {
-                        const Icon = getDisciplineIcon(visit.company.discipline)
-                        const myApplication = visit.applications?.find((app: any) => app.student_id === user?.id)
-
-                        return (
-                            <div key={visit.id} className="bg-white border text-slate-900 border-slate-200 rounded-[20px] shadow-sm hover:shadow-md transition-shadow overflow-hidden flex flex-col">
-                                <div className="h-32 bg-slate-100 relative overflow-hidden">
-                                    {visit.company.image && <img src={visit.company.image} alt="Company" className="w-full h-full object-cover" />}
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-slate-700 flex items-center gap-1.5 shadow-sm">
-                                        <Icon className="w-3.5 h-3.5 text-sky-500" />
-                                        {visit.company.discipline}
-                                    </div>
-                                </div>
-                                <div className="p-6 flex-1 flex flex-col">
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div>
-                                            <h3 className="text-xl font-bold line-clamp-1">{visit.company.name}</h3>
-                                            <p className="text-sm font-medium text-slate-500 flex items-center mt-1">
-                                                <MapPin className="w-3.5 h-3.5 mr-1" />
-                                                {visit.company.location}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-3 mb-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
-                                        <div className="flex items-center text-sm font-medium text-slate-700">
-                                            <Calendar className="w-4 h-4 mr-2.5 text-sky-500" />
-                                            {visit.proposed_date}
-                                        </div>
-                                        <div className="flex items-center text-sm font-medium text-slate-700">
-                                            <Building2 className="w-4 h-4 mr-2.5 text-sky-500" />
-                                            {visit.company.type}
-                                        </div>
-                                    </div>
-
-                                    <div className="mt-auto pt-4 border-t border-slate-100">
-                                        {myApplication ? (
-                                            <div className="flex items-center justify-center p-3 rounded-xl bg-slate-50 text-slate-600 font-bold border border-slate-200 text-sm gap-2">
-                                                {myApplication.status === 'applied' && <><Clock className="w-4 h-4 text-amber-500" /> Application Pending</>}
-                                                {myApplication.status === 'accepted' && <><CheckCircle className="w-4 h-4 text-emerald-500" /> Application Accepted</>}
-                                                {myApplication.status === 'rejected' && <span className="text-red-500">Application Not Selected</span>}
-                                            </div>
-                                        ) : (
-                                            <ApplyButton visitId={visit.id} studentId={user!.id} hasCGPA={!!profile?.cgpa} onApplySuccess={loadData} />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                    })}
-                </div>
-            ) : (
-                <div className="text-center p-12 bg-white rounded-2xl border border-slate-200 shadow-sm">
-                    <p className="text-slate-500 text-lg">No upcoming visits found for your discipline yet.</p>
-                </div>
-            )}
         </div>
     )
 }

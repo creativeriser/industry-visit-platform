@@ -3,12 +3,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react"
 import { useAuth } from "./auth-context"
 import { supabase } from "@/lib/supabase"
+import { resolveInstitutionFromEmail } from "@/lib/domain-mapping"
 
 interface UserProfile {
     fullName: string
     email: string
     phone: string
-    school: string
+    institution: string
     department: string
     discipline: string
     designation: string
@@ -28,7 +29,7 @@ const defaultUser: UserProfile = {
     fullName: "Guest User",
     email: "",
     phone: "",
-    school: "",
+    institution: "",
     department: "",
     discipline: "",
     designation: "",
@@ -82,7 +83,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     fullName: finalName,
                     email: data.email || authUser.email || "",
                     phone: data.phone || "",
-                    school: data.school || "",
+                    institution: data.institution || resolveInstitutionFromEmail(data.email || authUser.email),
                     department: data.department || "",
                     discipline: data.discipline || "",
                     designation: data.designation || "",
@@ -114,7 +115,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 id: authUser.id,
                 full_name: updatedUser.fullName,
                 phone: updatedUser.phone,
-                school: updatedUser.school,
+                institution: updatedUser.institution,
                 department: updatedUser.department,
                 discipline: updatedUser.discipline,
                 designation: updatedUser.designation,

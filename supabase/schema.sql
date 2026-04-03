@@ -104,7 +104,7 @@ create table scheduled_visits (
     company_id integer references companies(id),
     faculty_id uuid references profiles(id),
     proposed_date text not null,
-    status text default 'pending_hr' check (status in ('pending_hr', 'approved', 'rescheduled', 'completed', 'cancelled')),
+    status text default 'pending_hr' check (status in ('pending_hr', 'approved', 'published', 'rescheduled', 'completed', 'cancelled')),
     hr_notes text,
     created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

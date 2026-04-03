@@ -86,10 +86,12 @@ npm install
 ```
 
 **3. Configure Environment Variables**
-Create a `.env.local` file at the root of the project with your Supabase credentials:
+Create a `.env.local` file at the root of the project with your database and email dispatch credentials:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+GMAIL_USER=your_gmail_address
+GMAIL_APP_PASSWORD=your_gmail_app_password
 ```
 
 **4. Start the development server**

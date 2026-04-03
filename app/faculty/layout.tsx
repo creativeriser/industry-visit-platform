@@ -15,7 +15,8 @@ import {
     Settings,
     LogOut,
     Menu,
-    X
+    X,
+    UserCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/layout/brand-logo"
@@ -25,14 +26,39 @@ import { UserProvider } from "@/context/user-context"
 export default function FacultyLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeHash, setActiveHash] = useState("")
+    const [roleChecked, setRoleChecked] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const { user, loading } = useAuth()
 
+    // Role-based route guard: ensure only faculty can access /faculty/*
     useEffect(() => {
-        if (!loading && !user) {
+        if (loading) return
+        if (!user) {
             router.replace("/get-started")
+            return
         }
+
+        const checkRole = async () => {
+            const { data } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', user.id)
+                .single()
+
+            if (!data || data.role !== 'faculty') {
+                // Redirect students/admins to their correct dashboard
+                if (data?.role === 'student') {
+                    router.replace('/student')
+                } else {
+                    router.replace('/get-started')
+                }
+                return
+            }
+            setRoleChecked(true)
+        }
+
+        checkRole()
     }, [user, loading, router])
 
     useEffect(() => {
@@ -59,7 +85,11 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
         { name: "My Shortlist", href: "/faculty/shortlist", icon: Bookmark },
         { name: "Active Visits", href: "/faculty/visits", icon: Route },
         { name: "Applications", href: "/faculty/applications", icon: CalendarClock },
+        { name: "Selected Students", href: "/faculty/selected", icon: UserCheck },
     ]
+
+    // Don't render anything until role is confirmed
+    if (!roleChecked) return null
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">

@@ -30,7 +30,7 @@ export default function VerifyDataPage() {
             <h1 className="text-2xl font-bold mb-4">Database Verification</h1>
             <p className="mb-6 text-slate-600">
                 This data is pulled directly from the <code className="bg-slate-100 px-1 rounded text-pink-600">public.profiles</code> table,
-                where your school, department, and phone details are stored.
+                where your institution, department, and phone details are stored.
             </p>
 
             <div className="bg-slate-100 p-6 rounded-xl border border-slate-200 overflow-auto">
@@ -47,8 +47,8 @@ export default function VerifyDataPage() {
                             <td className="py-3 font-mono text-indigo-700 font-bold">{profile?.full_name || '(empty)'}</td>
                         </tr>
                         <tr>
-                            <td className="py-3 text-slate-500">school</td>
-                            <td className="py-3 font-mono">{profile?.school || '(empty)'}</td>
+                            <td className="py-3 text-slate-500">institution</td>
+                            <td className="py-3 font-mono">{profile?.institution || '(empty)'}</td>
                         </tr>
                         <tr>
                             <td className="py-3 text-slate-500">department</td>

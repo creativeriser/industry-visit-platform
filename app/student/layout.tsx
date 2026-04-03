@@ -38,10 +38,12 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                     .eq('id', user.id)
                     .single()
                 
-                if (error || data?.role !== 'student') {
-                    // Not authorized
-                    await supabase.auth.signOut()
-                    router.replace("/")
+                if (error || !data) {
+                    router.replace("/get-started")
+                } else if (data.role === 'faculty') {
+                    router.replace('/faculty')
+                } else if (data.role !== 'student') {
+                    router.replace('/')
                 } else {
                     setIsAuthorized(true)
                 }
@@ -54,7 +56,6 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     const navItems = [
         { name: "My Opportunities", href: "/student", icon: LayoutDashboard },
         { name: "My Applications", href: "/student/applications", icon: ClipboardList },
-        { name: "My Profile", href: "/student/profile", icon: UserCircle },
     ]
 
     if (loading || (!isAuthorized && user)) {
@@ -204,7 +205,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
             {/* Main Content Area */}
             <main className={cn(
-                "flex-1 w-full max-w-full min-h-screen transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)] md:pt-4 pt-20 pr-4 pb-4",
+                "flex-1 w-full max-w-full h-screen transition-all duration-300 ease-[bezier(0.25,0.1,0.25,1)] md:pt-4 pt-20 pr-4 pb-4",
                 isSidebarOpen ? "md:pl-[292px]" : "md:pl-[104px]"
             )}>
                 <div id="student-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">

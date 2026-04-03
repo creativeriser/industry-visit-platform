@@ -16,7 +16,9 @@ export async function POST(req: Request) {
         facultyMessage, 
         magicLink,
         isCounterProposal,
-        facultyDesignation
+        facultyDesignation,
+        facultyInstitution,
+        facultyDepartment
     } = body;
 
     const cleanFacultyName = facultyName.replace(/[0-9]/g, '').trim();
@@ -38,7 +40,7 @@ export async function POST(req: Request) {
               <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">
                 ${isCounterProposal 
                   ? `Thank you for your previous flexibility! I am reaching back out because the proposed date didn't quite work for our academic calendar. I would like to officially propose a counter-offer for <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.` 
-                  : `I am a faculty member at <strong style="color: #0f172a;">UniVisit Institution</strong>. I am reaching out to formally request an industry visit for our students on <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the proposed timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.`
+                  : `I am a faculty of <strong style="color: #0f172a;">${facultyInstitution || 'UniVisit Institution'}</strong>. I am reaching out to formally request an industry visit for our students on <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the proposed timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.`
                 }
               </p>
               
@@ -55,8 +57,8 @@ export async function POST(req: Request) {
               <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #e2e8f0;">
                 <p style="color: #475569; font-size: 14px; margin: 0 0 4px 0;">Best regards,</p>
                 <p style="color: #0f172a; font-size: 16px; font-weight: bold; margin: 0 0 2px 0;">${cleanFacultyName}</p>
-                <p style="color: #475569; font-size: 14px; margin: 0 0 2px 0;">${facultyDesignation || 'Faculty Member'}</p>
-                <p style="color: #475569; font-size: 14px; font-weight: bold; margin: 0;">K.R. Mangalam University</p>
+                <p style="color: #475569; font-size: 14px; margin: 0 0 2px 0;">${facultyDesignation || 'Faculty Member'}${facultyDepartment ? `, ${facultyDepartment}` : ''}</p>
+                <p style="color: #475569; font-size: 14px; font-weight: bold; margin: 0;">${facultyInstitution || 'University / Educational Institution'}</p>
               </div>
             </div>
           </div>

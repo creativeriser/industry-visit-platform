@@ -2,13 +2,12 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Users, GraduationCap, Check, X, Loader2, Github, Linkedin, Code } from "lucide-react"
-import { FacultyApproveButtons } from "./approve-buttons"
+import { Users, GraduationCap, Check, X, Loader2, UserCheck } from "lucide-react"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
 import { getDisciplineIcon } from "@/lib/utils"
 
-export default function FacultyApplicationsPage() {
+export default function FacultySelectedStudentsPage() {
     const { user, loading: authLoading } = useAuth()
     const router = useRouter()
     
@@ -22,13 +21,13 @@ export default function FacultyApplicationsPage() {
         }
 
         if (user) {
-            loadApplications()
+            loadSelectedStudents()
         }
     }, [user, authLoading, router])
 
-    const loadApplications = async () => {
+    const loadSelectedStudents = async () => {
         try {
-            // Fetch faculty's own scheduled visits that have applications
+            // Fetch faculty's own scheduled visits with accepted applications
             const { data } = await supabase
                 .from('scheduled_visits')
                 .select(`
@@ -44,9 +43,13 @@ export default function FacultyApplicationsPage() {
                 `)
                 .eq('faculty_id', user!.id)
             
-            // Filter to only visits that actually have applications
-            const activeVisits = data?.filter(v => v.applications && v.applications.length > 0) || []
-            setVisits(activeVisits)
+            // Map applications filtering only explicitly accepted ones
+            const selectedVisits = data?.map(v => ({
+                ...v,
+                applications: v.applications?.filter((app: any) => app.status === 'accepted') || []
+            })).filter(v => v.applications.length > 0) || []
+            
+            setVisits(selectedVisits)
         } catch (err) {
             console.error(err)
         } finally {
@@ -59,8 +62,10 @@ export default function FacultyApplicationsPage() {
     return (
         <div className="p-8 max-w-7xl mx-auto h-full overflow-y-auto">
             <div className="mb-10">
-                <h1 className="text-3xl font-bold text-slate-900 mb-2">Student Applications</h1>
-                <p className="text-slate-500">Review and select students for your upcoming industry visits.</p>
+                <h1 className="text-3xl font-bold text-slate-900 mb-2 flex items-center gap-3">
+                    Selected Students
+                </h1>
+                <p className="text-slate-500">Review the students you have officially accepted for your upcoming industry visits.</p>
             </div>
 
             {visits.length > 0 ? (
@@ -73,8 +78,8 @@ export default function FacultyApplicationsPage() {
                                     <p className="text-indigo-200 text-sm mt-1">{visit.proposed_date} • {visit.status === 'published' ? 'Live to Students' : 'HR Confirmed'}</p>
                                 </div>
                                 <div className="bg-white/10 px-4 py-2 rounded-full text-sm font-semibold flex items-center gap-2 shadow-inner">
-                                    <Users className="w-4 h-4 text-indigo-300" />
-                                    {visit.applications.length} Applicants
+                                    <UserCheck className="w-4 h-4 text-indigo-300" />
+                                    {visit.applications.length} Selected
                                 </div>
                             </div>
 
@@ -106,9 +111,7 @@ export default function FacultyApplicationsPage() {
                                                     </div>
 
                                                     <div className="flex items-center w-[120px]">
-                                                        {app.status === 'applied' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-md">Pending</span>}
                                                         {app.status === 'accepted' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md flex items-center gap-1"><Check className="w-3 h-3"/> Accepted</span>}
-                                                        {app.status === 'rejected' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md flex items-center gap-1"><X className="w-3 h-3"/> Rejected</span>}
                                                     </div>
                                                 </div>
 
@@ -134,9 +137,9 @@ export default function FacultyApplicationsPage() {
                 </div>
             ) : (
                 <div className="text-center p-12 bg-white flex flex-col items-center justify-center rounded-2xl border border-slate-200 shadow-sm h-64">
-                    <Users className="w-12 h-12 text-slate-300 mb-4" />
-                    <h3 className="text-xl font-bold text-slate-900">No Applications Yet</h3>
-                    <p className="text-slate-500 mt-2">When students apply for your highly anticipated visits, they will appear here organized by CGPA.</p>
+                    <UserCheck className="w-12 h-12 text-slate-300 mb-4" />
+                    <h3 className="text-xl font-bold text-slate-900">No Selected Students Yet</h3>
+                    <p className="text-slate-500 mt-2">When you accept students for your industry visits, they will appear here organized by company.</p>
                 </div>
             )}
         </div>

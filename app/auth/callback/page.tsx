@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Loader2 } from 'lucide-react'
+import { resolveInstitutionFromEmail } from '@/lib/domain-mapping'
 
 export default function AuthCallbackPage() {
     const router = useRouter()
@@ -37,7 +38,7 @@ export default function AuthCallbackPage() {
             // Get existing profile to see if we need to update it
             const { data: existingProfile } = await supabase
                 .from('profiles')
-                .select('id, role, full_name')
+                .select('id, role, full_name, institution, roll_number')
                 .eq('id', user.id)
                 .single()
 
@@ -65,23 +66,69 @@ export default function AuthCallbackPage() {
 
             const isPlaceholderName = !existingProfile?.full_name || existingProfile.full_name === user.email || existingProfile.full_name === user.email?.split('@')[0]
 
+            // Auto-derive roll number from email prefix for students
+            // e.g. 2301010028@krmu.edu.in → '2301010028'
+            const extractRollNumber = (email: string | undefined): string | null => {
+                if (!email) return null
+                const prefix = email.split('@')[0]
+                // Must be alphanumeric, at least 6 chars, and start with a digit (typical roll number pattern)
+                if (/^\d[a-zA-Z0-9]{5,}$/.test(prefix)) {
+                    return prefix.toUpperCase()
+                }
+                return null
+            }
+
             if (!existingProfile) {
                 // Insert new profile
+                const detectedInstitution = resolveInstitutionFromEmail(user.email)
+                const roleForInsert = pendingRole || 'faculty'
+                const detectedRollNumber = roleForInsert === 'student' ? extractRollNumber(user.email) : null
                 const { error: insertError } = await supabase.from('profiles').insert({
                     id: user.id,
                     email: user.email,
                     full_name: metadataName,
-                    role: pendingRole || 'faculty'
+                    role: roleForInsert,
+                    institution: detectedInstitution,
+                    ...(detectedRollNumber ? { roll_number: detectedRollNumber } : {})
                 })
                 if (insertError) console.error("Profile insert error:", insertError)
-            } else if (!existingProfile.role || isPlaceholderName) {
-                // Update existing profile safely
+            } else {
+                // Update existing profile
                 const updates: any = {}
-                if (!existingProfile.role) updates.role = pendingRole || 'faculty'
-                if (isPlaceholderName) updates.full_name = metadataName
+                let needsUpdate = false
 
-                const { error: updateError } = await supabase.from('profiles').update(updates).eq('id', user.id)
-                if (updateError) console.error("Profile update error:", updateError)
+                if (pendingRole && existingProfile.role !== pendingRole) {
+                    updates.role = pendingRole
+                    needsUpdate = true
+                } else if (!existingProfile.role) {
+                    updates.role = 'faculty'
+                    needsUpdate = true
+                }
+
+                if (isPlaceholderName) {
+                    updates.full_name = metadataName
+                    needsUpdate = true
+                }
+
+                if (!existingProfile.institution) {
+                    updates.institution = resolveInstitutionFromEmail(user.email)
+                    needsUpdate = true
+                }
+
+                // Auto-populate roll_number for students if missing
+                const resolvedRole = pendingRole || existingProfile.role
+                if (resolvedRole === 'student' && !existingProfile.roll_number) {
+                    const derivedRoll = extractRollNumber(user.email)
+                    if (derivedRoll) {
+                        updates.roll_number = derivedRoll
+                        needsUpdate = true
+                    }
+                }
+
+                if (needsUpdate) {
+                    const { error: updateError } = await supabase.from('profiles').update(updates).eq('id', user.id)
+                    if (updateError) console.error("Profile update error:", updateError)
+                }
             }
 
             // Clear pending role

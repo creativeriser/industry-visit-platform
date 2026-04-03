@@ -88,6 +88,14 @@ export default function FacultyVisitsPage() {
                     icon: <XCircle className="w-4 h-4 text-red-500" />,
                     label: 'Cancelled'
                 }
+            case 'published':
+                return {
+                    bg: 'bg-indigo-50',
+                    border: 'border-indigo-200',
+                    text: 'text-indigo-700',
+                    icon: <CheckCircle className="w-4 h-4 text-indigo-500" />,
+                    label: 'Live to Students'
+                }
             default:
                 return {
                     bg: 'bg-slate-50',
@@ -122,70 +130,66 @@ export default function FacultyVisitsPage() {
                         return (
                             <div 
                                 key={visit.id} 
-                                className={`bg-white border text-slate-900 border-slate-200/80 rounded-[24px] shadow-sm hover:shadow-md hover:border-indigo-200/60 overflow-hidden transition-all duration-300 group flex flex-col md:flex-row h-auto ring-2 ring-transparent hover:ring-indigo-50 ${visit.status === 'cancelled' ? 'opacity-75 grayscale-[0.2]' : ''}`}
+                                className={`group relative bg-white rounded-3xl p-4 min-h-[140px] border border-indigo-100/50 shadow-sm hover:shadow-xl hover:shadow-indigo-900/5 hover:border-indigo-200 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center gap-6 overflow-hidden w-full ${visit.status === 'cancelled' ? 'opacity-75 grayscale-[0.2]' : ''}`}
                             >
-                                {/* Left Image Section */}
-                                <div className="relative w-full md:w-64 h-48 md:h-auto overflow-hidden bg-slate-900 shrink-0">
-                                    <div 
-                                        className="absolute inset-0 opacity-60 mix-blend-overlay group-hover:scale-105 transition-transform duration-700 ease-out"
-                                        style={{
-                                            backgroundImage: `url(${company?.image || 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600'})`,
-                                            backgroundSize: 'cover',
-                                            backgroundPosition: 'center'
-                                        }}
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
-                                    
-                                    <div className="absolute bottom-4 left-4 right-4">
-                                        <div className={`w-fit px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold border backdrop-blur-md shadow-lg ${
-                                            visit.status === 'approved' ? 'bg-emerald-500/90 border-emerald-400 text-white' :
-                                            visit.status === 'rescheduled' ? 'bg-indigo-500/90 border-indigo-400 text-white' :
-                                            visit.status === 'cancelled' ? 'bg-red-500/90 border-red-400 text-white' :
-                                            'bg-amber-500/90 border-amber-400 text-white'
-                                        }`}>
-                                            {theme.icon && <span className="text-white brightness-200">{theme.icon}</span>}
-                                            {theme.label}
-                                        </div>
-                                    </div>
+                                {/* Enlarged Image Thumbnail (Landscape 4:3) */}
+                                <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block ring-1 ring-slate-900/10">
+                                    <div className="absolute inset-0 z-10 bg-indigo-900/10 group-hover:bg-transparent transition-colors" />
+                                    {company?.image ? (
+                                        <img src={company.image} alt={company.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    ) : (
+                                        <div className="w-full h-full bg-indigo-50 flex items-center justify-center"><Building2 className="w-8 h-8 text-indigo-200" /></div>
+                                    )}
                                 </div>
 
-                                {/* Middle Content Section */}
-                                <div className="p-6 md:px-8 md:py-6 flex-1 flex flex-col justify-center min-w-0">
-                                    <h2 className="text-xl font-bold text-slate-900 leading-tight mb-4 truncate">{company?.name || "Unknown Company"}</h2>
-                                    
-                                    <div className="flex flex-col gap-2.5 mb-5">
-                                        <div className="flex items-center gap-2 text-sm text-slate-500 font-medium">
-                                            <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                                            <span className="truncate">{company?.location || "Unknown Location"}</span>
-                                        </div>
-                                        
-                                        <div className="flex items-start gap-2 text-sm text-slate-600 font-medium">
-                                            <Calendar className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
-                                            <span className="leading-snug pr-4">{visit.proposed_date}</span>
-                                        </div>
+                                {/* Content Info */}
+                                <div className="flex-1 min-w-0 flex flex-col gap-4 py-1 w-full">
+                                    <div>
+                                         <div className="flex flex-wrap items-center gap-3 mb-1">
+                                              <h3 className="text-xl font-bold text-slate-900 truncate group-hover:text-indigo-700 transition-colors">{company?.name || "Unknown Company"}</h3>
+                                              <div className={`px-2.5 py-0.5 rounded-full font-bold border text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${theme.bg} ${theme.text} ${theme.border}`}>
+                                                  {theme.icon && <span className="-ml-0.5 scale-[0.8]">{theme.icon}</span>}
+                                                  {theme.label}
+                                              </div>
+                                         </div>
+
+                                         <div className="flex flex-wrap items-center gap-y-1.5 gap-x-3 text-sm text-slate-500 font-medium w-full">
+                                              <div className="flex items-center gap-2 max-w-full">
+                                                   <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                   <span className="truncate">{company?.location || "Unknown Location"}</span>
+                                              </div>
+                                              <div className="hidden sm:block text-slate-200 shrink-0">|</div>
+                                              <div className="flex items-center gap-1.5 max-w-full min-w-0">
+                                                   <Calendar className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                                                   <span className="truncate relative top-[1px]">{visit.proposed_date}</span>
+                                              </div>
+                                         </div>
                                     </div>
-                                    
-                                    <div className="flex flex-wrap gap-2 mt-auto">
-                                        {company?.tags?.slice(0,3).map((tag: string) => (
-                                            <span key={tag} className="px-2.5 py-1 bg-slate-50 text-slate-500 rounded-md text-xs font-semibold border border-slate-200/60">
+
+                                    {/* Tags perfectly listed under title */}
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md border text-indigo-700 bg-indigo-50 border-indigo-100/50 flex items-center gap-1.5`}>
+                                             {company?.discipline || "Generic"}
+                                        </span>
+
+                                        <span className="text-slate-200">|</span>
+
+                                        {company?.tags?.slice(0,2).map((tag: string) => (
+                                            <span key={tag} className="text-[11px] font-medium text-slate-600 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100 flex items-center gap-1.5">
                                                 {tag}
                                             </span>
                                         ))}
-                                        <span className="px-2.5 py-1 bg-indigo-50/50 text-indigo-600 rounded-md text-xs font-bold border border-indigo-100/50">
-                                            {company?.discipline || "Generic"}
-                                        </span>
                                     </div>
                                 </div>
 
                                 {/* Right Action Section */}
-                                <div className="p-6 md:p-8 flex flex-col justify-center shrink-0 w-full md:w-64 relative before:hidden md:before:block before:absolute before:left-0 before:top-8 before:bottom-8 before:w-px before:bg-slate-100">
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 text-center">Manage Request</p>
+                                <div className="w-full sm:w-auto min-w-[200px] shrink-0 sm:pr-2">
                                     <button 
                                         onClick={() => router.push(`/faculty/visit/${visit.company_id}`)}
-                                        className="w-full flex items-center justify-center gap-2 py-3 px-6 bg-slate-900 rounded-full font-semibold text-white shadow-md hover:shadow-lg hover:bg-indigo-600 hover:ring-4 ring-indigo-600/20 transition-all group/btn"
+                                        className="w-full h-12 flex items-center justify-center gap-2 px-6 bg-indigo-600 rounded-xl font-bold text-white shadow-sm hover:shadow-md hover:bg-indigo-700 hover:-translate-y-[1px] transition-all group/btn"
                                     >
                                         Open Workspace
-                                        <ArrowRight className="w-4 h-4 text-slate-400 group-hover/btn:text-white group-hover/btn:translate-x-1 transition-all" />
+                                        <ArrowRight className="w-4 h-4 text-indigo-200 group-hover/btn:translate-x-1 group-hover/btn:text-white transition-all" />
                                     </button>
                                 </div>
                             </div>
