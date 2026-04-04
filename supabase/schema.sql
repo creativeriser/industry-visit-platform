@@ -1,16 +1,21 @@
 -- Create a table for public profiles
 create table profiles (
-  id uuid references auth.users not null primary key,
+  id uuid references auth.users on delete cascade not null primary key,
   email text,
   full_name text,
   role text check (role in ('student', 'faculty', 'admin')),
   phone text,
+  institution text,
   school text,
   department text,
   discipline text,
   designation text,
   specialization text,
+  roll_number text,
   cgpa numeric,
+  github_url text,
+  linkedin_url text,
+  leetcode_url text,
   shortlist int[] default array[]::int[],
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -101,8 +106,8 @@ create policy "Admins can update organization requests." on organization_request
 -- Create a table for scheduled visits tracked between Faculty and HR
 create table scheduled_visits (
     id uuid default gen_random_uuid() primary key,
-    company_id integer references companies(id),
-    faculty_id uuid references profiles(id),
+    company_id integer references companies(id) on delete cascade,
+    faculty_id uuid references profiles(id) on delete cascade,
     proposed_date text not null,
     status text default 'pending_hr' check (status in ('pending_hr', 'approved', 'published', 'rescheduled', 'completed', 'cancelled')),
     hr_notes text,

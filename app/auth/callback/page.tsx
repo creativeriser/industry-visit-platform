@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { Loader2 } from 'lucide-react'
-import { resolveInstitutionFromEmail } from '@/lib/domain-mapping'
+import { resolveInstitutionFromEmail, isEmailAuthorized, extractRollNumberFromEmail, determineRoleFromEmail } from '@/lib/domain-mapping'
 
 export default function AuthCallbackPage() {
     const router = useRouter()
@@ -29,7 +29,7 @@ export default function AuthCallbackPage() {
                 return
             }
 
-            setStatus('Finalizing profile...')
+            setStatus('Fetching profile...')
 
             // 2. Update profile with Azure AD metadata and pending role
             const pendingRole = localStorage.getItem('pending_role')
@@ -41,6 +41,16 @@ export default function AuthCallbackPage() {
                 .select('id, role, full_name, institution, roll_number')
                 .eq('id', user.id)
                 .single()
+
+            // Domain Authorization Check
+            // Bypass the strict domain check ONLY IF the admin has already provisioned this profile manually in the database
+            if (!existingProfile && !isEmailAuthorized(session.user.email)) {
+                await supabase.auth.signOut()
+                router.push(`/get-started?role=${localStorage.getItem('pending_role') || 'faculty'}&error=unauthorized_domain`)
+                return
+            }
+
+            setStatus('Finalizing profile...')
 
             let metadataName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || ''
 
@@ -79,10 +89,13 @@ export default function AuthCallbackPage() {
             }
 
             if (!existingProfile) {
-                // Insert new profile
+                // Insert new profile using Enterprise Heuristic for Role determination
                 const detectedInstitution = resolveInstitutionFromEmail(user.email)
-                const roleForInsert = pendingRole || 'faculty'
-                const detectedRollNumber = roleForInsert === 'student' ? extractRollNumber(user.email) : null
+                const detectedRollNumber = extractRollNumberFromEmail(user.email)
+                
+                // Leverage domain-based precision heuristic (K.R. Mangalam specific)
+                const roleForInsert = determineRoleFromEmail(user.email)
+
                 const { error: insertError } = await supabase.from('profiles').insert({
                     id: user.id,
                     email: user.email,
@@ -97,10 +110,9 @@ export default function AuthCallbackPage() {
                 const updates: any = {}
                 let needsUpdate = false
 
-                if (pendingRole && existingProfile.role !== pendingRole) {
-                    updates.role = pendingRole
-                    needsUpdate = true
-                } else if (!existingProfile.role) {
+                // We NO LONGER update role based on `pendingRole`. 
+                // Roles are strictly immutable once created, unless modified by admin.
+                if (!existingProfile.role) {
                     updates.role = 'faculty'
                     needsUpdate = true
                 }
@@ -116,9 +128,9 @@ export default function AuthCallbackPage() {
                 }
 
                 // Auto-populate roll_number for students if missing
-                const resolvedRole = pendingRole || existingProfile.role
+                const resolvedRole = existingProfile.role || 'faculty'
                 if (resolvedRole === 'student' && !existingProfile.roll_number) {
-                    const derivedRoll = extractRollNumber(user.email)
+                    const derivedRoll = extractRollNumberFromEmail(user.email)
                     if (derivedRoll) {
                         updates.roll_number = derivedRoll
                         needsUpdate = true
@@ -150,6 +162,13 @@ export default function AuthCallbackPage() {
                 .single()
 
             const role = profile?.role || 'faculty' // Default to faculty if undefined
+
+            // Strict Gate: Bounce them backward if the DB role doesn't match the portal they clicked
+            if (pendingRole && role !== pendingRole && pendingRole !== 'admin') {
+                await supabase.auth.signOut()
+                router.push(`/get-started?role=${pendingRole}&error=invalid_role`)
+                return
+            }
 
             if (role === 'faculty') {
                 router.push(pendingRedirect || '/faculty')

@@ -6,6 +6,7 @@ import { Bell, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { UserProfileMenu } from "./user-profile-menu"
+import { NotificationsPanel } from "./notifications-panel"
 
 import { useUser } from "@/context/user-context"
 
@@ -89,10 +90,7 @@ export function DashboardHeader({ onSearch, basePath = "/faculty" }: DashboardHe
                     </div>
 
                     <div className="flex items-center gap-3 pl-3 border-l border-slate-200/60">
-                        <Button variant="ghost" size="icon" className="rounded-lg h-10 w-10 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all relative">
-                            <Bell className="w-5 h-5" />
-                            <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-red-500 border border-white rounded-full"></span>
-                        </Button>
+                        <NotificationsPanel />
 
                         <div className="scale-90 origin-right">
                             <UserProfileMenu

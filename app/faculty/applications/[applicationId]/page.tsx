@@ -313,19 +313,19 @@ export default function StudentApplicationReportPage() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
                     {/* Top Row: Identity & Academics */}
-                    <div className="lg:col-span-1 bg-white border text-slate-900 border-slate-100 rounded-[24px] p-8 shadow-sm h-full">
+                    <div className="lg:col-span-2 bg-white border text-slate-900 border-slate-100 rounded-[24px] p-8 shadow-sm h-full">
                             <h2 className="text-[15px] font-bold mb-8 flex items-center gap-2.5 text-slate-900">
                                 <User className="w-[18px] h-[18px] text-indigo-500" /> Identity Information
                             </h2>
                             <div className="space-y-6">
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">Email Address</label>
+                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">Student Email</label>
                                     <div className="relative">
-                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                        <div className="w-full pl-11 p-3.5 rounded-xl border border-slate-100 bg-slate-100/50 text-slate-600 text-sm font-medium flex items-center h-[46px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
-                                            {student?.email || 'N/A'}
+                                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 shrink-0" />
+                                        <div className="w-full pl-11 p-3.5 rounded-xl border border-slate-100 bg-slate-100/50 text-slate-600 text-sm font-medium flex items-center h-[46px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)] overflow-hidden">
+                                            <span className="truncate w-full block">{student?.email || 'N/A'}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@ export default function StudentApplicationReportPage() {
                     </div>
 
                     {/* Academics */}
-                    <div className="lg:col-span-2 bg-white border text-slate-900 border-slate-100 rounded-[24px] p-8 shadow-sm h-full">
+                    <div className="lg:col-span-3 bg-white border text-slate-900 border-slate-100 rounded-[24px] p-8 shadow-sm h-full">
                             <h2 className="text-[15px] font-bold mb-8 flex items-center gap-2.5 text-slate-900">
                                 <Building2 className="w-[18px] h-[18px] text-indigo-500" /> Academic Profile
                             </h2>
@@ -390,7 +390,7 @@ export default function StudentApplicationReportPage() {
                         </div>
 
                     {/* Professional Links */}
-                    <div className="lg:col-span-3 bg-white border text-slate-900 border-slate-200 rounded-[24px] p-6 shadow-sm">
+                    <div className="lg:col-span-5 bg-white border text-slate-900 border-slate-200 rounded-[24px] p-6 shadow-sm">
                             <h2 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800 border-b border-slate-100 pb-4">
                                 <Code className="w-5 h-5 text-indigo-500" /> Professional Portfolio & Docs
                             </h2>
@@ -472,7 +472,7 @@ export default function StudentApplicationReportPage() {
                         </div>
                         
                     {/* Auto Evaluation Module */}
-                    <div className="bg-[#0f172a] border border-slate-800 rounded-[24px] p-8 md:p-10 shadow-xl overflow-hidden relative col-span-1 lg:col-span-3 min-h-[320px]">
+                    <div className="bg-[#0f172a] border border-slate-800 rounded-[24px] p-8 md:p-10 shadow-xl overflow-hidden relative col-span-1 lg:col-span-5 min-h-[320px]">
                             {/* Decorative background */}
                             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
 

@@ -47,6 +47,7 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
     const [counterNote, setCounterNote] = useState("")
     const [chatInput, setChatInput] = useState("")
     const [isChatMinimized, setIsChatMinimized] = useState(true)
+    const [showAllActivity, setShowAllActivity] = useState(false)
 
     const { user } = useAuth()
     const { user: profileUser } = useUser()
@@ -409,11 +410,23 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
 
             return (
                 <div className="bg-slate-50/40 border border-slate-200/60 rounded-[28px] p-8 shadow-sm mb-8">
-                    <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-6 flex items-center gap-2">
-                        <Clock className="w-4 h-4" /> Official Decision Timeline
-                    </h4>
+                    <div className="flex items-center justify-between mb-6">
+                        <h4 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2 m-0">
+                            <Clock className="w-4 h-4" /> Official Decision Timeline
+                        </h4>
+                        {groupedEvents.length > 1 && (
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => setShowAllActivity(!showAllActivity)} 
+                                className="h-7 text-[11px] font-bold text-indigo-600 hover:text-indigo-700 hover:bg-slate-100 px-3 rounded-full border border-indigo-100"
+                            >
+                                {showAllActivity ? "Show Latest Only" : "Show Full Timeline"}
+                            </Button>
+                        )}
+                    </div>
                     <div className="space-y-1 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-slate-200">
-                        {groupedEvents.map(event => {
+                        {(showAllActivity ? groupedEvents : groupedEvents.slice(-1)).map(event => {
                             let Icon = Clock;
                             // Parse Prefix
                             let splitIndex = event.actionText.indexOf(':');

@@ -1,14 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, ArrowLeft, School, GraduationCap, Building2, ChevronRight, Fingerprint, LayoutDashboard } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { ArrowRight, ArrowLeft, School, GraduationCap, Building2, ChevronRight, Fingerprint, LayoutDashboard, AlertCircle } from "lucide-react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { BrandLogo } from "@/components/layout/brand-logo"
 import { cn } from "@/lib/utils"
 import { ActiveRole } from "@/app/get-started/page"
 import { supabase } from "@/lib/supabase"
+import { resolveInstitutionFromEmail, extractRollNumberFromEmail } from "@/lib/domain-mapping"
 
 interface AuthGateProps {
     activeRole: ActiveRole
@@ -21,16 +22,73 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
 
+    const searchParams = useSearchParams()
+    const errorParam = searchParams?.get("error")
+    const [localError, setLocalError] = useState<string | null>(null)
+
+    // Clear errors and form data when switching roles
+    useEffect(() => {
+        setLocalError(null)
+        setEmail("")
+        setPassword("")
+    }, [activeRole])
+
     const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        setLocalError(null)
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) {
-            alert(error.message)
+            setLocalError(error.message)
             setLoading(false)
-        } else {
-            router.push("/admin")
+            return
         }
+
+        // Extremely strict role-check:
+        if (data.user) {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('id, role, email, full_name, institution, roll_number')
+                .eq('id', data.user.id)
+                .single()
+                
+            if (!profile) {
+                await supabase.auth.signOut()
+                setLocalError(`Account configuration incomplete. Please contact IT Support for assistance.`)
+                setLoading(false)
+                return
+            }
+                
+            if (profile.role !== activeRole) {
+                // Instantly bounce them out if the role doesn't match
+                await supabase.auth.signOut()
+                setLocalError(`Access Denied: Your credentials belong to a ${profile.role}. Please select the ${profile.role} portal.`)
+                setLoading(false)
+                return
+            }
+
+            // Database Self-Healing: Auto-populate ALL missing baseline data (email, name, institution, roll_number)
+            // if they were left NULL by an admin doing a manual setup in the database dashboard
+            const isMissingData = !profile.email || !profile.full_name || !profile.institution || (profile.role === 'student' && !profile.roll_number)
+            
+            if (isMissingData) {
+                const derivedName = data.user.email ? data.user.email.split('@')[0] : 'User'
+                const derivedInstitution = data.user.email ? resolveInstitutionFromEmail(data.user.email) : null
+                const derivedRoll = data.user.email ? extractRollNumberFromEmail(data.user.email) : null
+                
+                await supabase.from('profiles').update({
+                    email: data.user.email,
+                    full_name: profile.full_name || derivedName,
+                    institution: profile.institution || derivedInstitution,
+                    ...(profile.role === 'student' && !profile.roll_number && derivedRoll ? { roll_number: derivedRoll } : {})
+                }).eq('id', data.user.id)
+            }
+        }
+
+        if (activeRole === 'admin') router.push("/admin")
+        else if (activeRole === 'faculty') router.push("/faculty")
+        else router.push("/student")
     }
 
     const handleOAuthLogin = async (provider: 'azure') => {
@@ -58,18 +116,18 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                 }
             }
         })
-        if (error) alert(error.message)
+        if (error) setLocalError(error.message)
         setLoading(false)
     }
 
     return (
-        <div className="w-full max-w-[350px] mx-auto min-h-[500px] flex flex-col justify-center py-12">
+        <div className="w-full max-w-[350px] mx-auto flex flex-col justify-center py-6">
             <AnimatePresence mode="wait">
 
                 {/* LOGIN FORM (Dynamic) */}
                 {activeRole !== null && (
                     <motion.div
-                        key="login"
+                        key={activeRole}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
@@ -93,19 +151,68 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                                 {activeRole === "admin" ? "Admin Sign In" : (activeRole === "faculty" ? "Faculty Sign In" : "Student Sign In")}
                             </h2>
                             <p className="text-xs text-slate-500 mt-1">
-                                {activeRole === "admin" ? "Use your master administrator credentials" : (activeRole === "faculty" ? "Use your university credentials or Microsoft Account" : "Enter your student ID to continue")}
+                                {activeRole === "admin" ? "Use your master administrator credentials" : "Use your university credentials or Microsoft Account"}
                             </p>
                         </div>
+
+
+
                         {activeRole === "admin" ? (
                             <form onSubmit={handleEmailLogin} className="space-y-4">
                                 <input type="email" placeholder="Admin Email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all" />
                                 <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all" />
+                                
                                 <button type="submit" disabled={loading} className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-bold flex items-center justify-center transition-all hover:shadow-lg hover:shadow-black/10 active:scale-[0.98]">
                                     {loading ? "Authenticating..." : "Access Dashboard"}
                                 </button>
+
+                                {(errorParam || localError) && (
+                                    <div className="flex items-start gap-2 px-2 pt-3 pb-1 mx-auto w-full">
+                                        <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-[1px]" />
+                                        <p className="text-[12px] text-red-500 font-medium leading-[1.3] text-left">
+                                            {localError ? localError : (
+                                                errorParam === 'invalid_role' 
+                                                ? `Your Microsoft account is registered for a different role. Please select the correct portal.` 
+                                                : errorParam === 'unauthorized_domain' 
+                                                ? "Email domain is not authorized. Please use your official university email." 
+                                                : "Authentication failed. Please try again."
+                                            )}
+                                        </p>
+                                    </div>
+                                )}
                             </form>
                         ) : (
                             <div className="space-y-5">
+                                <form onSubmit={handleEmailLogin} className="space-y-4">
+                                    <input type="email" placeholder={`${activeRole === 'faculty' ? 'Faculty' : 'Student'} Email`} value={email} onChange={e => setEmail(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                    <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all" />
+                                    
+                                    <button type="submit" disabled={loading} className={cn("w-full h-12 text-white rounded-xl text-sm font-bold flex items-center justify-center transition-all hover:shadow-lg active:scale-[0.98]", activeRole === 'faculty' ? 'bg-indigo-600 hover:bg-indigo-700 hover:shadow-indigo-500/20' : 'bg-sky-600 hover:bg-sky-700 hover:shadow-sky-500/20')}>
+                                        {loading ? "Authenticating..." : "Sign in"}
+                                    </button>
+
+                                    {(errorParam || localError) && (
+                                        <div className="flex items-start gap-2 px-2 pt-3 pb-1 mx-auto w-full">
+                                            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-[1px]" />
+                                            <p className="text-[12px] text-red-500 font-medium leading-[1.3] text-left">
+                                                {localError ? localError : (
+                                                    errorParam === 'invalid_role' 
+                                                    ? `Your Microsoft account is registered for a different role. Please select the correct portal.` 
+                                                    : errorParam === 'unauthorized_domain' 
+                                                    ? "Email domain is not authorized. Please use your official university email." 
+                                                    : "Authentication failed. Please try again."
+                                                )}
+                                            </p>
+                                        </div>
+                                    )}
+                                </form>
+
+                                <div className="relative flex items-center py-2">
+                                    <div className="flex-grow border-t border-slate-200/80"></div>
+                                    <span className="shrink-0 px-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">or continue with</span>
+                                    <div className="flex-grow border-t border-slate-200/80"></div>
+                                </div>
+
                                 <button
                                     onClick={() => handleOAuthLogin('azure')}
                                     disabled={loading}
@@ -117,14 +224,14 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                                         <path fill="#05a6f0" d="M1 12h10v10H1z" />
                                         <path fill="#ffba08" d="M12 12h10v10H12z" />
                                     </svg>
-                                    {loading ? "Redirecting..." : "Sign in with Microsoft"}
+                                    Microsoft Account
                                 </button>
                             </div>
                         )}
 
                         <div className="mt-8 text-center">
                             <p className="text-xs text-slate-400">
-                                Having trouble? <a href="#" className="underline hover:text-slate-600">Contact IT Support</a>
+                                Having trouble? <a href="mailto:noreply.univist@gmail.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">Contact IT Support</a>
                             </p>
                         </div>
                     </motion.div>

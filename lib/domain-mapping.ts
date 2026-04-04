@@ -60,6 +60,31 @@ export function resolveInstitutionFromEmail(email: string | undefined | null): s
     return "University / Educational Institution"
 }
 
+export function isEmailAuthorized(email: string | undefined | null): boolean {
+    if (!email) return false;
+    const domain = email.toLowerCase().trim().split("@")[1];
+    if (!domain) return false;
+
+    // Strict Domain Blocking: Reject known public consumer domains
+    const genericDomains = new Set([
+        'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 
+        'aol.com', 'icloud.com', 'mail.com', 'protonmail.com',
+        'live.com', 'msn.com', 'ymail.com'
+    ]);
+
+    if (genericDomains.has(domain)) {
+        // Exception for explicit demo/testing registry entries if needed
+        // but for enterprise security, public domains are blocked.
+        return false;
+    }
+
+    // Enterprise Heuristic: ensure it has a valid academic/organizational TLD
+    // For example, .edu, .ac.in, or mapped explicitly in our registry.
+    // If it's a completely arbitrary domain not in registry, we could block it, 
+    // but allowing non-generics gives flexibility for obscure institutions.
+    return true;
+}
+
 export function extractRollNumberFromEmail(email: string | undefined | null): string {
     if (!email) return ""
     // Extract numbers continuously from the local-part (before @)
@@ -71,6 +96,31 @@ export function extractRollNumberFromEmail(email: string | undefined | null): st
         return matches.reduce((a, b) => a.length > b.length ? a : b)
     }
     return ""
+}
+
+export function determineRoleFromEmail(email: string | undefined | null): 'student' | 'faculty' {
+    if (!email) return 'faculty';
+    
+    const parts = email.toLowerCase().trim().split("@");
+    if (parts.length < 2) return 'faculty';
+    
+    const domain = parts[1];
+
+    // Explicit Enterprise Domain Routing for K.R. Mangalam
+    // Staff/Faculty use @krmangalam.edu.in
+    if (domain === 'krmangalam.edu.in') {
+        return 'faculty';
+    }
+    
+    // Students natively use @krmu.edu.in
+    if (domain === 'krmu.edu.in') {
+        return 'student';
+    }
+
+    // Dynamic Fallback Heuristic
+    // If domain isn't explicitly known, fall back to checking if the prefix contains a roll number
+    const rollNumber = extractRollNumberFromEmail(email);
+    return rollNumber ? 'student' : 'faculty';
 }
 
 export const UNIVERSITY_TAXONOMY: Record<string, { degrees: string[], departments: string[], sections: string[] }> = {
