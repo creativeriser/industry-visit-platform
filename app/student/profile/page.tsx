@@ -99,9 +99,14 @@ export default function StudentProfilePage() {
             setLeetcodeData(null)
             setValidLeetcode(false)
             if (profile?.leetcode_url) {
-                const match = profile.leetcode_url.match(/(?:https?:\/\/)?(?:www\.)?leetcode\.com\/(?:u\/)?([^/]+)/i)
-                const username = match ? match[1] : null
-                if (username) {
+                // Must extract exact path segment before any ? or /
+                const match = profile.leetcode_url.match(/(?:https?:\/\/)?(?:www\.)?leetcode\.com\/(?:u\/)?([^/?#]+)/i)
+                const username = match ? match[1].toLowerCase().trim() : null
+                
+                // Professional enterprise exclusion filter to prevent interpreting default site pages as usernames
+                const reservedPaths = ['problemset', 'explore', 'contest', 'discuss', 'store', 'interview', 'assessment', 'studyplan', 'problems', 'premium', 'jobs', 'login', 'signup']
+                
+                if (username && !reservedPaths.includes(username)) {
                     try {
                         const res = await fetch(`/api/leetcode?username=${username}`)
                         if (res.ok) {
@@ -151,9 +156,14 @@ export default function StudentProfilePage() {
             setGithubData(null)
             setValidGithub(false)
             if (profile?.github_url) {
-                const match = profile.github_url.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([^/]+)/i)
-                const username = match ? match[1] : null
-                if (username) {
+                // Must extract exact path segment before any ? or /
+                const match = profile.github_url.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([^/?#]+)/i)
+                const username = match ? match[1].toLowerCase().trim() : null
+                
+                // Professional enterprise exclusion filter to prevent interpreting default site pages as usernames
+                const reservedPaths = ['explore', 'pulls', 'issues', 'topics', 'trending', 'pricing', 'features', 'enterprise', 'settings', 'search', 'orgs', 'about', 'dashboard', 'notifications', 'login', 'join']
+                
+                if (username && !reservedPaths.includes(username)) {
                     try {
                         const res = await fetch(`/api/github?username=${username}`)
                         if (res.ok) {
