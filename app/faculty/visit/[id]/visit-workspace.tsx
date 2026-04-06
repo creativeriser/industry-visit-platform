@@ -452,7 +452,13 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
 
                             if (event.owner === "cancel") {
                                 Icon = XCircle;
-                                personaName = "System";
+                                if (event.actionText.includes("Faculty") || event.actionText.includes("You")) {
+                                    personaName = "Faculty";
+                                } else if (event.actionText.includes("HR")) {
+                                    personaName = "HR";
+                                } else {
+                                    personaName = "System";
+                                }
                                 actionVerb = "cancelled the request";
                                 tagColor = "text-red-600";
                                 colorTheme = 'text-red-500 bg-white ring-slate-50';
@@ -874,8 +880,9 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                 {/* JUST CANCELLED ALERT */}
                 {justCancelledVisit && !activeVisit && (() => {
                     const logs = parseChatLog(justCancelledVisit.hr_notes);
-                    const cancelLog = logs.find(l => l.text.includes('HR Cancelled:'));
-                    const cancelReason = cancelLog ? cancelLog.text.replace('HR Cancelled:', '').trim() : null;
+                    const hrCancelLog = logs.find(l => l.text.includes('HR Cancelled:'));
+                    const cancelReason = hrCancelLog ? hrCancelLog.text.replace('HR Cancelled:', '').trim() : null;
+                    const isFacultyCancelled = logs.some(l => l.text.includes('Cancelled by Faculty') || l.text.includes('Faculty Cancelled'));
 
                     return (
                         <div className="mb-12 bg-white rounded-[24px] border border-red-200 shadow-sm p-8 md:p-10 flex flex-col lg:flex-row gap-8 items-center justify-between animate-in fade-in duration-500">
@@ -884,7 +891,9 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                                     <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0 shadow-inner">
                                         <XCircle className="w-5 h-5" />
                                     </div>
-                                    <h2 className="text-2xl font-black text-red-600 tracking-tight">Visit Cancelled by HR</h2>
+                                    <h2 className="text-2xl font-black text-red-600 tracking-tight">
+                                        {isFacultyCancelled ? "Visit Cancelled by You" : "Visit Cancelled by HR"}
+                                    </h2>
                                 </div>
                                 <div className="text-slate-600 font-medium leading-relaxed text-base">
                                     <p>
