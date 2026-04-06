@@ -37,19 +37,33 @@ export async function POST(req: Request) {
               
               <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">Dear ${hrName},</p>
               
-              <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">
-                ${isCounterProposal 
-                  ? `Thank you for your previous flexibility! I am reaching back out because the proposed date didn't quite work for our academic calendar. I would like to officially propose a counter-offer for <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.` 
-                  : `I am a faculty of <strong style="color: #0f172a;">${facultyInstitution || 'UniVisit Institution'}</strong>. I am reaching out to formally request an industry visit for our students on <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the proposed timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.`
-                }
-              </p>
+              ${isCounterProposal 
+                ? `
+                <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">
+                  Thank you for your previous flexibility! I am reaching back out because the proposed date didn't quite work for our academic calendar. I would like to officially propose a counter-offer for <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> under the timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong>.
+                </p>
+                `
+                : `
+                <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">
+                  I am writing to you on behalf of the <strong style="color: #0f172a;">${facultyInstitution || 'UniVisit Institution'}</strong>. We are reaching out to explore the possibility of organizing a formal industry visit for our students at <strong style="color: #0f172a;">${companyName}</strong>.
+                </p>
+                <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">
+                  We have tentatively proposed <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${facultyDate}</strong> during the timeframe of <strong style="color: #4f46e5; background-color: #eef2ff; padding: 2px 6px; border-radius: 4px;">${startTime} to ${endTime}</strong> for this engagement. Our goal is to provide our students with practical industry exposure that directly aligns with their academic curriculum.
+                </p>
+                `
+              }
               
-              ${facultyMessage ? `<div style="border-left: 4px solid #e2e8f0; padding-left: 16px; margin: 24px 0; color: #64748b; font-style: italic;">" ${facultyMessage} "</div>` : ''}
+              ${facultyMessage ? `
+              <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 24px 0;">
+                <p style="font-size: 10px; font-weight: bold; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin: 0 0 8px 0;">Faculty Context</p>
+                <p style="color: #475569; font-style: italic; font-size: 16px; margin: 0;">"${facultyMessage}"</p>
+              </div>
+              ` : ''}
               
-              <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">Please click the secure link below to <strong>${isCounterProposal ? "Review the Counter-Proposal and Accept" : "Review the Visit Proposal, Accept the date, or Propose an Alternate Time"}</strong> (no login required):</p>
-              
-              <div style="text-align: center; margin: 32px 0;">
-                <a href="${magicLink}" style="display: inline-block; background-color: #4f46e5; color: #ffffff !important; font-size: 16px; font-weight: bold; text-decoration: none; padding: 16px 32px; border-radius: 8px; font-family: sans-serif;">Open Secure Portal</a>
+              <div style="text-align: center; padding: 32px 0; margin: 32px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
+                <h4 style="color: #0f172a; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 8px;">Automated Action Link</h4>
+                <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 24px;">The HR Representative will click the button below to securely Accept or Counter the proposal.</p>
+                <a href="${magicLink}" style="display: inline-block; background-color: #4f46e5; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2);">Open Secure Portal</a>
               </div>
               
               <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">We look forward to collaborating with you.</p>

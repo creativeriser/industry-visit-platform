@@ -152,7 +152,7 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         companyName: company.name,
                         hrEmail: company.representative.email,
                         hrName: company.representative.name,
-                        facultyName: user?.user_metadata?.full_name || "Faculty Member",
+                        facultyName: profileUser?.fullName || user?.user_metadata?.full_name || "Faculty Member",
                         facultyEmail: user?.email,
                         facultyDesignation: profileUser?.designation || "Faculty Member",
                         facultyInstitution: profileUser?.institution,
@@ -291,7 +291,7 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         companyName: company.name,
                         hrEmail: company.representative.email,
                         hrName: company.representative.name,
-                        facultyName: user?.user_metadata?.full_name || "Faculty Member",
+                        facultyName: profileUser?.fullName || user?.user_metadata?.full_name || "Faculty Member",
                         facultyEmail: user?.email,
                         facultyDesignation: profileUser?.designation || "Faculty Member",
                         facultyInstitution: profileUser?.institution,
@@ -1262,7 +1262,7 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                             <p>We look forward to collaborating with you.</p>
                             <div className="pt-6 mt-6 border-t border-slate-100">
                                 <p className="text-slate-400 text-sm font-bold">Best regards,</p>
-                                <p className="text-slate-900 font-bold">{(user?.user_metadata?.full_name || "Faculty Member").replace(/[0-9]/g, '').trim()}</p>
+                                <p className="text-slate-900 font-bold">{(profileUser?.fullName || user?.user_metadata?.full_name || "Faculty Member").replace(/[0-9]/g, '').trim()}</p>
                                 <p className="text-slate-500 font-medium text-sm">{profileUser?.designation || "Faculty Member"}{profileUser?.department ? `, ${profileUser?.department}` : ''}</p>
                                 <p className="text-slate-500 font-bold text-sm">{profileUser?.institution || 'University / Educational Institution'}</p>
                             </div>
