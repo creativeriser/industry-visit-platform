@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Users, GraduationCap, Check, X, Loader2, Github, Linkedin, Code } from "lucide-react"
+import { Users, GraduationCap, Check, X, Loader2, Github, Linkedin, Code, Clock } from "lucide-react"
 import { FacultyApproveButtons } from "./approve-buttons"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
@@ -39,7 +39,7 @@ export default function FacultyApplicationsPage() {
                     applications:visit_applications(
                         id,
                         status,
-                        student:profiles(id, full_name, cgpa, discipline, institution, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree)
+                        student:profiles(id, full_name, cgpa, attendance, discipline, institution, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree)
                     )
                 `)
                 .eq('faculty_id', user!.id)
@@ -106,9 +106,9 @@ export default function FacultyApplicationsPage() {
                                                     </div>
 
                                                     <div className="flex items-center w-[120px]">
-                                                        {app.status === 'applied' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-md">Pending</span>}
-                                                        {app.status === 'accepted' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md flex items-center gap-1"><Check className="w-3 h-3"/> Accepted</span>}
-                                                        {app.status === 'rejected' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md flex items-center gap-1"><X className="w-3 h-3"/> Rejected</span>}
+                                                        {app.status === 'applied' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-md flex items-center gap-1"><Clock className="w-3 h-3 text-amber-500" /> Pending</span>}
+                                                        {app.status === 'accepted' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md flex items-center gap-1"><Check className="w-3 h-3 text-emerald-500"/> Accepted</span>}
+                                                        {app.status === 'rejected' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md flex items-center gap-1"><X className="w-3 h-3 text-red-500"/> Rejected</span>}
                                                     </div>
                                                 </div>
 

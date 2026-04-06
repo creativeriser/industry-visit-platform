@@ -347,7 +347,9 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
         return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="w-8 h-8 animate-spin text-indigo-500" /></div>
     }
 
-    const activeVisit = visitRecords.length > 0 && visitRecords[0].status !== 'cancelled' ? visitRecords[0] : null;
+    const lastVisit = visitRecords.length > 0 ? visitRecords[0] : null;
+    const activeVisit = lastVisit && !['cancelled', 'declined'].includes(lastVisit.status) ? lastVisit : null;
+    const justCancelledVisit = lastVisit && ['cancelled', 'declined'].includes(lastVisit.status) ? lastVisit : null;
     const historyVisits = activeVisit ? visitRecords.slice(1) : visitRecords;
     const activeChatLog = activeVisit ? parseChatLog(activeVisit.hr_notes) : [];
     const systemNotes = activeChatLog.filter((msg: ChatMessage) => msg.sender === 'system');
@@ -868,6 +870,50 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         </div>
                     </div>
                 )}
+
+                {/* JUST CANCELLED ALERT */}
+                {justCancelledVisit && !activeVisit && (() => {
+                    const logs = parseChatLog(justCancelledVisit.hr_notes);
+                    const cancelLog = logs.find(l => l.text.includes('HR Cancelled:'));
+                    const cancelReason = cancelLog ? cancelLog.text.replace('HR Cancelled:', '').trim() : null;
+
+                    return (
+                        <div className="mb-12 bg-white rounded-[24px] border border-red-200 shadow-sm p-8 md:p-10 flex flex-col lg:flex-row gap-8 items-center justify-between animate-in fade-in duration-500">
+                            <div className="flex-1 max-w-2xl text-left">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 shrink-0 shadow-inner">
+                                        <XCircle className="w-5 h-5" />
+                                    </div>
+                                    <h2 className="text-2xl font-black text-red-600 tracking-tight">Visit Cancelled by HR</h2>
+                                </div>
+                                <div className="text-slate-600 font-medium leading-relaxed text-base">
+                                    <p>
+                                        The immediate preceding proposal for <strong className="text-slate-900 bg-slate-100 px-2 py-1 rounded-md">{justCancelledVisit.proposed_date ? justCancelledVisit.proposed_date.split(' • ')[0] : "TBD"}</strong> has been formally cancelled.
+                                    </p>
+                                    
+                                    {cancelReason ? (
+                                        <div className="my-4 p-4 bg-red-50 text-red-700/90 rounded-xl border border-red-100/50 font-medium md:text-[15px] shadow-sm">
+                                            <strong className="block text-[11px] font-bold uppercase tracking-widest text-red-500 mb-1">Reason Provided</strong>
+                                            {cancelReason}
+                                        </div>
+                                    ) : (
+                                        <p className="mt-2">The historical log reflects the finalized termination, and the visit is officially closed.</p>
+                                    )}
+                                    
+                                    <p className={cancelReason ? "" : "mt-2"}>
+                                        If you still wish to coordinate with {company.name}, you may draft a brand new proposal below.
+                                    </p>
+                                </div>
+                            </div>
+                            <Button 
+                                onClick={() => document.getElementById('configuration-section')?.scrollIntoView({ behavior: 'smooth' })}
+                                className="bg-indigo-600 text-white hover:bg-indigo-700 font-bold h-12 px-8 rounded-xl shadow-lg transition-all hover:-translate-y-0.5 shrink-0"
+                            >
+                                Draft New Proposal
+                            </Button>
+                        </div>
+                    );
+                })()}
 
                 {/* SCENARIO A: INITIAL PLANNING BODY CONTENT (Hidden when active) */}
                 {!activeVisit && (

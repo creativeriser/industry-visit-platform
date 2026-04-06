@@ -17,6 +17,13 @@ export default function StudentDashboardPage() {
     const [visits, setVisits] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [searchQuery, setSearchQuery] = useState("")
+    const [shakeKey, setShakeKey] = useState(0)
+
+    useEffect(() => {
+        const handleShake = () => setShakeKey(k => k + 1)
+        window.addEventListener('trigger-profile-warning-shake', handleShake)
+        return () => window.removeEventListener('trigger-profile-warning-shake', handleShake)
+    }, [])
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -85,8 +92,15 @@ export default function StudentDashboardPage() {
         if (!profile.department) missingFields.push("Department");
         if (!profile.phone) missingFields.push("Phone");
         if (!profile.discipline) missingFields.push("Discipline");
-        if (!profile.github_url) missingFields.push("GitHub Link");
-        if (!profile.linkedin_url) missingFields.push("LinkedIn Link");
+        
+        let isCS = false;
+        if (profile.discipline) {
+            const disciplineLower = profile.discipline.toLowerCase()
+            isCS = disciplineLower.includes("computer") || disciplineLower.includes("cs") || disciplineLower.includes("it") || disciplineLower.includes("information")
+        }
+
+        if (isCS && !profile.github_url) missingFields.push("GitHub Link");
+        if (isCS && !profile.linkedin_url) missingFields.push("LinkedIn Link");
         if (!profile.resume_url) missingFields.push("Resume");
         if (!profile.roll_number) missingFields.push("Roll Number");
         if (!profile.section) missingFields.push("Section");
@@ -105,8 +119,10 @@ export default function StudentDashboardPage() {
                 {/* Profile Incomplete Warning */}
                 {isProfileIncomplete && (
                     <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        key={shakeKey}
+                        initial={shakeKey === 0 ? { opacity: 0, y: -10 } : { x: 0 }}
+                        animate={shakeKey === 0 ? { opacity: 1, y: 0 } : { x: [0, -10, 10, -6, 6, -3, 3, 0] }}
+                        transition={shakeKey === 0 ? {} : { duration: 0.4, ease: "easeInOut" }}
                         className="p-4 md:p-5 bg-red-50/80 border border-red-200/60 rounded-2xl text-red-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
                     >
                         <div className="flex items-start sm:items-center gap-3.5">
@@ -149,7 +165,7 @@ export default function StudentDashboardPage() {
                                  <VisitCard 
                                      visit={visit} 
                                      studentId={user!.id} 
-                                     hasCGPA={!!profile?.cgpa} 
+                                     profile={profile} 
                                      onApplySuccess={loadData} 
                                  />
                              </motion.div>
@@ -181,7 +197,7 @@ export default function StudentDashboardPage() {
                                     <VisitCard 
                                         visit={visit} 
                                         studentId={user!.id} 
-                                        hasCGPA={!!profile?.cgpa} 
+                                        profile={profile} 
                                         onApplySuccess={loadData} 
                                         isCrossStream={true}
                                     />

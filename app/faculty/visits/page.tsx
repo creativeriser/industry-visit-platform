@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
 import { COMPANIES } from "@/lib/companies"
-import { Building2, Calendar, Clock, MapPin, ArrowRight, XCircle, CheckCircle, RotateCcw, AlertCircle, Loader2, Route } from "lucide-react"
+import { Building2, Calendar, Clock, MapPin, ArrowRight, XCircle, CheckCircle, RotateCcw, AlertCircle, Loader2, Route, Radio } from "lucide-react"
+import { getDisciplineIcon } from "@/lib/utils"
 
 export default function FacultyVisitsPage() {
     const { user, loading: authLoading } = useAuth()
@@ -60,48 +61,48 @@ export default function FacultyVisitsPage() {
                 return {
                     bg: 'bg-amber-50',
                     border: 'border-amber-200',
-                    text: 'text-amber-700',
-                    icon: <Clock className="w-4 h-4 text-amber-500" />,
+                    text: 'text-amber-600',
+                    icon: <Clock className="w-3 h-3 text-amber-500" />,
                     label: 'Pending HR Review'
                 }
             case 'approved':
                 return {
                     bg: 'bg-emerald-50',
                     border: 'border-emerald-200',
-                    text: 'text-emerald-700',
-                    icon: <CheckCircle className="w-4 h-4 text-emerald-500" />,
+                    text: 'text-emerald-600',
+                    icon: <CheckCircle className="w-3 h-3 text-emerald-500" />,
                     label: 'HR Approved'
                 }
             case 'rescheduled':
                 return {
                     bg: 'bg-indigo-50',
                     border: 'border-indigo-200',
-                    text: 'text-indigo-700',
-                    icon: <RotateCcw className="w-4 h-4 text-indigo-500" />,
+                    text: 'text-indigo-600',
+                    icon: <RotateCcw className="w-3 h-3 text-indigo-500" />,
                     label: 'Alternate Proposed'
                 }
             case 'cancelled':
                 return {
                     bg: 'bg-red-50',
                     border: 'border-red-200',
-                    text: 'text-red-700',
-                    icon: <XCircle className="w-4 h-4 text-red-500" />,
+                    text: 'text-red-600',
+                    icon: <XCircle className="w-3 h-3 text-red-500" />,
                     label: 'Cancelled'
                 }
             case 'published':
                 return {
-                    bg: 'bg-indigo-50',
-                    border: 'border-indigo-200',
-                    text: 'text-indigo-700',
-                    icon: <CheckCircle className="w-4 h-4 text-indigo-500" />,
+                    bg: 'bg-violet-50',
+                    border: 'border-violet-200',
+                    text: 'text-violet-600',
+                    icon: <Radio className="w-3 h-3 text-violet-500" />,
                     label: 'Live to Students'
                 }
             default:
                 return {
                     bg: 'bg-slate-50',
                     border: 'border-slate-200',
-                    text: 'text-slate-700',
-                    icon: <AlertCircle className="w-4 h-4 text-slate-500" />,
+                    text: 'text-slate-600',
+                    icon: <AlertCircle className="w-3 h-3 text-slate-500" />,
                     label: 'Unknown Status'
                 }
         }
@@ -126,6 +127,7 @@ export default function FacultyVisitsPage() {
                     {visits.map((visit: any) => {
                         const company = COMPANIES.find(c => c.id === visit.company_id)
                         const theme = getStatusTheme(visit.status)
+                        const DisciplineIcon = getDisciplineIcon(company?.discipline || "")
                         
                         return (
                             <div 
@@ -147,8 +149,8 @@ export default function FacultyVisitsPage() {
                                     <div>
                                          <div className="flex flex-wrap items-center gap-3 mb-1">
                                               <h3 className="text-xl font-bold text-slate-900 truncate group-hover:text-indigo-700 transition-colors">{company?.name || "Unknown Company"}</h3>
-                                              <div className={`px-2.5 py-0.5 rounded-full font-bold border text-[10px] uppercase tracking-wider flex items-center gap-1.5 shadow-sm ${theme.bg} ${theme.text} ${theme.border}`}>
-                                                  {theme.icon && <span className="-ml-0.5 scale-[0.8]">{theme.icon}</span>}
+                                              <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-md border flex items-center gap-1 shadow-sm w-fit ${theme.bg} ${theme.text} ${theme.border}`}>
+                                                  {theme.icon && <span>{theme.icon}</span>}
                                                   {theme.label}
                                               </div>
                                          </div>
@@ -168,7 +170,8 @@ export default function FacultyVisitsPage() {
 
                                     {/* Tags perfectly listed under title */}
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className={`text-[11px] font-bold px-2.5 py-1 rounded-md border text-indigo-700 bg-indigo-50 border-indigo-100/50 flex items-center gap-1.5`}>
+                                        <span className="inline-flex text-[11px] font-bold px-2.5 py-1 rounded-md items-center gap-1.5 text-sky-700 bg-sky-50 border border-sky-100/50 shadow-sm">
+                                             <DisciplineIcon className="w-3 h-3 shrink-0" />
                                              {company?.discipline || "Generic"}
                                         </span>
 

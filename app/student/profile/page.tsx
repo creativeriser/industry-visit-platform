@@ -189,6 +189,25 @@ export default function StudentProfilePage() {
     const handleSave = async () => {
         if (!user) return
         setSaving(true)
+
+        // Validation Logic
+        if (tempData.cgpa) {
+            const cgpaVal = parseFloat(tempData.cgpa);
+            if (isNaN(cgpaVal) || cgpaVal < 0.0 || cgpaVal > 10.0) {
+                alert("Invalid CGPA. Must be between 0.0 and 10.0");
+                setSaving(false);
+                return;
+            }
+        }
+
+        if (tempData.attendance) {
+            const attVal = parseFloat(tempData.attendance);
+            if (isNaN(attVal) || attVal < 0 || attVal > 100) {
+                alert("Invalid Attendance. Must be between 0 and 100");
+                setSaving(false);
+                return;
+            }
+        }
         
         const { error } = await supabase.from('profiles').update({
             full_name: tempData.full_name || null,
@@ -498,13 +517,31 @@ export default function StudentProfilePage() {
                                     )}
                                     <SaveControls mode="github" currentMode={editMode} onSave={handleSave} onCancel={() => {setTempData(profile); setEditMode('none')}} saving={saving} />
                                 </div>
-                                <input 
-                                    value={isEditingGithub ? tempData.github_url : profile.github_url} 
-                                    onChange={e => setTempData({...tempData, github_url: e.target.value})}
-                                    disabled={!isEditingGithub}
-                                    placeholder="https://github.com/..."
-                                    className={`w-full p-3.5 rounded-xl border ${isEditingGithub ? 'border-emerald-400 bg-white ring-2 ring-emerald-50' : 'border-emerald-100 bg-white'} text-[#10b981] text-sm font-medium outline-none`} 
-                                />
+                                {isEditingGithub ? (
+                                    <input 
+                                        value={tempData.github_url || ""} 
+                                        onChange={e => setTempData({...tempData, github_url: e.target.value})}
+                                        placeholder="https://github.com/..."
+                                        className="w-full p-3.5 rounded-xl border border-emerald-400 bg-white ring-2 ring-emerald-50 text-[#10b981] text-sm font-medium outline-none" 
+                                    />
+                                ) : (
+                                    <div className="w-full">
+                                        {profile.github_url ? (
+                                            <a 
+                                                href={profile.github_url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="block w-full p-3.5 rounded-xl border border-emerald-100 bg-white hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all text-[#10b981] text-sm font-medium truncate shadow-sm"
+                                            >
+                                                {profile.github_url}
+                                            </a>
+                                        ) : (
+                                            <div className="w-full p-3.5 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-400 text-sm font-medium italic">
+                                                No GitHub profile linked
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {!isEditingGithub && profile.github_url && !validGithub && (
@@ -609,13 +646,31 @@ export default function StudentProfilePage() {
                                     )}
                                     <SaveControls mode="linkedin" currentMode={editMode} onSave={handleSave} onCancel={() => {setTempData(profile); setEditMode('none')}} saving={saving} />
                                 </div>
-                                <input 
-                                    value={isEditingLinkedin ? tempData.linkedin_url : profile.linkedin_url} 
-                                    onChange={e => setTempData({...tempData, linkedin_url: e.target.value})}
-                                    disabled={!isEditingLinkedin}
-                                    placeholder="https://linkedin.com/in/..."
-                                    className={`w-full p-3.5 rounded-xl border ${isEditingLinkedin ? 'border-blue-400 bg-white ring-2 ring-blue-50' : 'border-blue-100 bg-white'} text-[#2563eb] text-sm font-medium outline-none`} 
-                                />
+                                {isEditingLinkedin ? (
+                                    <input 
+                                        value={tempData.linkedin_url || ""} 
+                                        onChange={e => setTempData({...tempData, linkedin_url: e.target.value})}
+                                        placeholder="https://linkedin.com/in/..."
+                                        className="w-full p-3.5 rounded-xl border border-blue-400 bg-white ring-2 ring-blue-50 text-[#2563eb] text-sm font-medium outline-none" 
+                                    />
+                                ) : (
+                                    <div className="w-full">
+                                        {profile.linkedin_url ? (
+                                            <a 
+                                                href={profile.linkedin_url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="block w-full p-3.5 rounded-xl border border-blue-100 bg-white hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-all text-[#2563eb] text-sm font-medium truncate shadow-sm"
+                                            >
+                                                {profile.linkedin_url}
+                                            </a>
+                                        ) : (
+                                            <div className="w-full p-3.5 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-400 text-sm font-medium italic">
+                                                No LinkedIn profile linked
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {!isEditingLinkedin && profile.linkedin_url && !validLinkedin && (
@@ -683,13 +738,31 @@ export default function StudentProfilePage() {
                                     )}
                                     <SaveControls mode="leetcode" currentMode={editMode} onSave={handleSave} onCancel={() => {setTempData(profile); setEditMode('none')}} saving={saving} />
                                 </div>
-                                <input 
-                                    value={isEditingLeetcode ? tempData.leetcode_url : profile.leetcode_url} 
-                                    onChange={e => setTempData({...tempData, leetcode_url: e.target.value})}
-                                    disabled={!isEditingLeetcode}
-                                    placeholder="https://leetcode.com/..."
-                                    className={`w-full p-3.5 rounded-xl border ${isEditingLeetcode ? 'border-amber-400 bg-white ring-2 ring-amber-50' : 'border-slate-100 bg-slate-50/50'} text-slate-700 text-sm font-medium outline-none`} 
-                                />
+                                {isEditingLeetcode ? (
+                                    <input 
+                                        value={tempData.leetcode_url || ""} 
+                                        onChange={e => setTempData({...tempData, leetcode_url: e.target.value})}
+                                        placeholder="https://leetcode.com/..."
+                                        className="w-full p-3.5 rounded-xl border border-amber-400 bg-white ring-2 ring-amber-50 text-slate-700 text-sm font-medium outline-none" 
+                                    />
+                                ) : (
+                                    <div className="w-full">
+                                        {profile.leetcode_url ? (
+                                            <a 
+                                                href={profile.leetcode_url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="block w-full p-3.5 rounded-xl border border-amber-100 bg-white hover:bg-amber-50 hover:border-amber-200 hover:text-amber-700 transition-all text-amber-600 text-sm font-medium truncate shadow-sm"
+                                            >
+                                                {profile.leetcode_url}
+                                            </a>
+                                        ) : (
+                                            <div className="w-full p-3.5 rounded-xl border border-dashed border-slate-200 bg-slate-50 text-slate-400 text-sm font-medium italic">
+                                                No LeetCode profile linked
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
                             {!isEditingLeetcode && profile.leetcode_url && !validLeetcode && (

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import { createClient } from "@supabase/supabase-js"
 import { BrandLogo } from "@/components/layout/brand-logo"
-import { Calendar, Building2, User, Clock, ChevronDown } from "lucide-react"
+import { Calendar, Building2, User, Clock, ChevronDown, XCircle } from "lucide-react"
 import { ApproveForm } from "./approve-form"
 
 // We must use a direct server-side supabase client here to read because HR is not logged in
@@ -24,6 +24,25 @@ export default async function PartnerApprovePage({ params }: { params: Promise<{
 
     if (error || !visit) {
         notFound()
+    }
+
+    if (visit.status === 'cancelled') {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col">
+                <header className="bg-white border-b border-slate-200/80 h-20 flex items-center justify-between px-6 lg:px-8">
+                    <BrandLogo className="scale-90 origin-left" showText={true} />
+                </header>
+                <div className="flex-1 flex flex-col items-center justify-center p-6 text-center animate-in fade-in zoom-in-95 duration-500">
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600 mb-6 shadow-inner">
+                        <XCircle className="w-8 h-8" />
+                    </div>
+                    <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-4">Proposal Closed</h1>
+                    <p className="text-slate-500 text-base max-w-md leading-relaxed">
+                        This visit coordination thread was formally cancelled and the link has expired. To continue coordination, please refer to the newest proposal link in your email.
+                    </p>
+                </div>
+            </div>
+        )
     }
 
     return (

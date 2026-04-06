@@ -8,6 +8,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 
 import { getDisciplineIcon } from "@/lib/utils"
+import { VisitApplyAction } from "./visit-apply-action"
 
 export default async function StudentVisitDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -134,9 +135,9 @@ export default async function StudentVisitDetailPage({ params }: { params: Promi
                                     </div>
                                 </div>
 
-                                <Button className="w-full bg-white text-sky-600 hover:bg-white/90 font-bold h-12 rounded-xl shadow-lg border-0 mt-2">
-                                    Express Interest
-                                </Button>
+                                <div className="mt-2">
+                                    <VisitApplyAction visitId={company.id.toString()} />
+                                </div>
                             </CardContent>
                         </Card>
 

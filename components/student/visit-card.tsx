@@ -1,19 +1,19 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Building2, Calendar, MapPin, CheckCircle, Clock, XCircle } from "lucide-react"
+import { Building2, Calendar, MapPin, Check, Clock, XCircle } from "lucide-react"
 import { getDisciplineIcon } from "@/lib/utils"
 import { ApplyButton } from "@/app/student/apply-button"
 
 interface VisitCardProps {
     visit: any;
     studentId: string;
-    hasCGPA: boolean;
+    profile: any;
     onApplySuccess: () => void;
     isCrossStream?: boolean;
 }
 
-export function VisitCard({ visit, studentId, hasCGPA, onApplySuccess, isCrossStream = false }: VisitCardProps) {
+export function VisitCard({ visit, studentId, profile, onApplySuccess, isCrossStream = false }: VisitCardProps) {
     const DisciplineIcon = getDisciplineIcon(visit.company.discipline)
     const myApplication = visit.applications?.find((app: any) => app.student_id === studentId)
 
@@ -100,16 +100,16 @@ export function VisitCard({ visit, studentId, hasCGPA, onApplySuccess, isCrossSt
                 {myApplication ? (
                     <div className={`flex items-center justify-center p-3 rounded-xl font-bold border text-xs uppercase tracking-wider gap-2 w-full h-12 shadow-sm ${
                         myApplication.status === 'applied' ? 'bg-amber-50 text-amber-600 border-amber-200' :
-                        myApplication.status === 'accepted' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        myApplication.status === 'accepted' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
                         'bg-red-50 text-red-600 border-red-200'
                     }`}>
                         {myApplication.status === 'applied' && <><Clock className="w-4 h-4 shrink-0" /> Pending</>}
-                        {myApplication.status === 'accepted' && <><CheckCircle className="w-4 h-4 shrink-0" /> Accepted</>}
+                        {myApplication.status === 'accepted' && <><Check className="w-4 h-4 shrink-0" /> Accepted</>}
                         {myApplication.status === 'rejected' && <><XCircle className="w-4 h-4 shrink-0" /> Not Selected</>}
                     </div>
                 ) : (
                      <div className="w-full h-12 relative flex items-center justify-center -mt-1">
-                         <ApplyButton visitId={visit.id} studentId={studentId} hasCGPA={hasCGPA} onApplySuccess={onApplySuccess} />
+                         <ApplyButton visitId={visit.id} studentId={studentId} profile={profile} onApplySuccess={onApplySuccess} />
                      </div>
                 )}
             </div>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
-import { Loader2, ArrowLeft, GraduationCap, Github, Linkedin, Code, CheckCircle, XCircle, Building2, Calendar, Mail, FileText, Briefcase, Award, Check, X, BrainCircuit, User, Phone, Cpu, Calculator } from "lucide-react"
+import { Loader2, ArrowLeft, GraduationCap, Github, Linkedin, Code, CheckCircle, XCircle, Building2, Calendar, Mail, FileText, Briefcase, Award, Check, X, BrainCircuit, User, Phone, Cpu, Calculator, Clock, CalendarCheck } from "lucide-react"
 import { FacultyApproveButtons } from "../approve-buttons"
 import { motion } from "framer-motion"
 import { getDisciplineIcon } from "@/lib/utils"
@@ -230,7 +230,7 @@ export default function StudentApplicationReportPage() {
                         proposed_date,
                         company:companies(name, location, type, image, discipline)
                     ),
-                    student:profiles(id, full_name, cgpa, discipline, institution, department, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree, phone, resume_url, certificates)
+                    student:profiles(id, full_name, cgpa, attendance, discipline, institution, department, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree, phone, resume_url, certificates)
                 `)
                 .eq('id', applicationId)
                 .single()
@@ -272,38 +272,60 @@ export default function StudentApplicationReportPage() {
                 className="space-y-8"
             >
                 {/* Header Section */}
-                <div className="bg-white border text-slate-900 border-indigo-100 rounded-[24px] shadow-sm overflow-hidden ring-1 ring-indigo-50">
-                    <div className="bg-indigo-900 p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 text-white relative overflow-hidden border-b border-indigo-800">
-                        {/* Abstract Tech Background */}
-                        <div className="absolute inset-0 opacity-10 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '24px 24px' }}></div>
-                        
-                        <div className="relative z-10">
-                            <div className="flex items-center gap-3 mb-2">
-                                <h1 className="text-3xl font-black">{student?.full_name || 'Anonymous Student'}</h1>
-                                {application.status === 'applied' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-md shadow-sm">PENDING</span>}
-                                {application.status === 'accepted' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md shadow-sm flex items-center gap-1"><Check className="w-3 h-3"/> ACCEPTED</span>}
-                                {application.status === 'rejected' && <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md shadow-sm flex items-center gap-1"><X className="w-3 h-3"/> REJECTED</span>}
+                <div className="bg-white border text-slate-900 border-slate-200/80 rounded-[24px] shadow-sm overflow-hidden">
+                    <div className="p-8 flex flex-col xl:flex-row xl:items-center justify-between gap-8 border-b border-slate-100">
+                        {/* Identity & Status */}
+                        <div className="flex items-center gap-6">
+                            {/* Monogram / Avatar Container */}
+                            <div className="hidden sm:flex w-16 h-16 bg-slate-50 border border-slate-200/80 rounded-full items-center justify-center shrink-0">
+                                <User className="w-7 h-7 text-slate-400" />
                             </div>
-                            <p className="text-slate-300 text-lg flex items-center gap-2">
-                                <Briefcase className="w-5 h-5 text-indigo-400" /> Applying for: <strong className="text-white">{application.visit?.company?.name}</strong> Visit
-                            </p>
+                            <div>
+                                <div className="flex flex-wrap items-center gap-4 mb-2">
+                                    <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{student?.full_name || 'Anonymous Student'}</h1>
+                                </div>
+                                <p className="text-slate-500 font-medium text-lg flex items-center gap-2 mt-1">
+                                    <Briefcase className="w-5 h-5 text-slate-400" /> Applying for: <strong className="text-slate-900">{application.visit?.company?.name}</strong> Visit
+                                </p>
+                            </div>
                         </div>
 
-                        <div className="relative z-10 shrink-0 bg-white/10 p-4 rounded-2xl backdrop-blur-sm border border-white/10 flex flex-col items-center justify-center min-w-[140px]">
-                            <p className="text-slate-300 text-sm font-medium mb-1">Current CGPA</p>
-                            <div className="flex items-center gap-2">
-                                <GraduationCap className={`w-8 h-8 ${student?.cgpa >= 8.0 ? 'text-emerald-400' : 'text-amber-400'}`} />
-                                <span className={`text-4xl font-black ${student?.cgpa >= 8.0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        {/* Enterprise Unified Metrics Block */}
+                        <div className="flex flex-wrap sm:flex-nowrap items-center gap-8 px-8 py-5 bg-slate-50/50 border border-slate-200/60 rounded-[20px] shrink-0">
+                            {/* CGPA */}
+                            <div className="flex flex-col gap-1.5 min-w-[80px]">
+                                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <GraduationCap className="w-4 h-4 text-slate-400" /> CGPA
+                                </span>
+                                <span className={`text-2xl font-black tracking-tight ${student?.cgpa >= 8.0 ? 'text-emerald-600' : 'text-amber-600'}`}>
                                     {student?.cgpa ? student.cgpa.toFixed(2) : 'N/A'}
+                                </span>
+                            </div>
+                            
+                            {/* Divider */}
+                            <div className="w-[1px] h-12 bg-slate-200/80 hidden sm:block"></div>
+                            
+                            {/* Attendance */}
+                            <div className="flex flex-col gap-1.5 min-w-[80px]">
+                                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-widest flex items-center gap-1.5">
+                                    <CalendarCheck className="w-4 h-4 text-slate-400" /> Attendance
+                                </span>
+                                <span className={`text-2xl font-black tracking-tight ${student?.attendance >= 75 ? 'text-sky-600' : 'text-red-600'}`}>
+                                    {student?.attendance ? `${student.attendance}%` : 'N/A'}
                                 </span>
                             </div>
                         </div>
                     </div>
                     
                     {/* Action Hub */}
-                    <div className="bg-indigo-50/50 p-6 border-b border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="bg-slate-50/50 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div>
-                            <h3 className="font-bold text-slate-800">Application Decision</h3>
+                            <div className="flex items-center gap-3 mb-1">
+                                <h3 className="font-bold text-slate-800 text-lg">Application Decision</h3>
+                                {application.status === 'applied' && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-amber-50 text-amber-600 border border-amber-200 rounded-md flex items-center gap-1.5 shadow-sm"><Clock className="w-3 h-3 text-amber-500" /> PENDING</span>}
+                                {application.status === 'accepted' && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-md flex items-center gap-1.5 shadow-sm"><Check className="w-3 h-3 text-emerald-500"/> ACCEPTED</span>}
+                                {application.status === 'rejected' && <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 bg-red-50 text-red-600 border border-red-200 rounded-md flex items-center gap-1.5 shadow-sm"><X className="w-3 h-3 text-red-500"/> REJECTED</span>}
+                            </div>
                             <p className="text-sm text-slate-500">Review the profile below before confirming your decision.</p>
                         </div>
                         <div className="shrink-0 w-full sm:w-[300px]">
@@ -361,11 +383,11 @@ export default function StudentApplicationReportPage() {
                             <div className="grid grid-cols-2 gap-x-5 gap-y-6">
                                 <div className="col-span-2 space-y-2 pt-2">
                                     <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">Academic Discipline</label>
-                                    <div className="relative">
-                                        <Cpu className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400" />
-                                        <div className="w-full pl-11 p-3.5 rounded-xl border border-indigo-100 bg-indigo-50/30 text-indigo-700 font-bold text-sm flex items-center h-[46px]">
+                                    <div className="w-full flex items-center h-[46px]">
+                                        <span className="inline-flex text-[11px] font-bold px-2.5 py-1 rounded-md items-center gap-1.5 text-sky-700 bg-sky-50 border border-sky-100/50 w-fit shadow-sm">
+                                            <DisciplineIcon className="w-3.5 h-3.5 shrink-0" />
                                             {student?.discipline || 'Not Set'}
-                                        </div>
+                                        </span>
                                     </div>
                                 </div>
                                 <div className="col-span-2 space-y-2">

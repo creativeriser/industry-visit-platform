@@ -96,7 +96,7 @@ export default function StudentApplicationsPage() {
                                 <VisitCard 
                                     visit={mappedVisit}
                                     studentId={user!.id}
-                                    hasCGPA={true}
+                                    profile={null}
                                     onApplySuccess={() => {}} 
                                 />
                             </motion.div>
@@ -112,7 +112,7 @@ export default function StudentApplicationsPage() {
                     <p className="text-slate-500 mt-2 font-medium max-w-sm leading-relaxed">You haven't applied to any industry visits. Browse the Discovery Hub to find opportunities.</p>
                     <button 
                         onClick={() => router.push('/student')}
-                        className="mt-8 px-6 py-3 bg-sky-600 text-white rounded-xl font-bold shadow-lg shadow-sky-200 hover:bg-sky-700 transition-all hover:-translate-y-0.5"
+                        className="mt-8 px-6 py-3 bg-sky-600 text-white rounded-xl font-bold shadow-sm hover:shadow-md hover:bg-sky-700 transition-all hover:-translate-y-[1px]"
                     >
                         Browse Discovery
                     </button>

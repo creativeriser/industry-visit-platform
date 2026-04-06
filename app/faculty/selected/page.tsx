@@ -38,7 +38,7 @@ export default function FacultySelectedStudentsPage() {
                     applications:visit_applications(
                         id,
                         status,
-                        student:profiles(id, full_name, cgpa, discipline, institution, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree)
+                        student:profiles(id, full_name, cgpa, attendance, discipline, institution, email, github_url, leetcode_url, linkedin_url, roll_number, section, degree)
                     )
                 `)
                 .eq('faculty_id', user!.id)

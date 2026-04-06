@@ -32,24 +32,20 @@ export function FacultyApproveButtons({ applicationId, currentStatus, onUpdate }
     }
 
     return (
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-3">
             <Button 
-                size="sm"
-                variant="outline"
                 onClick={() => handleUpdate('accepted')}
                 disabled={isUpdating}
-                className="bg-white border-emerald-200 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700 h-8 px-3 rounded-lg"
+                className="bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 shadow-sm shadow-emerald-100/50 text-emerald-700 px-6 py-2.5 h-[42px] rounded-xl font-bold transition-all duration-300 hover:-translate-y-[1px] active:scale-95"
             >
-                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1" /> Accept</>}
+                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4 mr-1.5" /> Accept</>}
             </Button>
             <Button 
-                size="sm"
-                variant="outline"
                 onClick={() => handleUpdate('rejected')}
                 disabled={isUpdating}
-                className="bg-white border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 h-8 px-3 rounded-lg"
+                className="bg-red-50 hover:bg-red-100 border border-red-200 shadow-sm shadow-red-100/50 text-red-700 px-6 py-2.5 h-[42px] rounded-xl font-bold transition-all duration-300 hover:-translate-y-[1px] active:scale-95"
             >
-                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><X className="w-4 h-4 mr-1" /> Reject</>}
+                {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <><X className="w-4 h-4 mr-1.5" /> Reject</>}
             </Button>
         </div>
     )

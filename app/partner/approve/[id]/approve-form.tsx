@@ -17,7 +17,8 @@ interface ApproveFormProps {
 export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initialStatus, hrNotes, leftContent }: ApproveFormProps) {
     const [status, setStatus] = useState(initialStatus)
     const [loadingAction, setLoadingAction] = useState<"idle" | "accept" | "reschedule" | "decline" | "chat">("idle")
-    const [view, setView] = useState<"default" | "reschedule_mode">("default")
+    const [view, setView] = useState<"default" | "reschedule_mode" | "cancel_mode">("default")
+    const [cancelReason, setCancelReason] = useState("")
     
     // Reschedule form state
     const [overrideDate, setOverrideDate] = useState("")
@@ -105,9 +106,10 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
 
     const handleAccept = () => updateVisitStatus('approved', 'HR Accepted the proposed date.', currentProposedDate, "accept")
     const handleDecline = () => {
-        if (confirm("Are you sure you want to decline this request? The faculty will be notified.")) {
-            updateVisitStatus('cancelled', 'HR declined the request natively.', currentProposedDate, "decline")
-        }
+        setView("cancel_mode")
+    }
+    const handleCancelSubmit = () => {
+        updateVisitStatus('cancelled', cancelReason.trim() ? `HR Cancelled: ${cancelReason.trim()}` : 'HR Cancelled the Visit.', currentProposedDate, "decline")
     }
     const handleRescheduleSubmit = () => {
         const finalDate = overrideDate ? formatDate(overrideDate) : currentProposedDate.split(' • ')[0]
@@ -141,6 +143,42 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                     </div>
                     <h3 className="text-lg font-bold text-slate-900 mb-1">Request Declined</h3>
                     <p className="text-slate-500 text-[13px] max-w-[280px] leading-relaxed">This visit request has been cancelled. Reach out to the faculty member via email if this was a mistake.</p>
+                </div>
+            )
+        }
+
+        // Cancel form view
+        if (view === "cancel_mode") {
+            return (
+                <div className="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+                    <div className="text-center mb-6">
+                        <div className="w-12 h-12 rounded-full bg-red-50 border border-red-100 text-red-500 flex items-center justify-center mx-auto mb-3">
+                            <XCircle className="w-5 h-5" />
+                        </div>
+                        <h4 className="text-base font-bold text-slate-900 tracking-tight">Cancel Visit Request</h4>
+                        <p className="text-slate-500 text-[13px] leading-relaxed mt-1">Please provide a reason to the faculty member for this cancellation.</p>
+                    </div>
+                    
+                    <div className="bg-slate-50 border border-slate-100 rounded-2xl p-5">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Reason for Cancellation</label>
+                        <textarea 
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            className="w-full text-sm p-3 rounded-lg border border-slate-200 focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all resize-none shadow-sm" 
+                            placeholder="E.g. We encountered a scheduling conflict that requires us to abort..."
+                            rows={3}
+                        />
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                        <Button onClick={() => setView("default")} variant="ghost" className="w-[100px] rounded-xl h-12 font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 text-[13px]">Back</Button>
+                        <Button 
+                            onClick={handleCancelSubmit} 
+                            disabled={loadingAction !== "idle" || cancelReason.length < 5}
+                            className="flex-1 rounded-xl h-12 bg-red-500 hover:bg-red-600 text-white font-bold shadow-lg shadow-red-500/20 gap-2 text-[13px] transition-all"
+                        >
+                            {loadingAction === "decline" ? <Loader2 className="w-4 h-4 animate-spin" /> : "Confirm Cancel"}
+                        </Button>
+                    </div>
                 </div>
             )
         }
@@ -224,6 +262,37 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
             )
         }
 
+        // Live Published view (Strict Lock)
+        if (status === 'published') {
+            return (
+                <div className="space-y-6">
+                    <div className="text-center">
+                        <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-500 flex items-center justify-center mx-auto mb-4 shadow-inner">
+                            <Building2 className="w-5 h-5" />
+                        </div>
+                        <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">
+                            Visit is Now Live!
+                        </h3>
+                        <p className="text-slate-500 text-[13px] max-w-[280px] mx-auto leading-relaxed">
+                            This visit is live. Students are currently applying for the agreed slot. Rescheduling is disabled.
+                        </p>
+                    </div>
+
+                    <div className="pt-6 mt-2 border-t border-slate-100">
+                        <div className="flex flex-col gap-3">
+                            <button 
+                                onClick={handleDecline}
+                                disabled={loadingAction !== "idle"}
+                                className="text-[13px] font-bold text-red-400 hover:text-red-600 transition-colors mx-auto mt-2 flex items-center gap-1.5"
+                            >
+                                <XCircle className="w-4 h-4" /> Cancel Emergency Visit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )
+        }
+
         // Approved or Rescheduled view (Active Management Dashboard)
         if (status === 'approved' || status === 'rescheduled') {
             return (
@@ -237,12 +306,12 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                         </h3>
                         <p className="text-slate-500 text-[13px] max-w-[280px] mx-auto leading-relaxed">
                             {status === 'approved' 
-                                ? "You have officially accepted this visit. We're looking forward to it!" 
+                                ? "This visit schedule has been mutually confirmed by both parties. The faculty will publish it to students shortly." 
                                 : "You suggested a new time. The faculty will review it shortly."}
                         </p>
                     </div>
 
-                    <div className="pt-6 mt-2">
+                    <div className="pt-6 mt-2 border-t border-slate-100">
                         <div className="flex flex-col gap-3">
                             <Button 
                                 onClick={() => setView("reschedule_mode")}
