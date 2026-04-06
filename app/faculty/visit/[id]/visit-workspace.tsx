@@ -1203,7 +1203,10 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                         <div className="space-y-4 text-lg leading-relaxed font-medium">
                             <p>Dear {company.representative.name},</p>
                             <p>
-                                I am a faculty of <strong>{profileUser?.institution || 'UniVisit Institution'}</strong>. I am reaching out to formally request an industry visit for our students at <strong>{company.name}</strong> on <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{facultyDate}</strong> under the proposed timeframe of <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{formatTime12hr(startTime)} to {formatTime12hr(endTime)}</strong>.
+                                I am writing to you on behalf of the <strong>{profileUser?.institution || 'UniVisit Institution'}</strong>. We are reaching out to explore the possibility of organizing a formal industry visit for our students at <strong>{company.name}</strong>.
+                            </p>
+                            <p>
+                                We have tentatively proposed <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{facultyDate}</strong> during the timeframe of <strong className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">{formatTime12hr(startTime)} to {formatTime12hr(endTime)}</strong> for this engagement. Our goal is to provide our students with practical industry exposure that directly aligns with their academic curriculum.
                             </p>
                             
                             <div className="py-2">
@@ -1269,10 +1272,16 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
 
                 <div className="bg-slate-50 border-t border-slate-100 px-6 py-5 flex flex-col sm:flex-row justify-between sm:items-center gap-4 shrink-0">
                     <p className="text-xs text-slate-400 font-bold hidden sm:block">Internal routing natively secured.</p>
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <Button variant="ghost" onClick={() => setIsEmailModalOpen(false)} className="font-bold text-slate-500 hover:text-slate-900">Close</Button>
-                        <Button onClick={handleActualSchedule} disabled={isScheduling} className="bg-indigo-600 hover:bg-indigo-700 h-12 px-8 rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all">
-                            {isScheduling ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4 mr-2" /> Send Official Request</>}
+                    <div className="flex gap-3 w-full justify-end sm:w-auto">
+                        <Button variant="ghost" onClick={() => setIsEmailModalOpen(false)} className="h-12 px-8 rounded-xl font-bold text-slate-500 hover:text-slate-800 bg-slate-200/50 hover:bg-slate-200">
+                            Close
+                        </Button>
+                        <Button 
+                            onClick={handleActualSchedule} 
+                            disabled={isScheduling} 
+                            className="bg-indigo-600 hover:bg-indigo-700 w-full sm:w-[240px] h-12 rounded-xl font-bold shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center"
+                        >
+                            {isScheduling ? <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Dispatching...</> : <><Send className="w-4 h-4 mr-2" /> Send Official Request</>}
                         </Button>
                     </div>
                 </div>
