@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import { motion } from "framer-motion"
 import { Building2, Calendar, MapPin, Check, Clock, XCircle } from "lucide-react"
 import { getDisciplineIcon } from "@/lib/utils"
@@ -16,6 +18,7 @@ interface VisitCardProps {
 export function VisitCard({ visit, studentId, profile, onApplySuccess, isCrossStream = false }: VisitCardProps) {
     const DisciplineIcon = getDisciplineIcon(visit.company.discipline)
     const myApplication = visit.applications?.find((app: any) => app.student_id === studentId)
+    const [imgError, setImgError] = useState(false)
 
     return (
         <motion.div
@@ -36,26 +39,25 @@ export function VisitCard({ visit, studentId, profile, onApplySuccess, isCrossSt
             className="group relative bg-white rounded-3xl p-4 min-h-[140px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-sky-900/5 hover:border-sky-100 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center gap-6 overflow-hidden w-full"
         >
             {/* Enlarged Image Thumbnail (Landscape 4:3) - Exactly like Faculty */}
-            <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block">
-                <div className="absolute inset-0 z-10 bg-slate-900/5 group-hover:bg-transparent transition-colors" />
-                {visit.company.image ? (
-                    <img src={visit.company.image} alt={visit.company.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block bg-slate-50 border border-slate-100/50 flex items-center justify-center p-6 transition-colors group-hover:bg-slate-100">
+                {visit.company.logo && !imgError ? (
+                    <img src={visit.company.logo} alt={`${visit.company.name} logo`} onError={() => setImgError(true)} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
                 ) : (
-                    <div className="w-full h-full bg-slate-100 flex items-center justify-center"><Building2 className="w-8 h-8 text-slate-300" /></div>
+                    <div className="w-full h-full flex items-center justify-center text-sky-300 font-black text-4xl uppercase bg-sky-50/50 rounded-xl">{visit.company.name.charAt(0)}</div>
                 )}
                 {isCrossStream && (
-                     <div className="absolute bottom-2 left-2 z-20 bg-amber-500/90 backdrop-blur-sm text-white text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded border border-amber-400 shadow-sm">
+                     <div className="absolute top-2 left-2 z-20 bg-amber-500/90 backdrop-blur-sm text-white text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded border border-amber-400 shadow-sm">
                         Cross-Stream
                      </div>
                 )}
             </div>
 
             {/* Mobile Image */}
-            <div className="h-40 w-full sm:hidden relative rounded-2xl overflow-hidden shadow-sm shrink-0">
-               {visit.company.image ? (
-                    <img src={visit.company.image} alt={visit.company.name} className="w-full h-full object-cover" />
+            <div className="h-32 w-full sm:hidden relative rounded-2xl overflow-hidden shadow-sm shrink-0 bg-slate-50 border border-slate-100/50 flex items-center justify-center p-6">
+               {visit.company.logo && !imgError ? (
+                    <img src={visit.company.logo} alt={`${visit.company.name} logo`} onError={() => setImgError(true)} className="w-full h-full object-contain" />
                 ) : (
-                    <div className="w-full h-full bg-slate-100 flex items-center justify-center"><Building2 className="w-8 h-8 text-slate-300" /></div>
+                    <div className="w-full h-full flex items-center justify-center text-sky-300 font-black text-4xl uppercase bg-sky-50/50 rounded-xl">{visit.company.name.charAt(0)}</div>
                 )}
             </div>
 

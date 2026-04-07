@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { motion } from "framer-motion"
 import { Bookmark } from "lucide-react"
 import Link from "next/link"
@@ -13,6 +14,7 @@ interface CompanyCardProps {
         location: string
         discipline: string
         image: string
+        logo?: string
         tags: string[]
     }
     basePath?: string
@@ -20,6 +22,7 @@ interface CompanyCardProps {
 
 export function CompanyCard({ item, basePath = "/faculty" }: CompanyCardProps) {
     const { user, toggleShortlist, loading } = useUser()
+    const [imgError, setImgError] = useState(false)
     const isShortlisted = user.shortlist?.includes(item.id) || false
     const DisciplineIcon = getDisciplineIcon(item.discipline)
 
@@ -40,11 +43,14 @@ export function CompanyCard({ item, basePath = "/faculty" }: CompanyCardProps) {
                 }}
                 className="group relative bg-white rounded-3xl p-4 min-h-[140px] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-indigo-900/5 hover:border-indigo-100 transition-all duration-300 cursor-pointer flex items-start sm:items-center gap-6"
             >
-                {/* Enlarged Image Thumbnail (Landscape 4:3) */}
-                <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block">
-                    <div className="absolute inset-0 z-10 bg-slate-900/5 group-hover:bg-transparent transition-colors" />
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                {/* Logo Container (Landscape 4:3) */}
+                <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block bg-slate-50 border border-slate-100/50 flex items-center justify-center p-6 transition-colors group-hover:bg-slate-100">
+                    {item.logo && !imgError ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={item.logo} alt={`${item.name} logo`} onError={() => setImgError(true)} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-indigo-300 font-black text-4xl uppercase bg-indigo-50/50 rounded-xl">{item.name.charAt(0)}</div>
+                    )}
                 </div>
 
                 {/* Content Info */}

@@ -94,6 +94,7 @@ export function RecommendationRail({ companies }: { companies: Company[] }) {
                                         location: item.location,
                                         discipline: discipline,
                                         image: item.image,
+                                        logo: item.logo,
                                         tags: item.tags
                                     }}
                                 />

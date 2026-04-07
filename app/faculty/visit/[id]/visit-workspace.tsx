@@ -614,7 +614,15 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
             {/* UNIFIED HERO HEADER */}
             <div className="bg-white border-b border-slate-200/60 shadow-sm relative z-10">
                 <div className="max-w-7xl mx-auto px-6 py-10 md:py-14">
-                    <div className="flex flex-col">
+                    <div className="flex flex-col md:flex-row md:items-center gap-6">
+                        {/* Company Logo Badge */}
+                        {company.logo && (
+                            <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-3xl shadow-sm border border-slate-200/60 flex items-center justify-center p-3 shrink-0">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={company.logo} alt={`${company.name} logo`} className="w-full h-full object-contain" />
+                            </div>
+                        )}
+                        
                         <div className="space-y-4 max-w-3xl">
                             {/* Title */}
                             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">

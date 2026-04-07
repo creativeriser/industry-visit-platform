@@ -20,6 +20,14 @@ This document serves as the absolute source of truth for all UI/UX design compon
 
 ---
 
+## 3. Enterprise Logo Presentation
+* **Clean & Minimalist Branding:** Company logos must be presented as the absolute focal point of company/visit cards.
+* **Layout:** Use a `slate-50` background container (`bg-slate-50 border border-slate-100/50 p-6 flex items-center justify-center`) without distracting stock photos or building backgrounds.
+* **Format & Feel:** Scale logos beautifully with `object-contain` and apply micro-interactions (`group-hover:scale-105`) to match the SAAS-grade enterprise feel.
+* **Fallback:** If a logo is ever missing, an elegant initial is centered dynamically (`.charAt(0)`).
+
+---
+
 ## 3. The Universal Status Tag System
 
 Status tags indicate the state of a visit or application. They must be uniform across both the Student and Faculty dashboards.

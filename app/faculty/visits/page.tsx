@@ -134,13 +134,13 @@ export default function FacultyVisitsPage() {
                                 key={visit.id} 
                                 className={`group relative bg-white rounded-3xl p-4 min-h-[140px] border border-indigo-100/50 shadow-sm hover:shadow-xl hover:shadow-indigo-900/5 hover:border-indigo-200 transition-all duration-300 flex flex-col sm:flex-row items-start sm:items-center gap-6 overflow-hidden w-full ${visit.status === 'cancelled' ? 'opacity-75 grayscale-[0.2]' : ''}`}
                             >
-                                {/* Enlarged Image Thumbnail (Landscape 4:3) */}
-                                <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block ring-1 ring-slate-900/10">
-                                    <div className="absolute inset-0 z-10 bg-indigo-900/10 group-hover:bg-transparent transition-colors" />
-                                    {company?.image ? (
-                                        <img src={company.image} alt={company.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                {/* Logo Container (Landscape 4:3) */}
+                                <div className="h-32 w-48 shrink-0 relative rounded-2xl overflow-hidden shadow-sm hidden sm:block bg-slate-50 border border-slate-100/50 flex items-center justify-center p-6 transition-colors group-hover:bg-slate-100">
+                                    {company?.logo ? (
+                                        /* eslint-disable-next-line @next/next/no-img-element */
+                                        <img src={company.logo} alt={`${company.name} logo`} className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105" />
                                     ) : (
-                                        <div className="w-full h-full bg-indigo-50 flex items-center justify-center"><Building2 className="w-8 h-8 text-indigo-200" /></div>
+                                        <div className="w-full h-full flex items-center justify-center text-slate-300 font-bold text-xl">{company?.name?.charAt(0) || "C"}</div>
                                     )}
                                 </div>
 

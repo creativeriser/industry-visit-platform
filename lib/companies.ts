@@ -6,6 +6,7 @@ export interface Company {
     location: string
     discipline: string
     image: string
+    logo?: string
     tags: string[]
     type?: string
     capacity?: number
@@ -29,6 +30,7 @@ export const COMPANIES: Company[] = [
         "discipline": "Computer Science",
         "type": "Industrial Visit",
         "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop",
+        "logo": "/logos/infosys.svg",
         "tags": [
             "IT",
             "Computer Science"
@@ -66,6 +68,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 2,
         "name": "HCL Technologies",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=hcltech.com",
         "location": "Noida",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -107,6 +110,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 3,
         "name": "BLogic Software Company",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=blogicsoftware.com",
         "location": "Noida",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -148,6 +152,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 4,
         "name": "Deloitte India",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=deloitte.com",
         "location": "Gurugram",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -189,6 +194,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 5,
         "name": "KPMG India",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=kpmg.com",
         "location": "Gurugram",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -230,6 +236,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 6,
         "name": "IBM India",
+        "logo": "/logos/ibm.svg",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -272,6 +279,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 7,
         "name": "Huawei Technologies",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=huawei.com",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -314,6 +322,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 8,
         "name": "VVDN Technologies",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=vvdntech.com",
         "location": "B-22, Infocity-I,Sector-34, Gurugram,Haryana-...",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -356,6 +365,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 9,
         "name": "Bhamashah Techno Hub",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=istart.rajasthan.gov.in",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -398,6 +408,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 10,
         "name": "HCL Tech",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=hcltech.com",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -440,6 +451,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 11,
         "name": "National Stock Exchange",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=nseindia.com",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -482,6 +494,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 12,
         "name": "Nokia Networks",
+        "logo": "/logos/nokia.svg",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -524,6 +537,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 13,
         "name": "MediaTek India",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=mediatek.com",
         "location": "India",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -566,6 +580,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 14,
         "name": "Appsquadz Software",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=appsquadz.com",
         "location": "Noida, Uttar Pradesh (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -608,6 +623,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 15,
         "name": "CS Soft Solution",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=cssoftsolution.com",
         "location": "Chandigarh / Mohali (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -650,6 +666,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 16,
         "name": "Microsoft India",
+        "logo": "/logos/microsoft.svg",
         "location": "Bengaluru (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -692,6 +709,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 17,
         "name": "Software Technology Parks of India",
+        "logo": "/logos/stpi.jpg",
         "location": "Amritsar / Noida / Bengaluru (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -734,6 +752,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 18,
         "name": "JP Infotech",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=jpinfotech.org",
         "location": "Chennai (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -776,6 +795,7 @@ export const COMPANIES: Company[] = [
     {
         "id": 19,
         "name": "Kaashiv InfoTech",
+        "logo": "https://www.google.com/s2/favicons?sz=256&domain=kaashivinfotech.com",
         "location": "Chennai (India)",
         "discipline": "Computer Science",
         "type": "Industrial Visit",
@@ -2028,7 +2048,16 @@ export const getCompanies = async (): Promise<Company[]> => {
         return COMPANIES
     }
     if (!data || data.length === 0) return COMPANIES
-    return data as any as Company[]
+    
+    // Merge Supabase data with local fallback to inject the newly added `logo` field
+    return data.map((dbCompany: any) => {
+        const localCompany = COMPANIES.find(c => c.id === dbCompany.id)
+        return {
+            ...localCompany,
+            ...dbCompany,
+            logo: localCompany?.logo || dbCompany.logo // Ensure logo gets passed if it exists locally
+        }
+    }) as Company[]
 }
 
 export const getCompanyById = async (id: number): Promise<Company | undefined> => {
@@ -2037,5 +2066,11 @@ export const getCompanyById = async (id: number): Promise<Company | undefined> =
         console.error('Error fetching company:', error)
         return COMPANIES.find(c => c.id === id)
     }
-    return data as any as Company
+    
+    const localCompany = COMPANIES.find(c => c.id === id)
+    return {
+        ...localCompany,
+        ...data,
+        logo: localCompany?.logo || data.logo
+    } as Company
 }
