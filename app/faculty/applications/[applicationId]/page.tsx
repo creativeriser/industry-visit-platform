@@ -821,7 +821,7 @@ export default function StudentApplicationReportPage() {
                                                         .map(([lang, count]) => (
                                                         <tr key={lang} className="hover:bg-slate-50 transition-colors">
                                                             <td className="p-3 font-bold flex items-center gap-2"><Code className="w-3 h-3 text-indigo-400"/> {lang}</td>
-                                                            <td className="p-3 font-mono">{count} Repositories</td>
+                                                            <td className="p-3 font-mono">{String(count)} Repositories</td>
                                                         </tr>
                                                     ))
                                                 ) : (
