@@ -158,6 +158,33 @@ When an entity hits a terminal or critical lifecycle state (e.g., A Visit is Can
 * **The Icon Badge:** Crucial for immediate visual scanning. Use a dedicated circular icon wrapper: `w-10 h-10` or `w-12 h-12 rounded-full`. Use a very light tinted background (`bg-[color]-50` or `100`), a tinted border, and an inner shadow `shadow-inner` with the deeply saturated icon color matching the state inside (`text-[color]-500`).
 * **Micro-interactions:** Any call to action buttons inside these alerts (e.g. "Draft New Proposal") must retain the premium lift interactions (`shadow-lg hover:-translate-y-0.5`). 
 
+## 11. Email Communications
+When drafting HTML emails, the color palette and template must match the target persona's primary dashboard theme to ensure brand continuity.
+* **Faculty & Administrative Emails:** Use the Indigo Palette (`#4f46e5`).
+* **HR / Partner Portal Emails:** Use the Enterprise Green Palette (`#059669` or `#16a34a`).
+* **Student Pipeline Emails:** Use the Sky Blue Palette (`#0284c7`).
+
+### 11.1 Email Workflow & Subject Conventions
+To prevent administrative inbox flooding and to ensure clean filter-ability, all automated dispatched emails MUST adhere to the following workflow paradigms and strict subject prefix rules:
+
+**A. External Partner Operations (Two-Way Pipelines):**
+Target: HR Representatives / Companies
+* **Nature:** High-priority, two-way human negotiation. Auto-replies from HR must be visible to Faculty.
+* **Inbox Rule:** These communications must NEVER skip the core inbox. 
+* **Required Subject Prefixes:**
+  * Initial Outbound: `[Visit Request]`
+  * Negotiation/Update: `[Visit Negotiation]`
+  * Final Receipt: `[Visit Confirmed]`
+
+**B. Internal Academic Operations (Broadcast Pipelines):**
+Target: Students
+* **Nature:** High-volume, one-way system blasts. Bounce-backs and auto-replies introduce pure noise.
+* **Inbox Rule:** The system assumes the administrator will filter these into dedicated archive labels (e.g., `Skip Inbox`). The platform handles student replies via native application flows, not email.
+* **Required Subject Prefixes:**
+  * System Blast: `[New Visit Published]`
+  * Success Transaction: `[Application Accepted]`
+  * Failure/Update Transaction: `[Application Update]`
+
 ## Conclusion
 
 By enforcing these strict standards, the platform retains an enterprise-grade visual identity. When extending the product, these patterns must be copied exactly. When a new conceptual element is introduced, it must be normalized across the platform and appended to this document.

@@ -260,7 +260,7 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
                 </motion.aside>
 
                 {/* Mobile Header (Visible only on small screens) */}
-                <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
+                <div className="md:hidden print:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 z-50 flex items-center justify-between px-4">
                     <div className="scale-90">
                         <BrandLogo id="faculty-mobile-logo" />
                     </div>

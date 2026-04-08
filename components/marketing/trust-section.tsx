@@ -6,16 +6,18 @@ import { GraduationCap, Globe2, Brain, CheckCircle2, ArrowRight, ScanFace, User 
 import React, { useState, useEffect } from "react"
 
 const companies = [
-    { name: "Tesla", color: "text-red-600" },
-    { name: "Google", color: "text-blue-600" },
-    { name: "Microsoft", color: "text-sky-600" },
-    { name: "Amazon", color: "text-orange-500" },
-    { name: "Netflix", color: "text-red-700" },
-    { name: "Meta", color: "text-blue-700" },
-    { name: "Spotify", color: "text-green-600" },
-    { name: "Airbnb", color: "text-rose-500" },
-    { name: "Uber", color: "text-slate-900" },
-    { name: "Adobe", color: "text-red-600" },
+    { name: "Microsoft India", color: "text-blue-600" },
+    { name: "IBM India", color: "text-blue-700" },
+    { name: "Infosys", color: "text-sky-600" },
+    { name: "HCL Tech", color: "text-blue-600" },
+    { name: "Deloitte", color: "text-emerald-700" },
+    { name: "KPMG", color: "text-blue-800" },
+    { name: "Huawei", color: "text-red-600" },
+    { name: "Nokia Networks", color: "text-blue-700" },
+    { name: "MediaTek", color: "text-orange-500" },
+    { name: "National Stock Exchange", color: "text-slate-800" },
+    { name: "VVDN Technologies", color: "text-sky-700" },
+    { name: "CS Soft Solution", color: "text-purple-600" },
 ]
 
 export function TrustSection() {

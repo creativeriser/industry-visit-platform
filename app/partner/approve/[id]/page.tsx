@@ -17,7 +17,7 @@ export default async function PartnerApprovePage({ params }: { params: Promise<{
         .select(`
             *,
             company:companies (name, location, representative),
-            faculty:profiles (full_name, email, institution)
+            faculty:profiles (full_name, email, institution, designation, department)
         `)
         .eq('id', id)
         .single()
@@ -74,6 +74,8 @@ export default async function PartnerApprovePage({ params }: { params: Promise<{
                     facultyEmail={(visit.faculty as any)?.email}
                     initialStatus={visit.status}
                     hrNotes={visit.hr_notes}
+                    company={visit.company}
+                    faculty={visit.faculty}
                     leftContent={
                         <>
                             <div className="bg-white rounded-2xl border border-slate-200/60 p-8 shadow-sm">

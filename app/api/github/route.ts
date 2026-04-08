@@ -33,12 +33,12 @@ export async function GET(request: Request) {
         let repos = [];
         let topLang = "Unknown";
         let totalCommitsProxy = 0; // Without GraphQL, we proxy commits via repo count heuristics or just mock it safely
+        const langCounts: Record<string, number> = {};
 
         if (reposRes.ok) {
             repos = await reposRes.json();
             
-            // Calculate Top Language
-            const langCounts: Record<string, number> = {};
+            // Calculate Languages Full Array
             repos.forEach((r: any) => {
                 if (r.language) {
                     langCounts[r.language] = (langCounts[r.language] || 0) + 1;
@@ -71,6 +71,7 @@ export async function GET(request: Request) {
             public_repos: userData.public_repos,
             joinedYear,
             topLang,
+            langCounts, // NEW EXPORT
             topRepos,
             // Mocking hard metrics that require deep graph pipelines to prevent massive API rate limits
             totalCommitsProxy: totalCommitsProxy > 1000 ? Math.floor(totalCommitsProxy / 10) : totalCommitsProxy, 

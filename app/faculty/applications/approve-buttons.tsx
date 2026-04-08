@@ -18,6 +18,37 @@ export function FacultyApproveButtons({ applicationId, currentStatus, onUpdate }
             .eq('id', applicationId)
 
         if (!error) {
+            // Fetch related context for the email payload
+            const { data: detailData } = await supabase
+                .from('visit_applications')
+                .select(`
+                    student:profiles!student_id(email, full_name),
+                    visit:scheduled_visits!visit_id(
+                        proposed_date,
+                        company:companies!company_id(name)
+                    )
+                `)
+                .eq('id', applicationId)
+                .single()
+
+            if (detailData && (detailData.student as any)?.email) {
+                const student = detailData.student as any;
+                const visit = detailData.visit as any;
+                const company = visit.company as any;
+
+                fetch('/api/dispatch-student', { // Fire and forget async
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: newStatus,
+                        companyName: company.name,
+                        visitDate: visit.proposed_date?.split('•')[0]?.trim() || "TBD",
+                        magicLink: `${window.location.origin}/student`,
+                        recipients: [{ email: student.email, name: student.full_name }]
+                    })
+                }).catch(e => console.error("Student approval mail dispatch failed:", e))
+            }
+
             if (onUpdate) onUpdate()
             else router.refresh()
         } else {

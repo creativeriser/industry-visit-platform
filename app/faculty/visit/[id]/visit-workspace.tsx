@@ -197,7 +197,47 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                 .eq('id', visitId)
                 .select()
                 .single()
-            if (!error && data) setVisitRecords(prev => prev.map(v => v.id === visitId ? data : v))
+            if (!error && data) {
+                setVisitRecords(prev => prev.map(v => v.id === visitId ? data : v))
+                
+                // Dispatch Final Confirmation to HR
+                const magicLink = `${window.location.origin}/partner/approve/${data.id}`
+                // Parse date components safely in case format implies splitting by •
+                let finalDate = data.proposed_date || "TBD";
+                let startTime = "TBD";
+                let endTime = "TBD";
+                
+                if (data.proposed_date?.includes("•")) {
+                    const parts = data.proposed_date.split("•").map((p: string) => p.trim());
+                    finalDate = parts[0];
+                    if (parts.length > 1) {
+                        const timeParts = parts[1].split(" to ");
+                        startTime = timeParts[0];
+                        endTime = timeParts.length > 1 ? timeParts[1] : "TBD";
+                    }
+                }
+
+                await fetch('/api/dispatch-visit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        companyName: company.name,
+                        hrEmail: company.representative.email,
+                        hrName: company.representative.name,
+                        facultyName: profileUser?.fullName || user?.user_metadata?.full_name || "Faculty Member",
+                        facultyEmail: user?.email,
+                        facultyDesignation: profileUser?.designation || "Faculty Member",
+                        facultyInstitution: profileUser?.institution,
+                        facultyDepartment: profileUser?.department,
+                        facultyDate: finalDate,
+                        startTime,
+                        endTime,
+                        facultyMessage: "",
+                        magicLink,
+                        isConfirmation: true
+                    })
+                });
+            }
         } catch (err) {
             console.error(err)
         } finally {
@@ -240,7 +280,33 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                 .eq('id', visitId)
                 .select()
                 .single()
-            if (!error && data) setVisitRecords(prev => prev.map(v => v.id === visitId ? data : v))
+            if (!error && data) {
+                setVisitRecords(prev => prev.map(v => v.id === visitId ? data : v))
+                
+                // Fetch completely eligible pool
+                const { data: students } = await supabase
+                    .from('profiles')
+                    .select('email, full_name')
+                    .eq('discipline', company.discipline)
+                    .eq('role', 'student')
+
+                if (students && students.length > 0) {
+                    const validStudents = students.filter(s => s.email) // Safety check
+                    if (validStudents.length > 0) {
+                        fetch('/api/dispatch-student', { // Fire and forget async
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'publish',
+                                companyName: company.name,
+                                visitDate: data.proposed_date?.split('•')[0]?.trim() || "TBD",
+                                magicLink: `${window.location.origin}/student`,
+                                recipients: validStudents.map(s => ({ email: s.email, name: s.full_name }))
+                            })
+                        }).catch(e => console.error("Dispatch student error:", e))
+                    }
+                }
+            }
         } catch (err) {
             console.error(err)
         } finally {

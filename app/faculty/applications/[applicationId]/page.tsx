@@ -4,196 +4,180 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
-import { Loader2, ArrowLeft, GraduationCap, Github, Linkedin, Code, CheckCircle, XCircle, Building2, Calendar, Mail, FileText, Briefcase, Award, Check, X, BrainCircuit, User, Phone, Cpu, Calculator, Clock, CalendarCheck } from "lucide-react"
+import { Loader2, ArrowLeft, GraduationCap, Github, Linkedin, Code, CheckCircle, XCircle, Building2, Calendar, Mail, FileText, Briefcase, Award, Check, X, BrainCircuit, User, Phone, Cpu, Calculator, Clock, CalendarCheck, Printer, Download, BarChart, PieChart, LineChart } from "lucide-react"
 import { FacultyApproveButtons } from "../approve-buttons"
 import { motion } from "framer-motion"
 import { getDisciplineIcon } from "@/lib/utils"
 
-async function generateEvaluation(student: any, visit: any) {
-    let baseScore = 0;
-    const strengths: string[] = [];
-    const weaknesses: string[] = [];
+const fetchCache = new Map();
+async function fetchWithCache(url: string) {
+    if (fetchCache.has(url)) return fetchCache.get(url);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error("Fetch failed");
+    const data = await res.json();
+    fetchCache.set(url, data);
+    return data;
+}
 
-    // Document Verification Pre-req
-    const hasResume = !!student?.resume_url;
-    const certificatesCount = Array.isArray(student?.certificates) ? student.certificates.length : 0;
-    
-    if (hasResume) strengths.push("Resume Attached & Validated");
-    if (certificatesCount > 0) strengths.push(`${certificatesCount} Industry Certifications`);
-
-    // 1. Academic Score (CGPA scaled 0-100)
+async function generateEvaluation(student: any, visit: any, spamFlags: any = {}) {
+    // 1. Academic Core (15% Weight)
     let academicScore = 0;
-    if (student?.cgpa) {
-        academicScore = Math.min(100, (student.cgpa / 10) * 100);
-        if (student.cgpa >= 8.5) strengths.push("Exceptional Academic Standing");
-        else if (student.cgpa >= 7.5) strengths.push("Strong Academic Core");
-        else weaknesses.push("Average Academic Standing");
-    } else {
-        academicScore = 20; // Penalty for missing
-        weaknesses.push("No CGPA Provided");
+    let cgpaPts = 0;
+    let attPts = 0;
+    if (student?.cgpa && !spamFlags.cgpa) {
+        cgpaPts = Math.min(100, (student.cgpa / 10) * 100);
     }
+    if (student?.attendance && !spamFlags.attendance) {
+        const att = parseFloat(student.attendance);
+        if (!isNaN(att)) {
+            attPts = Math.min(100, att);
+        }
+    }
+    // Blend exactly: 60% CGPA, 40% Attendance to form the 0-100 Academic Core
+    academicScore = (cgpaPts * 0.6) + (attPts * 0.4);
 
-    // 2. Engineering Score (GitHub Matrix)
-    let engineeringScore = 15; // default low
-    let githubValid = false;
+    // 2. Engineering Operations GitHub (35% Weight)
+    let engineeringScore = 0; 
     let repoPts = 0;
     let commitPts = 0;
-    let followerPts = 0;
+    let langPts = 0;
+    let githubValid = false;
+    let githubAudit = { repos: 0, commits: 0, langCounts: {} as Record<string, number>, numLangs: 0 };
 
     if (student?.github_url) {
         const match = student.github_url.match(/(?:https?:\/\/)?(?:www\.)?github\.com\/([^/]+)/i);
         const username = match ? match[1] : null;
         if (username) {
             try {
-                const res = await fetch(`/api/github?username=${username}`);
-                if (res.ok) {
-                    const ghData = await res.json();
-                    githubValid = true;
-                    // Formula: base 15 + repos(pts=3, max 30) + commits(pts=0.2, max 40) + followers(pts=3, max 15)
-                    repoPts = Math.min(30, (parseInt(ghData.public_repos) || 0) * 3);
-                    commitPts = Math.min(40, (parseInt(ghData.totalCommitsProxy) || 0) * 0.2);
-                    followerPts = Math.min(15, (parseInt(ghData.followers) || 0) * 3);
-                    engineeringScore = Math.min(100, 15 + repoPts + commitPts + followerPts);
-                    
-                    if (engineeringScore > 75) strengths.push("Strong Open Source Matrix");
-                    else strengths.push("Verified GitHub Operations");
-                }
+                const ghData = await fetchWithCache(`http://localhost:3000/api/github?username=${username}`);
+                githubValid = true;
+                
+                const repos = parseInt(ghData.public_repos) || 0;
+                const commits = parseInt(ghData.totalCommitsProxy) || 0;
+                const langCounts = ghData.langCounts || {};
+                const numLangs = Object.keys(langCounts).length;
+                
+                githubAudit = { repos, commits, langCounts, numLangs };
+
+                repoPts = (spamFlags.github || spamFlags.githubRepos) ? 0 : Math.min(40, repos * 1.5); 
+                commitPts = (spamFlags.github || spamFlags.githubCommits) ? 0 : Math.min(30, commits * 0.1); 
+                langPts = (spamFlags.github || spamFlags.githubLangs) ? 0 : Math.min(30, numLangs * 5.0); 
+                engineeringScore = Math.min(100, repoPts + commitPts + langPts);
             } catch (e) {
                 console.error("Github Fetch Error", e);
             }
         }
     }
-    if (!githubValid) {
-        weaknesses.push("Missing or Invalid GitHub Verification");
-    }
 
-    // 3. Algorithmic Score (LeetCode Matrix)
-    let algorithmicScore = 15; 
+    // 3. Algorithmic Logic LeetCode (35% Weight)
+    let algorithmicScore = 0; 
     let leetcodeValid = false;
-    let easyPts = 0;
-    let medPts = 0;
-    let hardPts = 0;
+    let easyPts = 0, medPts = 0, hardPts = 0;
+    let lcAudit = {
+        easyVal: 0, medVal: 0, hardVal: 0,
+        easyGlobal: 800, medGlobal: 1600, hardGlobal: 700,
+        totalSolved: 0
+    };
 
     if (student?.leetcode_url) {
         const match = student.leetcode_url.match(/(?:https?:\/\/)?(?:www\.)?leetcode\.com\/(?:u\/)?([^/]+)/i);
         const username = match ? match[1] : null;
         if (username) {
             try {
-                const res = await fetch(`/api/leetcode?username=${username}`);
-                if (res.ok) {
-                    const lcData = await res.json();
-                    leetcodeValid = true;
-                    // Formula: base 15 + easy(pts=0.2, max 20) + medium(pts=1, max 40) + hard(pts=3, max 25)
-                    easyPts = Math.min(20, (lcData?.easy?.solved || 0) * 0.2);
-                    medPts = Math.min(40, (lcData?.medium?.solved || 0) * 1);
-                    hardPts = Math.min(25, (lcData?.hard?.solved || 0) * 3);
-                    algorithmicScore = Math.min(100, 15 + easyPts + medPts + hardPts);
+                const lcData = await fetchWithCache(`http://localhost:3000/api/leetcode?username=${username}`);
+                leetcodeValid = true;
+                
+                const easy = lcData?.easy?.solved || 0;
+                const med = lcData?.medium?.solved || 0;
+                const hard = lcData?.hard?.solved || 0;
+                
+                lcAudit.easyGlobal = lcData?.easy?.total || 800;
+                lcAudit.medGlobal = lcData?.medium?.total || 1600;
+                lcAudit.hardGlobal = lcData?.hard?.total || 700;
+                
+                lcAudit.easyVal = easy;
+                lcAudit.medVal = med;
+                lcAudit.hardVal = hard;
+                lcAudit.totalSolved = easy + med + hard;
 
-                    if (algorithmicScore > 75) strengths.push("Exceptional Algorithmic Bound");
-                    else strengths.push("Verified LeetCode Presence");
-                }
+                easyPts = (spamFlags.leetcode || spamFlags.leetcodeEasy) ? 0 : Math.min(20, easy * 0.15); 
+                medPts = (spamFlags.leetcode || spamFlags.leetcodeMedium) ? 0 : Math.min(40, med * 0.8); 
+                hardPts = (spamFlags.leetcode || spamFlags.leetcodeHard) ? 0 : Math.min(40, hard * 3.0); 
+                algorithmicScore = Math.min(100, easyPts + medPts + hardPts);
             } catch(e) {
                 console.error("Leetcode Fetch Error", e);
             }
         }
     }
-    if (!leetcodeValid) {
-        weaknesses.push("Missing Algorithmic Verification");
-    }
 
-    // 4. Networking / System Fit Score
-    let systemFitScore = 20; // Base Verification
-    const linkedInPts = student?.linkedin_url ? 15 : 0;
-    systemFitScore += linkedInPts;
-    if (student?.linkedin_url) strengths.push("Professional Networking Mapped");
-
-    // Attendance Scaling
-    let attendancePts = 0;
-    if (student?.attendance) {
-        const att = parseFloat(student.attendance);
-        if (!isNaN(att)) {
-            attendancePts = Math.min(15, (att / 100) * 15);
-            systemFitScore += attendancePts;
-        }
-    }
-    // Discipline Mapping
-    let disciplinePts = 0;
-    if (student?.discipline && visit?.company?.discipline && student.discipline === visit.company.discipline) {
-        disciplinePts = 30;
-        strengths.push("Perfect Discipline System Fit");
-    } else if (student?.discipline) {
-        disciplinePts = 15;
-        weaknesses.push("Target Discipline Drift Mapped");
-    }
-    systemFitScore += disciplinePts;
-
-    // Documentation Rigor Bonus
-    const resumePts = hasResume ? 20 : 0;
-    systemFitScore += resumePts;
+    // 4. Documentation & Identity (15% Weight)
+    let docScore = 0;
+    const hasResume = !!student?.resume_url;
+    const certificatesCount = Array.isArray(student?.certificates) ? student.certificates.length : 0;
+    const certTitles = Array.isArray(student?.certificates) ? student.certificates.map((c:any) => c.title).filter(Boolean) : [];
     
-    const certPts = certificatesCount > 0 ? Math.min(20, certificatesCount * 5) : 0;
-    systemFitScore += certPts;
+    // Baseline required for safety
+    let resumePts = 0;
+    if (hasResume && !spamFlags.resume) resumePts = 40; // Resume provides 40 out of 100 possible doc points
+    docScore += resumePts;
     
-    // Weighted Overall Score Calculation
-    let score = (academicScore * 0.35) + (engineeringScore * 0.25) + (algorithmicScore * 0.20) + (Math.min(100, systemFitScore) * 0.20);
+    // Certs provide 20 points each, up to 60.
+    let certPts = 0;
+    if (!spamFlags.certificates) certPts = Math.min(60, certificatesCount * 20);
+    docScore += certPts;
+
+    // Final Composite Score (Max 99)
+    let finalScore = (academicScore * 0.15) + (engineeringScore * 0.35) + (algorithmicScore * 0.35) + (docScore * 0.15);
+    finalScore = Math.max(finalScore, 0); // Allow it to go down to 0 if all spammed
+    finalScore = Math.min(Math.round(finalScore), 99);
+
+    // -----------------------------------------------------
+    // SIMPLE TEXT GENERATORS (FOR DOSSIER MULTI-PAGES)
+    // -----------------------------------------------------
     
-    score = Math.min(Math.round(score), 99);
-    score = Math.max(score, 10);
+    // Executive Macro Readout
+    let autoSummary = `The candidate has achieved a verifiable composite score of ${finalScore}/100. `;
+    
+    if (academicScore >= 75) autoSummary += `They maintain a highly robust academic foundation with a ${student?.cgpa || '0.0'} CGPA and ${student?.attendance || '0'}% attendance. `;
+    else if (academicScore >= 50) autoSummary += `Their academic record is currently acceptable (CGPA: ${student?.cgpa || '0.0'}). `;
+    else autoSummary += `Their institutional academic metrics are critically low and require immediate improvement. `;
 
-    let rank = "";
-    if (score >= 85) rank = "Highly Recommended";
-    else if (score >= 70) rank = "Strong Candidate";
-    else rank = "Needs Development";
+    if (engineeringScore >= 70) autoSummary += `Practically, they exhibit excellent open-source engineering skills, managing ${githubAudit.repos} repositories across ${githubAudit.numLangs} distinct programming languages. `;
+    else if (engineeringScore > 10) autoSummary += `They possess a moderate GitHub footprint, indicating basic familiarity with version control. `;
+    else autoSummary += `Critically, they show near-zero activity on GitHub, which severely limits their practical verified experience. `;
 
-    const detailedAnalysis = {
-        executiveSummary: "",
-        engineeringEvaluation: "",
-        documentVerification: ""
-    };
+    if (algorithmicScore >= 70) autoSummary += `Furthermore, they are highly capable problem solvers, successfully compiling logic for ${lcAudit.hardVal} Hard and ${lcAudit.medVal} Medium level algorithm challenges.`;
+    else if (algorithmicScore > 10) autoSummary += `They show standard foundational logic capabilities, having solved ${lcAudit.totalSolved} total problems on LeetCode.`;
+    else autoSummary += `They demonstrate a severe lack of competitive programming engagement, posing a risk for technical optimization tasks.`;
 
-    if (score >= 85) {
-        detailedAnalysis.executiveSummary = `This candidate exhibits a highly competitive, enterprise-grade profile. With an impressive systemic evaluation baseline heavily weighted by their strong ${student?.discipline || "technical"} matrix mapping against the explicit requirements of ${visit?.company?.name || "this industry partner"}, they are designated internally as a premium systemic talent asset ready for direct dispatch.`;
-    } else if (score >= 70) {
-        detailedAnalysis.executiveSummary = `The candidate maintains a robust, structurally sound profile that aligns favorably with the general operational parameters desired by ${visit?.company?.name || "the target company"}. While not indexing in the utmost elite tier, their foundational parameters indicate strong capability and growth vectoring within their specified discipline of ${student?.discipline || 'study'}.`;
-    } else {
-        detailedAnalysis.executiveSummary = `Analysis of telemetry matrices indicates this profile is presently tracking beneath key enterprise thresholds for automated approval. Substantial core attributes are either missing, unverified, or rank beneath standard operational minimums, necessitating immediate proactive profile augmentation.`;
-    }
+    // Huge GitHub Analysis Text
+    let githubDossier = "";
+    if (engineeringScore >= 80) githubDossier = `Great practical experience. The student has a total of ${githubAudit.repos} repositories and approximately ${githubAudit.commits} continuous commits, showing they regularly build and write code. They are very active on GitHub.`;
+    else if (engineeringScore >= 40) githubDossier = `Moderate activity level. The student has created a few repositories but hasn't shown a massive amount of consistent, daily commits. Still acceptable for basic expectations.`;
+    else githubDossier = `Very poor activity. The student has almost zero projects uploaded to their GitHub profile. This is a negative indicator for their practical coding experience.`;
 
-    if (engineeringScore >= 80 && algorithmicScore >= 80) {
-        detailedAnalysis.engineeringEvaluation = `Exceptionally strong open-source and algorithmic indexing. The candidate operates a verified, robust presence on GitHub signaling practical, cross-functional engineering execution, seamlessly coupled with deep algorithmic conditioning (LeetCode) that implies high-tier problem-solving architecture capabilities.`;
-    } else if (engineeringScore >= 80) {
-        detailedAnalysis.engineeringEvaluation = `Strong practical repository mechanics detected. The candidate proves capable version control and functional engineering competence via GitHub. However, formal algorithmic metrics (LeetCode) are absent, generating a minor evaluation blindspot in pure systemic logic bounds.`;
-    } else if (algorithmicScore >= 80) {
-        detailedAnalysis.engineeringEvaluation = `The candidate possesses rigorous analytical capability mapped through LeetCode verifications, indicating competitive programming logic. This potential is constrained visually by a lack of an associated version-controlled (GitHub) portfolio, suggesting theoretical logic currently outweighs practical structural deployments.`;
-    } else {
-        detailedAnalysis.engineeringEvaluation = `Significant deficit across all technical output vectors. The total absence of both GitHub and LeetCode integrations severely inhibits systemic verification of their engineering cadence, reducing overall trust factors in complex programmatic scenarios.`;
-    }
-
-    const certString = certificatesCount > 0 ? `further compounding their tracked value vector via ${certificatesCount} independently verified external industry certifications` : `though currently operating without explicitly verified external industry certifications`;
-    if (hasResume) {
-        detailedAnalysis.documentVerification = `Documentation compliance is nominal and fully verified. The candidate has actively tethered a structured resume for faculty and enterprise retrieval, heavily reinforcing their stated parameters—${certString}. This validates systemic baseline trust and heavily bolsters their overall fit factor.`;
-    } else {
-        detailedAnalysis.documentVerification = `CRITICAL DEFICIT: The candidate has entirely failed to append an active resumed tracking document to their enterprise profile. This directly contradicts standard pre-boarding practices and creates heavy data opacity, dragging down their reliability coefficient—${certString}.`;
-    }
+    // Huge LeetCode Analysis Text
+    let leetcodeDossier = "";
+    if (algorithmicScore >= 80) leetcodeDossier = `Excellent problem solver. The candidate has heavily practiced algorithms, solving ${lcAudit.hardVal} Hard and ${lcAudit.medVal} Medium level questions on LeetCode.`;
+    else if (algorithmicScore >= 40) leetcodeDossier = `Decent problem solver. The candidate has primarily demonstrated foundational logic by solving ${lcAudit.easyVal} Easy and ${lcAudit.medVal} Medium questions, but currently lacks advanced optimization skills.`;
+    else leetcodeDossier = `Weak problem solving. The candidate has only solved a total of ${lcAudit.totalSolved} algorithmic problems across all tiers. They will likely struggle in technical coding rounds.`;
 
     const calculationReceipt = {
-        github: { base: 15, repoPts, commitPts, followerPts, total: Math.round(engineeringScore) },
-        leetcode: { base: 15, easyPts, medPts, hardPts, total: Math.round(algorithmicScore) },
-        systemFit: { base: 20, linkedInPts, attendancePts, disciplinePts, resumePts, certPts, total: Math.min(100, Math.round(systemFitScore)) }
+        academics: { cgpaPts: spamFlags.cgpa ? 0 : cgpaPts, attPts: spamFlags.attendance ? 0 : attPts, total: Math.round(academicScore) },
+        github: { audit: githubAudit, repoPts: githubValid ? repoPts : 0, commitPts: githubValid ? commitPts : 0, langPts: githubValid ? langPts : 0, total: Math.round(engineeringScore) },
+        leetcode: { audit: lcAudit, easyPts, medPts, hardPts, total: Math.round(algorithmicScore) },
+        docs: { hasResume, certPts: spamFlags.certificates ? 0 : certPts, resumePts: spamFlags.resume ? 0 : resumePts, certTitles, total: Math.min(100, Math.round(docScore)) }
     };
 
     return { 
-        score, 
-        rank, 
+        score: finalScore, 
         engineeringScore: Math.round(engineeringScore), 
         algorithmicScore: Math.round(algorithmicScore), 
         academicScore: Math.round(academicScore), 
-        systemFitScore: Math.min(100, Math.round(systemFitScore)),
-        hasResume,
-        certificatesCount,
-        strengths, 
-        weaknesses,
-        detailedAnalysis,
+        docScore: Math.min(100, Math.round(docScore)),
+        autoSummary,
+        githubDossier,
+        leetcodeDossier,
         calculationReceipt
     };
 }
@@ -206,6 +190,32 @@ export default function StudentApplicationReportPage() {
 
     const [application, setApplication] = useState<any>(null)
     const [loading, setLoading] = useState(true)
+    const [spamFlags, setSpamFlags] = useState({
+        cgpa: false,
+        attendance: false,
+        resume: false,
+        certificates: false,
+        github: false,
+        githubRepos: false,
+        githubCommits: false,
+        githubLangs: false,
+        leetcode: false,
+        leetcodeEasy: false,
+        leetcodeMedium: false,
+        leetcodeHard: false
+    })
+
+    const toggleSpam = async (key: keyof typeof spamFlags) => {
+        const newFlags = { ...spamFlags, [key]: !spamFlags[key] };
+        setSpamFlags(newFlags);
+        if (typeof window !== 'undefined') {
+            localStorage.setItem(`spamFlags_${applicationId}`, JSON.stringify(newFlags));
+        }
+        if (application) {
+            const calculatedEval = await generateEvaluation(application.student, application.visit, newFlags);
+            setApplication((prev: any) => ({ ...prev, evaluation: calculatedEval }));
+        }
+    }
 
     useEffect(() => {
         if (!authLoading && !user) {
@@ -216,10 +226,24 @@ export default function StudentApplicationReportPage() {
         if (user && applicationId) {
             loadApplication()
         }
-    }, [user, authLoading, applicationId, router])
+    }, [user, authLoading, applicationId, router]) // Intentionally not including spamFlags to only trigger on load
 
     const loadApplication = async () => {
         try {
+            setLoading(true)
+            let currentSpamFlags = spamFlags;
+            if (typeof window !== 'undefined') {
+                const savedSpamRaw = localStorage.getItem(`spamFlags_${applicationId}`);
+                if (savedSpamRaw) {
+                    try {
+                        currentSpamFlags = JSON.parse(savedSpamRaw);
+                        setSpamFlags(currentSpamFlags);
+                    } catch(e) {
+                        console.error("Failed to parse saved spam flags", e);
+                    }
+                }
+            }
+
             const { data } = await supabase
                 .from('visit_applications')
                 .select(`
@@ -236,7 +260,7 @@ export default function StudentApplicationReportPage() {
                 .single()
             
             if (data) {
-                const calculatedEval = await generateEvaluation(data.student, data.visit);
+                const calculatedEval = await generateEvaluation(data.student, data.visit, currentSpamFlags);
                 setApplication({ ...data, evaluation: calculatedEval })
             } else {
                 router.push('/faculty/applications')
@@ -258,13 +282,93 @@ export default function StudentApplicationReportPage() {
 
     return (
         <div className="p-4 md:p-8 max-w-5xl mx-auto h-full overflow-y-auto">
-            {/* Back Navigation */}
-            <button 
-                onClick={() => router.push('/faculty/applications')}
-                className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors font-medium mb-8"
-            >
-                <ArrowLeft className="w-4 h-4" /> Back to Applications
-            </button>
+            {/* CSS Print Rules for PDF Output */}
+            <style>{`
+                @media print {
+                    /* 1. Flatten all structural wrappers so Print Engine paginates correctly */
+                    html, body, #__next, body > div, main, #faculty-content-wrapper, .space-y-8 {
+                        display: block !important;
+                        height: auto !important;
+                        min-height: auto !important;
+                        max-height: none !important;
+                        overflow: visible !important;
+                        position: static !important;
+                    }
+
+                    /* 2. Completely nuke the Mobile Topbar, Sidebar, and non-printable items */
+                    aside, nav, header, .no-print, .md\:hidden {
+                        display: none !important;
+                    }
+                    
+                    /* 3. Strip structural padding from main wrappers so PDF occupies 100% width */
+                    main, #faculty-content-wrapper {
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        border: none !important;
+                        box-shadow: none !important;
+                        background: white !important;
+                    }
+
+                    /* 4. Hide all Dashboard noise — ONLY keep the main Dossier ledger */
+                    .space-y-8 > *:not(.grid) {
+                        display: none !important;
+                    }
+                    .space-y-8 > .grid > *:not(#mega-report) {
+                        display: none !important;
+                    }
+                    
+                    /* 5. Anchor the Mega Report at the very top of the PDF cleanly */
+                    #mega-report {
+                        display: block !important;
+                        position: static !important; 
+                        width: 100% !important;
+                        height: auto !important;
+                        overflow: visible !important;
+                        background-color: white !important;
+                        padding: 0 !important;
+                        margin: 0 !important;
+                        margin-top: 0 !important;
+                        box-shadow: none !important;
+                        border: none !important;
+                    }
+                    
+                    /* 6. Clean Page Break handling without forcing blank pages */
+                    .dossier-page {
+                        /* Force a break AFTER each major section ONLY if not handling overflow */
+                        page-break-after: auto !important;
+                        break-after: auto !important;
+                        margin-bottom: 3rem !important;
+                        border-bottom: 2px solid #0f172a !important; /* Explicit section dividers instead of whitespace */
+                    }
+
+                    /* 8. Prevent strict breaks inside critical atomic rows/cards to keep UI clean */
+                    tr, tbody, thead, .grid > a, .bg-slate-50 {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                    }
+                    .max-w-5xl {
+                        max-width: none !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                }
+            `}</style>
+            
+            {/* Back Navigation & Print Toolbar */}
+            <div className="flex items-center justify-between font-medium mb-8 print:hidden">
+                <button 
+                    onClick={() => router.push('/faculty/applications')}
+                    className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 transition-colors"
+                >
+                    <ArrowLeft className="w-4 h-4" /> Back to Applications
+                </button>
+                <button 
+                    onClick={() => window.print()}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold rounded-lg transition-all shadow-sm active:scale-95 no-print"
+                >
+                    <Download className="w-4 h-4" /> Export Report to PDF
+                </button>
+            </div>
 
             <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -427,7 +531,7 @@ export default function StudentApplicationReportPage() {
                                 >
                                     <Github className="w-8 h-8 mb-3 text-slate-700" />
                                     <span className="font-bold text-sm text-slate-900">GitHub</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.github_url ? 'View Profile' : 'Not Provided'}</span>
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.github_url ? 'View URL' : 'None'}</span>
                                 </a>
 
                                 {/* LinkedIn */}
@@ -439,7 +543,7 @@ export default function StudentApplicationReportPage() {
                                 >
                                     <Linkedin className="w-8 h-8 mb-3 text-sky-600" />
                                     <span className="font-bold text-sm text-slate-900">LinkedIn</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.linkedin_url ? 'View Profile' : 'Not Provided'}</span>
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.linkedin_url ? 'View URL' : 'None'}</span>
                                 </a>
 
                                 {/* LeetCode */}
@@ -451,7 +555,7 @@ export default function StudentApplicationReportPage() {
                                 >
                                     <Code className="w-8 h-8 mb-3 text-amber-600" />
                                     <span className="font-bold text-sm text-slate-900">LeetCode</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.leetcode_url ? 'View Profile' : 'Not Provided'}</span>
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.leetcode_url ? 'View URL' : 'None'}</span>
                                 </a>
                             </div>
 
@@ -466,7 +570,7 @@ export default function StudentApplicationReportPage() {
                                 >
                                     <FileText className="w-8 h-8 mb-3 text-indigo-600" />
                                     <span className="font-bold text-sm text-slate-900">Resume</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.resume_url ? 'View Document' : 'Not Provided'}</span>
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{student?.resume_url ? 'View PDF' : 'None'}</span>
                                 </a>
 
                                 {/* Certificates */}
@@ -475,7 +579,7 @@ export default function StudentApplicationReportPage() {
                                 >
                                     <Award className={`w-8 h-8 mb-3 ${evaluation.certificatesCount > 0 ? 'text-emerald-600' : 'text-slate-400'}`} />
                                     <span className="font-bold text-sm text-slate-900">Certificates</span>
-                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{evaluation.certificatesCount > 0 ? `${evaluation.certificatesCount} Verified` : 'Not Provided'}</span>
+                                    <span className="text-[10px] uppercase font-bold text-slate-500 mt-1">{evaluation.certificatesCount > 0 ? 'View Records' : 'None'}</span>
                                     
                                     {evaluation.certificatesCount > 0 && (
                                         <div className="absolute inset-0 bg-white/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex flex-col items-center justify-center p-3 shadow-inner">
@@ -493,206 +597,527 @@ export default function StudentApplicationReportPage() {
                             </div>
                         </div>
                         
-                    {/* Auto Evaluation Module */}
-                    <div className="bg-[#0f172a] border border-slate-800 rounded-[24px] p-8 md:p-10 shadow-xl overflow-hidden relative col-span-1 lg:col-span-5 min-h-[320px]">
-                            {/* Decorative background */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
-
-                            <div className="flex items-center justify-between mb-8 border-b border-slate-800 pb-4 relative z-10">
-                                <h2 className="text-lg font-bold flex items-center gap-2 text-white">
-                                    <FileText className="w-5 h-5 text-indigo-400" /> Enterprise Candidate Telemetry
-                                </h2>
-                                <div className="text-xs font-bold text-indigo-300 uppercase tracking-widest bg-indigo-500/10 px-3 py-1.5 rounded-full border border-indigo-500/20">
-                                    {evaluation.rank}
-                                </div>
+                    {/* The NEW Mega Report: Bright, Formal, Print-Ready Vertical Dossier */}
+                    <div id="mega-report" className="bg-white border text-slate-900 border-slate-200 rounded-[24px] p-10 shadow-sm overflow-hidden col-span-1 lg:col-span-5 relative mt-6">
+                        {/* 
+                            ======================================================
+                            PAGE 0: REPORT HEADER & EXEC SUMMARY 
+                            ======================================================
+                        */}
+                        <div className="mb-10 flex flex-col dossier-page border-b-2 border-slate-900 pb-8 pt-4">
+                            <div className="flex flex-col mb-8 pb-6 border-b border-slate-100">
+                                <h1 className="text-3xl font-black text-slate-900 tracking-tight mb-2">Student Report</h1>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Roll Number: {student?.roll_number}</p>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 relative z-10 mb-10">
-                                {/* Top KPI Row */}
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-center">
-                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Overall Fit Score</div>
-                                    <div className="text-3xl font-black text-white">{evaluation.score}<span className="text-sm font-medium text-slate-500">/100</span></div>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-center">
-                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Engineering (GitHub)</div>
-                                    <div className="text-3xl font-black text-indigo-400">{evaluation.engineeringScore}<span className="text-sm font-medium text-slate-500">/100</span></div>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-center">
-                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Algorithmic (LeetCode)</div>
-                                    <div className="text-3xl font-black text-amber-400">{evaluation.algorithmicScore}<span className="text-sm font-medium text-slate-500">/100</span></div>
-                                </div>
-                                <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-center">
-                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">System Fit Factor</div>
-                                    <div className="text-3xl font-black text-emerald-400">{evaluation.systemFitScore}</div>
-                                </div>
-                            </div>
-
-                            <div className="flex flex-col md:flex-row gap-10 relative z-10">
-                                {/* Telemetry Bars */}
-                                <div className="flex-1 space-y-6">
-                                    <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2">Performance Indices</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
-                                                <span>Academic Core</span>
-                                                <span>{evaluation.academicScore}%</span>
-                                            </div>
-                                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-sky-400 rounded-full" style={{ width: `${evaluation.academicScore}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
-                                                <span>Engineering Ops</span>
-                                                <span>{evaluation.engineeringScore}%</span>
-                                            </div>
-                                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${evaluation.engineeringScore}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
-                                                <span>Algorithmic Logic</span>
-                                                <span>{evaluation.algorithmicScore}%</span>
-                                            </div>
-                                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-amber-500 rounded-full" style={{ width: `${evaluation.algorithmicScore}%` }}></div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="flex justify-between text-xs font-bold text-slate-300 mb-1.5 uppercase tracking-wider">
-                                                <span>Discipline Alignment</span>
-                                                <span>{evaluation.systemFitScore > 100 ? 100 : evaluation.systemFitScore}%</span>
-                                            </div>
-                                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${Math.min(100, evaluation.systemFitScore)}%` }}></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                {/* Document Validation & Analysis */}
-                                <div className="flex-1 space-y-6">
-                                    <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2">Document Validation</h3>
-                                    <div className="grid grid-cols-2 gap-4 mb-6">
-                                        <div className={`p-4 rounded-xl border flex flex-col justify-center ${evaluation.hasResume ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-slate-800/50 border-slate-700'}`}>
-                                            <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-                                                <FileText className="w-4 h-4" /> Resume
-                                            </div>
-                                            <div className={`text-sm font-bold ${evaluation.hasResume ? 'text-emerald-400' : 'text-slate-500'}`}>
-                                                {evaluation.hasResume ? "Verified ✓" : "Not Provided"}
-                                            </div>
-                                        </div>
-                                        <div className={`p-4 rounded-xl border flex flex-col justify-center ${evaluation.certificatesCount > 0 ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-800/50 border-slate-700'}`}>
-                                            <div className="flex items-center gap-2 mb-2 text-xs font-bold uppercase tracking-wider text-slate-300">
-                                                <Award className="w-4 h-4" /> Certificates
-                                            </div>
-                                            <div className={`text-sm font-bold ${evaluation.certificatesCount > 0 ? 'text-amber-400' : 'text-slate-500'}`}>
-                                                {evaluation.certificatesCount > 0 ? `${evaluation.certificatesCount} Attached ✓` : "None Provided"}
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <h3 className="text-xs font-bold text-indigo-300 uppercase tracking-widest mb-2">Automated System Flags</h3>
-                                    <ul className="space-y-2">
-                                        {evaluation.strengths.slice(0,3).map((str: string, i: number) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                                                <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                                                {str}
-                                            </li>
-                                        ))}
-                                        {evaluation.weaknesses.slice(0,2).map((wk: string, i: number) => (
-                                            <li key={i} className="flex items-start gap-2 text-sm text-slate-300">
-                                                <XCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                                                {wk}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            </div>
-
-                            {/* Heuristic Telemetry Analysis Report */}
-                            <div className="mt-12 pt-8 border-t border-slate-700/50 relative z-10">
-                                <h3 className="text-sm font-bold text-white uppercase tracking-widest mb-6 flex items-center gap-2">
-                                    <BrainCircuit className="w-5 h-5 text-indigo-400" /> Deep Heuristic Analysis
+                            <div>
+                                <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-3">
+                                    <FileText className="w-4 h-4 text-slate-300" /> Executive Macro Summary
                                 </h3>
-                                <div className="space-y-4 text-slate-300 text-[13px] leading-relaxed w-full font-medium">
-                                    <div className="p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                                        <div className="shrink-0 w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 text-indigo-400 font-black">1</div>
-                                        <div>
-                                            <strong className="text-white block mb-1.5 text-xs font-bold uppercase tracking-widest">Executive Matrix Validation</strong>
-                                            <p>{evaluation.detailedAnalysis.executiveSummary}</p>
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                                        <div className="shrink-0 w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center border border-sky-500/20 text-sky-400 font-black">2</div>
-                                        <div>
-                                            <strong className="text-white block mb-1.5 text-xs font-bold uppercase tracking-widest">Engineering & Algorithms Capability</strong>
-                                            <p>{evaluation.detailedAnalysis.engineeringEvaluation}</p>
-                                        </div>
-                                    </div>
-                                    <div className="p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
-                                        <div className="shrink-0 w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-400 font-black">3</div>
-                                        <div>
-                                            <strong className="text-white block mb-1.5 text-xs font-bold uppercase tracking-widest">Documentation Compliance Baseline</strong>
-                                            <p>{evaluation.detailedAnalysis.documentVerification}</p>
-                                        </div>
-                                    </div>
-
-                                    {/* Transparency Calculation Receipt */}
-                                    <div className="p-5 bg-slate-800/40 border border-slate-700/50 rounded-2xl flex flex-col sm:flex-row gap-4 sm:gap-6 items-start mt-6">
-                                        <div className="shrink-0 w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center border border-amber-500/20 text-amber-400 font-black">4</div>
-                                        <div className="w-full">
-                                            <strong className="text-white block mb-3 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                                                <Calculator className="w-4 h-4 text-amber-400"/> Systemic Calculation Bounds
-                                            </strong>
-                                            
-                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                {/* GitHub Breakdown */}
-                                                <div className="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-700/50 pb-2">Engineering Operations (GitHub)</p>
-                                                    <ul className="space-y-1.5 text-xs font-mono text-slate-300">
-                                                        <li className="flex justify-between"><span>Base Verification:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.github.base}</span></li>
-                                                        <li className="flex justify-between"><span>Repositories (x3):</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.github.repoPts}</span></li>
-                                                        <li className="flex justify-between"><span>Commits [Cap 40]:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.github.commitPts.toFixed(1)}</span></li>
-                                                        <li className="flex justify-between"><span>Network Scale:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.github.followerPts}</span></li>
-                                                        <li className="flex justify-between pt-1.5 mt-1.5 border-t border-slate-700/50 font-bold text-indigo-300"><span>Matrix Sum:</span> <span>{evaluation.calculationReceipt.github.total}/100</span></li>
-                                                    </ul>
-                                                </div>
-
-                                                {/* LeetCode Breakdown */}
-                                                <div className="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-700/50 pb-2">Algorithmic Logic (LeetCode)</p>
-                                                    <ul className="space-y-1.5 text-xs font-mono text-slate-300">
-                                                        <li className="flex justify-between"><span>Base Verification:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.leetcode.base}</span></li>
-                                                        <li className="flex justify-between"><span>Easy Scale (x0.2):</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.leetcode.easyPts.toFixed(1)}</span></li>
-                                                        <li className="flex justify-between"><span>Medium Scale (x1.0):</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.leetcode.medPts.toFixed(1)}</span></li>
-                                                        <li className="flex justify-between"><span>Hard Bounds (x3.0):</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.leetcode.hardPts.toFixed(1)}</span></li>
-                                                        <li className="flex justify-between pt-1.5 mt-1.5 border-t border-slate-700/50 font-bold text-indigo-300"><span>Logic Sum:</span> <span>{evaluation.calculationReceipt.leetcode.total}/100</span></li>
-                                                    </ul>
-                                                </div>
-
-                                                {/* System Fit Breakdown */}
-                                                <div className="bg-slate-900/50 p-3.5 rounded-xl border border-slate-700/50">
-                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 border-b border-slate-700/50 pb-2">System Fit Vectors</p>
-                                                    <ul className="space-y-1.5 text-xs font-mono text-slate-300">
-                                                        <li className="flex justify-between"><span>Profile Base:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.systemFit.base}</span></li>
-                                                        <li className="flex justify-between"><span>Networking Auth:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.systemFit.linkedInPts}</span></li>
-                                                        <li className="flex justify-between"><span>Discipline Map:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.systemFit.disciplinePts}</span></li>
-                                                        <li className="flex justify-between"><span>Documentation Rigor:</span> <span className="text-emerald-400">+{evaluation.calculationReceipt.systemFit.resumePts + evaluation.calculationReceipt.systemFit.certPts}</span></li>
-                                                        <li className="flex justify-between pt-1.5 mt-1.5 border-t border-slate-700/50 font-bold text-indigo-300"><span>Fit Score [Cap 100]:</span> <span>{evaluation.calculationReceipt.systemFit.total}/100</span></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-4 p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-xs leading-relaxed text-indigo-200/90 font-medium italic relative overflow-hidden">
-                                                <span className="relative z-10">* Weighted Final Calculation: Engineering Score (25%) + Algorithm Score (20%) + System Fit (20%) + Academic Base (35%). Final composite results are strictly clamped to a maximum 99% logic threshold.</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="p-6 bg-slate-50/80 text-sm rounded-xl border border-slate-200 text-slate-800 font-medium leading-relaxed shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)]">
+                                    {evaluation.autoSummary}
                                 </div>
                             </div>
                         </div>
+
+                        {/* Flex-Col vertical stacked layout forcing deep scrolling */}
+                        <div className="flex flex-col space-y-12 mb-16">
+                            
+                            {/* 
+                                ======================================================
+                                PAGE 1: ACADEMIC & IDENTITY BASELINE
+                                ======================================================
+                            */}
+                            <div className="flex flex-col justify-center dossier-page border-b border-dashed border-slate-200 pb-10">
+                                <div className="mb-12">
+                                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4 mb-4">
+                                        <GraduationCap className="w-10 h-10 text-sky-500" /> Academic & Documentation Baseline
+                                    </h2>
+                                    <p className="text-slate-500 text-lg leading-relaxed max-w-3xl">
+                                        This layer evaluates the candidate's core institutional output and verifiable industry baseline capabilities via physical certifications and tracked academic attendance strings.
+                                    </p>
+                                </div>
+
+                                {/* Deep Analytical Data Table: Academics */}
+                                <div className="w-full mb-8">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">1. Academic Core Vector (15% Weight)</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-900 border-b border-slate-700 text-slate-300 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Tracked Metric</th>
+                                                    <th className="p-3">Verified Value</th>
+                                                    <th className="p-3">Scaling Algorithm</th>
+                                                    <th className="p-3 text-right">Yielded Points</th>
+                                                    <th className="p-3 text-right">Audit Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-800 bg-slate-800 text-slate-200 font-mono">
+                                                <tr>
+                                                    <td className="p-3 text-slate-100">
+                                                        Cumulative Grade Point (CGPA)
+                                                    </td>
+                                                    <td className="p-3">
+                                                        <span className={`font-bold ${spamFlags.cgpa ? 'text-red-600 line-through' : 'text-sky-300'}`}>{student?.cgpa || '0.0'}</span>
+                                                    </td>
+                                                    <td className="p-3 text-amber-300">({student?.cgpa || '0.0'} × 10 Base) × 0.6 Weight</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">{(evaluation.calculationReceipt.academics.cgpaPts * 0.6).toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button onClick={() => toggleSpam('cgpa')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.cgpa ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} print:hidden`}>
+                                                            {spamFlags.cgpa ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.cgpa ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="p-3 text-slate-100">
+                                                        Attendance Percentage
+                                                    </td>
+                                                    <td className="p-3">
+                                                        <span className={`font-bold ${spamFlags.attendance ? 'text-red-600 line-through' : 'text-sky-300'}`}>{student?.attendance || '0'}%</span>
+                                                    </td>
+                                                    <td className="p-3 text-amber-300">{student?.attendance || '0'}% × 0.4 Weight</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">{(evaluation.calculationReceipt.academics.attPts * 0.4).toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button onClick={() => toggleSpam('attendance')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.attendance ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} print:hidden`}>
+                                                            {spamFlags.attendance ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.attendance ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot className="bg-sky-900 text-white font-bold text-lg">
+                                                <tr>
+                                                    <td colSpan={3} className="p-4 text-right uppercase tracking-widest text-sm">Academic Sub-Matrix Calculation Sum:</td>
+                                                    <td className="p-4 text-right" colSpan={2}>{evaluation.calculationReceipt.academics.total} / 100</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div className="mt-4 text-xs text-slate-500 italic pb-2">
+                                        * System Note: Cumulative Grade Point (CGPA) is mathematically multiplied by a factor of 10 to normalize it to a 100-point scale before applying the 60% system weight. Physical attendance anchors the remaining 40% weight.
+                                    </div>
+                                </div>
+
+                                {/* Deep Analytical Data Table: Documentation */}
+                                <div className="w-full">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">2. External Certification & Identity Stack (15% Weight)</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Document Category</th>
+                                                    <th className="p-3">Tracked Assets</th>
+                                                    <th className="p-3">Scaling Algorithm</th>
+                                                    <th className="p-3 text-right">Yielded Points</th>
+                                                    <th className="p-3 text-right">Audit Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 bg-white text-slate-700">
+                                                <tr className="hover:bg-slate-50">
+                                                    <td className="p-3 font-bold text-slate-800 align-top">
+                                                        <FileText className="w-4 h-4 inline mr-2 text-indigo-400"/> Resume / CV Data
+                                                    </td>
+                                                    <td className="p-3 text-slate-500 align-top">
+                                                        <span className={spamFlags.resume ? 'line-through text-red-600' : ''}>
+                                                            {evaluation.calculationReceipt.docs.hasResume ? "1 Physical PDF Attached" : "Missing / Not Provided"}
+                                                        </span>
+                                                    </td>
+                                                    <td className="p-3 text-amber-600 font-mono text-sm align-top">{evaluation.calculationReceipt.docs.hasResume ? "Flat Rate Baseline Assignment" : "Verification Failed"}</td>
+                                                    <td className="p-3 text-right font-mono font-bold text-emerald-600">{evaluation.calculationReceipt.docs.hasResume ? `+${evaluation.calculationReceipt.docs.resumePts.toFixed(1)} pts` : "0.0 pts"}</td>
+                                                    <td className="p-3 text-right align-top">
+                                                        <button onClick={() => toggleSpam('resume')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.resume ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'} print:hidden`}>
+                                                            {spamFlags.resume ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.resume ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50">
+                                                    <td className="p-3 font-bold text-slate-800 align-top mt-1">
+                                                        <Award className="w-4 h-4 inline mr-2 text-indigo-400"/> Identity Certifications
+                                                    </td>
+                                                    <td className="p-3 align-top text-xs space-y-1">
+                                                        <div className={spamFlags.certificates ? 'line-through text-red-600' : ''}>
+                                                            {evaluation.calculationReceipt.docs.certTitles.length > 0 ? (
+                                                                evaluation.calculationReceipt.docs.certTitles.map((title: string, i: number) => (
+                                                                    <div key={i} className="flex items-start gap-1"><Check className="w-3 h-3 text-emerald-500 mt-0.5" /> <span className="font-mono">{title}</span></div>
+                                                                ))
+                                                            ) : (
+                                                                <span className="italic text-slate-400">0 certificates recorded on file.</span>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                    <td className="p-3 text-amber-600 font-mono text-sm align-top">{evaluation.calculationReceipt.docs.certTitles.length} Certs × 20.0 Points [Max 60]</td>
+                                                    <td className="p-3 text-right font-mono font-bold text-emerald-600">+{evaluation.calculationReceipt.docs.certPts.toFixed(1)} pts</td>
+                                                    <td className="p-3 text-right align-top">
+                                                        <button onClick={() => toggleSpam('certificates')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.certificates ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200'} print:hidden`}>
+                                                            {spamFlags.certificates ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.certificates ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot className="bg-emerald-900 text-white font-bold text-lg">
+                                                <tr>
+                                                    <td colSpan={3} className="p-4 text-right uppercase tracking-widest text-sm">Documentation Calculation Sum:</td>
+                                                    <td className="p-4 text-right" colSpan={2}>{evaluation.calculationReceipt.docs.total} / 100</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div className="mt-4 text-xs text-slate-500 italic pb-2">
+                                        * System Note: A verified Resume clears the basic security threshold (+40 pts). External certificates yield +20 pts each, capped structurally at 60 points (max 3 certificates considered) to neutralize exploit attempts.
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 
+                                ======================================================
+                                PAGE 2: ENGINEERING OPERATIONS (GITHUB)
+                                ======================================================
+                            */}
+                            <div className="flex flex-col justify-start dossier-page border-b border-dashed border-slate-200 pb-10 pt-6 relative">
+                                <div className="mb-6 w-full">
+                                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center justify-between gap-3 mb-2 border-b-2 border-slate-100 pb-3">
+                                        <span className="flex items-center gap-3"><Github className="w-6 h-6 text-slate-600" /> GitHub Project Analysis (35%)</span>
+                                        <button onClick={() => toggleSpam('github')} className={`w-[140px] text-center text-[10px] uppercase font-bold py-2 rounded-lg shadow-sm transition-colors ${spamFlags.github ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'} print:hidden`}>
+                                            {spamFlags.github ? 'Unmark Matrix' : 'Flag as Spam'}
+                                        </button>
+                                        {spamFlags.github && <div className="hidden print:block text-xs uppercase font-black text-red-600 tracking-widest border-2 border-red-600 px-3 py-1 rounded-lg">MATRIX EXCLUDED</div>}
+                                    </h2>
+                                    {spamFlags.github && (
+                                        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-bold mb-2">
+                                            ⚠️ This section is marked as SPAM. All metrics have been forcefully zeroed out for fairness.
+                                        </div>
+                                    )}
+                                    <div className="p-4 bg-slate-50 text-sm text-slate-800 rounded-lg border border-slate-200 italic mt-4 font-medium shadow-sm leading-relaxed">
+                                        Summary: {evaluation.githubDossier}
+                                    </div>
+                                </div>
+
+                                {/* Detailed Language Taxonomy Table */}
+                                <div className="mb-8 w-full">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">1. Language Taxonomy Audit</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Detected Programming Language</th>
+                                                    <th className="p-3">Repository Density (Count)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 bg-white text-slate-700">
+                                                {Object.keys(evaluation.calculationReceipt.github.audit.langCounts).length > 0 ? (
+                                                    Object.entries(evaluation.calculationReceipt.github.audit.langCounts)
+                                                        .sort(([,a], [,b]) => (b as number) - (a as number))
+                                                        .map(([lang, count]) => (
+                                                        <tr key={lang} className="hover:bg-slate-50 transition-colors">
+                                                            <td className="p-3 font-bold flex items-center gap-2"><Code className="w-3 h-3 text-indigo-400"/> {lang}</td>
+                                                            <td className="p-3 font-mono">{count} Repositories</td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr>
+                                                        <td colSpan={2} className="p-4 text-center italic text-slate-400">Zero language taxonomy detected bounds.</td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="mt-2 text-xs text-slate-400 italic">
+                                        * System tracked {evaluation.calculationReceipt.github.audit.numLangs} distinctly verified languages originating from public repositories.
+                                    </div>
+                                </div>
+
+                                {/* Raw Forensic Math Calculations */}
+                                <div className="w-full">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">2. Algorithmic Point Derivation</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-900 border-b border-slate-700 text-slate-300 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Metric Parameter</th>
+                                                    <th className="p-3">Raw Value</th>
+                                                    <th className="p-3">Formula Application</th>
+                                                    <th className="p-3 text-right">Yielded Points</th>
+                                                    <th className="p-3 text-right">Audit Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-800 bg-slate-800 text-slate-200 font-mono">
+                                                <tr className={spamFlags.github || spamFlags.githubRepos ? 'bg-slate-800/50' : ''}>
+                                                    <td className="p-3">Total Repository Volume</td>
+                                                    <td className={`p-3 ${(spamFlags.github || spamFlags.githubRepos) ? 'text-red-600 line-through' : 'text-sky-300'}`}>{evaluation.calculationReceipt.github.audit.repos}</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.github.audit.repos} Repos × 1.5 Multiplier [Max 40]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.github.repoPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.github} onClick={() => toggleSpam('githubRepos')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.githubRepos ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.githubRepos ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.github || spamFlags.githubRepos ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className={spamFlags.github || spamFlags.githubCommits ? 'bg-slate-800/50' : ''}>
+                                                    <td className="p-3">Proxy Commit Count</td>
+                                                    <td className={`p-3 ${(spamFlags.github || spamFlags.githubCommits) ? 'text-red-600 line-through' : 'text-sky-300'}`}>{evaluation.calculationReceipt.github.audit.commits}</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.github.audit.commits} Commits × 0.1 Multiplier [Max 30]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.github.commitPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.github} onClick={() => toggleSpam('githubCommits')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.githubCommits ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.githubCommits ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.github || spamFlags.githubCommits ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className={spamFlags.github || spamFlags.githubLangs ? 'bg-slate-800/50' : ''}>
+                                                    <td className="p-3">Distinct Languages Used</td>
+                                                    <td className={`p-3 ${(spamFlags.github || spamFlags.githubLangs) ? 'text-red-600 line-through' : 'text-sky-300'}`}>{evaluation.calculationReceipt.github.audit.numLangs}</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.github.audit.numLangs} Languages × 5.0 Bonus [Max 30]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.github.langPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.github} onClick={() => toggleSpam('githubLangs')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.githubLangs ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.githubLangs ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.github || spamFlags.githubLangs ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot className="bg-indigo-900 text-white font-bold text-lg">
+                                                <tr>
+                                                    <td colSpan={3} className="p-4 text-right uppercase tracking-widest text-sm">Sub-Matrix Calculation Sum:</td>
+                                                    <td className="p-4 text-right" colSpan={2}>{evaluation.calculationReceipt.github.total} / 100</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div className="mt-4 text-xs text-slate-500 italic pb-2">
+                                        * System Note: Proxy commits are forcibly capped at 30 points to combat automated scripting. Polyglot diversity (learning multiple distinct languages) receives a massive 5.0x multiplier to reward technical adaptability.
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 
+                                ======================================================
+                                PAGE 3: ALGORITHMIC LOGIC (LEETCODE)
+                                ======================================================
+                            */}
+                            <div className="flex flex-col justify-start dossier-page border-b border-dashed border-slate-200 pb-10 pt-6 relative">
+                                <div className="mb-6 w-full">
+                                    <h2 className="text-xl font-black text-slate-900 uppercase tracking-widest flex items-center justify-between gap-3 mb-2 border-b-2 border-slate-100 pb-3">
+                                        <span className="flex items-center gap-3"><Calculator className="w-6 h-6 text-slate-600" /> LeetCode Problem Solving (35%)</span>
+                                        <button onClick={() => toggleSpam('leetcode')} className={`w-[140px] text-center text-[10px] uppercase font-bold py-2 rounded-lg shadow-sm transition-colors ${spamFlags.leetcode ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'} print:hidden`}>
+                                            {spamFlags.leetcode ? 'Unmark Matrix' : 'Flag as Spam'}
+                                        </button>
+                                        {spamFlags.leetcode && <div className="hidden print:block text-xs uppercase font-black text-red-600 tracking-widest border-2 border-red-600 px-3 py-1 rounded-lg">MATRIX EXCLUDED</div>}
+                                    </h2>
+                                    {spamFlags.leetcode && (
+                                        <div className="p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-bold mb-2">
+                                            ⚠️ This section is marked as SPAM. All metrics have been forcefully zeroed out for fairness.
+                                        </div>
+                                    )}
+                                    <div className="p-4 bg-slate-50 text-sm text-slate-800 rounded-lg border border-slate-200 italic mt-4 font-medium shadow-sm leading-relaxed">
+                                        Summary: {evaluation.leetcodeDossier}
+                                    </div>
+                                </div>
+
+                                {/* Deep Analytical Data Table */}
+                                <div className="w-full mb-8">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">1. Global Pool Completion Rates</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Difficulty Tier</th>
+                                                    <th className="p-3">Solved</th>
+                                                    <th className="p-3">System Merit Target</th>
+                                                    <th className="p-3 text-right">Target Completion</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-100 bg-white text-slate-700">
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-3 font-bold text-emerald-600">Easy Threshold</td>
+                                                    <td className="p-3 font-mono">{evaluation.calculationReceipt.leetcode.audit.easyVal}</td>
+                                                    <td className="p-3 font-mono text-slate-400">134 Expected</td>
+                                                    <td className="p-3 text-right font-mono font-bold">{Math.min(100, (evaluation.calculationReceipt.leetcode.audit.easyVal / 134) * 100).toFixed(2)}%</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-3 font-bold text-amber-600">Medium Dynamics</td>
+                                                    <td className="p-3 font-mono">{evaluation.calculationReceipt.leetcode.audit.medVal}</td>
+                                                    <td className="p-3 font-mono text-slate-400">50 Expected</td>
+                                                    <td className="p-3 text-right font-mono font-bold">{Math.min(100, (evaluation.calculationReceipt.leetcode.audit.medVal / 50) * 100).toFixed(2)}%</td>
+                                                </tr>
+                                                <tr className="hover:bg-slate-50 transition-colors">
+                                                    <td className="p-3 font-bold text-rose-600">Hard Optimization</td>
+                                                    <td className="p-3 font-mono">{evaluation.calculationReceipt.leetcode.audit.hardVal}</td>
+                                                    <td className="p-3 font-mono text-slate-400">14 Expected</td>
+                                                    <td className="p-3 text-right font-mono font-bold">{Math.min(100, (evaluation.calculationReceipt.leetcode.audit.hardVal / 14) * 100).toFixed(2)}%</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                {/* Raw Forensic Math Calculations */}
+                                <div className="w-full">
+                                    <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest mb-3 bg-slate-50 p-2 rounded border border-slate-100">2. Algorithmic Point Derivation</h3>
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden text-sm">
+                                        <table className="w-full text-left">
+                                            <thead className="bg-slate-900 border-b border-slate-700 text-slate-300 text-xs uppercase tracking-wider">
+                                                <tr>
+                                                    <th className="p-3">Difficulty Target</th>
+                                                    <th className="p-3">Mathematical Formula</th>
+                                                    <th className="p-3 text-right">Yielded Points</th>
+                                                    <th className="p-3 text-right">Audit Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-800 bg-slate-800 text-slate-200 font-mono">
+                                                <tr className={spamFlags.leetcode || spamFlags.leetcodeEasy ? 'bg-slate-800/50' : ''}>
+                                                    <td className={`p-3 ${(spamFlags.leetcode || spamFlags.leetcodeEasy) ? 'text-red-600 line-through' : ''}`}>Easy Level</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.leetcode.audit.easyVal} Solved × 0.15 Points [Max 20]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.leetcode.easyPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.leetcode} onClick={() => toggleSpam('leetcodeEasy')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.leetcodeEasy ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.leetcodeEasy ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.leetcode || spamFlags.leetcodeEasy ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className={spamFlags.leetcode || spamFlags.leetcodeMedium ? 'bg-slate-800/50' : ''}>
+                                                    <td className={`p-3 ${(spamFlags.leetcode || spamFlags.leetcodeMedium) ? 'text-red-600 line-through' : ''}`}>Medium Level</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.leetcode.audit.medVal} Solved × 0.8 Points [Max 40]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.leetcode.medPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.leetcode} onClick={() => toggleSpam('leetcodeMedium')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.leetcodeMedium ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.leetcodeMedium ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.leetcode || spamFlags.leetcodeMedium ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr className={spamFlags.leetcode || spamFlags.leetcodeHard ? 'bg-slate-800/50' : ''}>
+                                                    <td className={`p-3 ${(spamFlags.leetcode || spamFlags.leetcodeHard) ? 'text-red-600 line-through' : ''}`}>Hard Level</td>
+                                                    <td className="p-3 text-amber-300">{evaluation.calculationReceipt.leetcode.audit.hardVal} Solved × 3.0 Points [Max 40]</td>
+                                                    <td className="p-3 text-right font-bold text-emerald-400">+{evaluation.calculationReceipt.leetcode.hardPts.toFixed(1)}</td>
+                                                    <td className="p-3 text-right">
+                                                        <button disabled={spamFlags.leetcode} onClick={() => toggleSpam('leetcodeHard')} className={`w-[95px] text-center text-[9px] uppercase tracking-wider font-bold py-1.5 rounded shadow-sm transition-colors ${spamFlags.leetcodeHard ? 'bg-red-600 text-white border border-red-700 hover:bg-red-700' : 'bg-slate-700/50 text-slate-400 border border-slate-600 hover:bg-slate-700 hover:text-slate-200'} disabled:opacity-50 disabled:cursor-not-allowed print:hidden`}>
+                                                            {spamFlags.leetcodeHard ? 'Unmark Spam' : 'Flag Spam'}
+                                                        </button>
+                                                        <div className="hidden print:block text-[10px] uppercase font-black tracking-widest">
+                                                            {spamFlags.leetcode || spamFlags.leetcodeHard ? <span className="text-red-600">REDACTED</span> : null}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                            <tfoot className="bg-amber-900 text-white font-bold text-lg">
+                                                <tr>
+                                                    <td colSpan={2} className="p-4 text-right uppercase tracking-widest text-sm">Sub-Matrix Calculation Sum:</td>
+                                                    <td className="p-4 text-right" colSpan={2}>{evaluation.calculationReceipt.leetcode.total} / 100</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div className="mt-4 text-xs text-slate-500 italic pb-2">
+                                        * System Note: Easy bounds are deeply suppressed (x0.15) to avoid rewarding basic syntax repetition. Hard algorithmic capabilities are heavily incentivized (x3.0) to filter for elite optimization capacity.
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        {/* 
+                            ======================================================
+                            PAGE 4: FINAL CONSOLIDATED METRIC READOUT
+                            ======================================================
+                        */}
+                        <div className="pt-10 pb-8 flex flex-col justify-start dossier-page">
+                            <div className="mb-10 w-full">
+                                <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight flex items-center gap-4 mb-4">
+                                    <PieChart className="w-10 h-10 text-indigo-600" /> Consolidated Scoring Matrix
+                                </h2>
+                                <p className="text-slate-500 text-lg leading-relaxed max-w-3xl">
+                                    Aggregating the four weighted operational data pillars (Academic, Documentation, GitHub, LeetCode) to mathematically derive the candidate's final unified system metric.
+                                </p>
+                            </div>
+
+                            <div className="border-[3px] border-slate-900 rounded-xl overflow-hidden shadow-2xl bg-white w-full">
+                                <table className="w-full text-left">
+                                    <thead className="bg-slate-900 text-slate-300 font-bold uppercase tracking-widest text-sm">
+                                        <tr>
+                                            <th className="p-6">Evaluation Pillar</th>
+                                            <th className="p-6">Raw Matrix Score</th>
+                                            <th className="p-6">System Weight Applied</th>
+                                            <th className="p-6 text-right">Calculated Sub-Yield</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-200 text-slate-800 font-mono text-lg">
+                                        <tr className="hover:bg-slate-50">
+                                            <td className="p-6 font-bold uppercase">1. Academic Core Foundation</td>
+                                            <td className="p-6 text-slate-500 font-mono">{evaluation.calculationReceipt.academics.total} / 100</td>
+                                            <td className="p-6 text-amber-600 font-bold uppercase text-xs tracking-wider">15% Engine Distribution</td>
+                                            <td className="p-6 text-right font-black text-indigo-600 flex items-center justify-end gap-3">
+                                                <span className="text-slate-400 font-medium text-lg font-mono tracking-tighter">{evaluation.calculationReceipt.academics.total} × 0.15 =</span>
+                                                <span className="w-[105px] inline-block">{(evaluation.calculationReceipt.academics.total * 0.15).toFixed(2)} pts</span>
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50">
+                                            <td className="p-6 font-bold uppercase">2. Documentation & Identity</td>
+                                            <td className="p-6 text-slate-500 font-mono">{evaluation.calculationReceipt.docs.total} / 100</td>
+                                            <td className="p-6 text-amber-600 font-bold uppercase text-xs tracking-wider">15% Engine Distribution</td>
+                                            <td className="p-6 text-right font-black text-indigo-600 flex items-center justify-end gap-3">
+                                                <span className="text-slate-400 font-medium text-lg font-mono tracking-tighter">{evaluation.calculationReceipt.docs.total} × 0.15 =</span>
+                                                <span className="w-[105px] inline-block">{(evaluation.calculationReceipt.docs.total * 0.15).toFixed(2)} pts</span>
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50">
+                                            <td className="p-6 font-bold uppercase">3. GitHub Project Baseline</td>
+                                            <td className="p-6 text-slate-500 font-mono">{evaluation.calculationReceipt.github.total} / 100</td>
+                                            <td className="p-6 text-amber-600 font-bold uppercase text-xs tracking-wider">35% Engine Distribution</td>
+                                            <td className="p-6 text-right font-black text-indigo-600 flex items-center justify-end gap-3">
+                                                <span className="text-slate-400 font-medium text-lg font-mono tracking-tighter">{evaluation.calculationReceipt.github.total} × 0.35 =</span>
+                                                <span className="w-[105px] inline-block">{(evaluation.calculationReceipt.github.total * 0.35).toFixed(2)} pts</span>
+                                            </td>
+                                        </tr>
+                                        <tr className="hover:bg-slate-50">
+                                            <td className="p-6 font-bold uppercase">4. LeetCode Analytic Bounds</td>
+                                            <td className="p-6 text-slate-500 font-mono">{evaluation.calculationReceipt.leetcode.total} / 100</td>
+                                            <td className="p-6 text-amber-600 font-bold uppercase text-xs tracking-wider">35% Engine Distribution</td>
+                                            <td className="p-6 text-right font-black text-indigo-600 flex items-center justify-end gap-3">
+                                                <span className="text-slate-400 font-medium text-lg font-mono tracking-tighter">{evaluation.calculationReceipt.leetcode.total} × 0.35 =</span>
+                                                <span className="w-[105px] inline-block">{(evaluation.calculationReceipt.leetcode.total * 0.35).toFixed(2)} pts</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot className="bg-slate-100 border-t-[4px] border-slate-900">
+                                        <tr>
+                                            <td className="p-8 text-right font-black text-slate-900 text-2xl uppercase tracking-widest" colSpan={3}>
+                                                Final Evaluated System Metric:
+                                            </td>
+                                            <td className="p-8 text-right text-5xl font-black text-emerald-600 tracking-tighter">
+                                                {evaluation.score} <span className="text-xl text-slate-500 tracking-normal">/ 100</span>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
 
                 </div>
             </motion.div>

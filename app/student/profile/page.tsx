@@ -209,6 +209,23 @@ export default function StudentProfilePage() {
             }
         }
         
+        // Enforce Mandatory Certificate Verification Links
+        if (editMode === 'certificates' && tempData.certificates && tempData.certificates.length > 0) {
+            for (let i = 0; i < tempData.certificates.length; i++) {
+                const cert = tempData.certificates[i]
+                if (!cert.title || cert.title.trim() === '') {
+                    alert(`Save Failed: Certificate #${i+1} is missing a Title.`)
+                    setSaving(false)
+                    return
+                }
+                if (!cert.url || cert.url.trim() === '') {
+                    alert(`Save Failed: Certificate "${cert.title}" is missing its Verification Link. A link is mandatory.`)
+                    setSaving(false)
+                    return
+                }
+            }
+        }
+
         const { error } = await supabase.from('profiles').update({
             full_name: tempData.full_name || null,
             phone: tempData.phone || null,
@@ -927,36 +944,45 @@ export default function StudentProfilePage() {
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                             <div className="pr-8">
-                                                <input 
-                                                    value={cert.title} 
-                                                    onChange={e => {
-                                                        const newCerts = [...tempData.certificates];
-                                                        newCerts[idx].title = e.target.value;
-                                                        setTempData({...tempData, certificates: newCerts});
-                                                    }}
-                                                    placeholder="Certificate Title (e.g. AWS Cloud Practitioner)"
-                                                    className="w-full mb-3 p-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none" 
-                                                />
-                                                <input 
-                                                    value={cert.issuer} 
-                                                    onChange={e => {
-                                                        const newCerts = [...tempData.certificates];
-                                                        newCerts[idx].issuer = e.target.value;
-                                                        setTempData({...tempData, certificates: newCerts});
-                                                    }}
-                                                    placeholder="Issuing Organization (e.g. Amazon Web Services)"
-                                                    className="w-full mb-3 p-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none" 
-                                                />
-                                                <input 
-                                                    value={cert.url} 
-                                                    onChange={e => {
-                                                        const newCerts = [...tempData.certificates];
-                                                        newCerts[idx].url = e.target.value;
-                                                        setTempData({...tempData, certificates: newCerts});
-                                                    }}
-                                                    placeholder="Verification URL / Drive Link"
-                                                    className="w-full p-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none" 
-                                                />
+                                                <div className="mb-3 space-y-1.5">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">Certificate Title <span className="text-red-400 font-extrabold">*</span></label>
+                                                    <input 
+                                                        value={cert.title} 
+                                                        onChange={e => {
+                                                            const newCerts = [...tempData.certificates];
+                                                            newCerts[idx].title = e.target.value;
+                                                            setTempData({...tempData, certificates: newCerts});
+                                                        }}
+                                                        placeholder="e.g. AWS Cloud Practitioner"
+                                                        className="w-full p-3 rounded-lg border border-emerald-100 focus:border-emerald-500 bg-white text-sm font-medium outline-none transition-colors" 
+                                                    />
+                                                </div>
+                                                <div className="mb-3 space-y-1.5">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1">Issuing Organization (Optional)</label>
+                                                    <input 
+                                                        value={cert.issuer} 
+                                                        onChange={e => {
+                                                            const newCerts = [...tempData.certificates];
+                                                            newCerts[idx].issuer = e.target.value;
+                                                            setTempData({...tempData, certificates: newCerts});
+                                                        }}
+                                                        placeholder="e.g. Amazon Web Services"
+                                                        className="w-full p-3 rounded-lg border border-slate-200 bg-white text-sm font-medium outline-none focus:border-emerald-500 transition-colors" 
+                                                    />
+                                                </div>
+                                                <div className="space-y-1.5">
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">Verification Link / Drive Link <span className="text-red-400 font-extrabold">*</span></label>
+                                                    <input 
+                                                        value={cert.url} 
+                                                        onChange={e => {
+                                                            const newCerts = [...tempData.certificates];
+                                                            newCerts[idx].url = e.target.value;
+                                                            setTempData({...tempData, certificates: newCerts});
+                                                        }}
+                                                        placeholder="https://..."
+                                                        className="w-full p-3 rounded-lg border border-red-200 focus:border-red-500 bg-white text-sm font-medium outline-none transition-colors" 
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     ))}

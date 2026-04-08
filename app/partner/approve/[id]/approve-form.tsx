@@ -12,9 +12,11 @@ interface ApproveFormProps {
     initialStatus: string
     hrNotes?: string | null
     leftContent?: React.ReactNode
+    company?: any
+    faculty?: any
 }
 
-export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initialStatus, hrNotes, leftContent }: ApproveFormProps) {
+export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initialStatus, hrNotes, leftContent, company, faculty }: ApproveFormProps) {
     const [status, setStatus] = useState(initialStatus)
     const [loadingAction, setLoadingAction] = useState<"idle" | "accept" | "reschedule" | "decline" | "chat">("idle")
     const [view, setView] = useState<"default" | "reschedule_mode" | "cancel_mode">("default")
@@ -98,6 +100,45 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
             setStatus(newStatus)
             setView("default")
             setChatLog(newChat)
+            
+            if (actionKey === "accept" && company && faculty) {
+                // Dispatch Final Confirmation to HR
+                const magicLink = `${window.location.origin}/partner/approve/${visitId}`
+                let finalDate = date || "TBD";
+                let startTime = "TBD";
+                let endTime = "TBD";
+                
+                if (date?.includes("•")) {
+                    const parts = date.split("•").map((p: string) => p.trim());
+                    finalDate = parts[0];
+                    if (parts.length > 1) {
+                        const timeParts = parts[1].split(" to ");
+                        startTime = timeParts[0];
+                        endTime = timeParts.length > 1 ? timeParts[1] : "TBD";
+                    }
+                }
+
+                await fetch('/api/dispatch-visit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        companyName: company.name,
+                        hrEmail: company.representative.email,
+                        hrName: company.representative.name,
+                        facultyName: faculty.full_name || "Faculty Member",
+                        facultyEmail: faculty.email,
+                        facultyDesignation: faculty.designation || "Faculty Member",
+                        facultyInstitution: faculty.institution,
+                        facultyDepartment: faculty.department || "",
+                        facultyDate: finalDate,
+                        startTime,
+                        endTime,
+                        facultyMessage: "",
+                        magicLink,
+                        isConfirmationFromHR: true
+                    })
+                });
+            }
         } else {
             alert('Failed to update. Please try again.')
         }
