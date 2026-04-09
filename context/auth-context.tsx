@@ -37,31 +37,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
-    const validateAndSetSession = useCallback(async (currentSession: Session | null) => {
-
-        if (currentSession?.user) {
-            try {
-                const { data, error } = await supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
-                
-                if (data?.status === 'suspended') {
-                    console.error('CRITICAL: Suspended account attempting access.');
-                    await handleSignOut()
-                    if (typeof window !== 'undefined') {
-                        window.location.href = '/get-started?error=suspended'
-                    }
-                    return
-                }
-                
-                if (data) {
-                    setProfile(data)
-                }
-            } catch (err) {
-                console.error("Profile fetch error, proceeding cautiously.", err);
-            }
-        }
-
+    const validateAndSetSession = useCallback((currentSession: Session | null) => {
         setSession(currentSession)
         setUser(currentSession?.user ?? null)
+
+        if (currentSession?.user) {
+            // Asynchronously fetch profile without blocking the UI rendering layer
+            supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
+                .then(({ data, error }) => {
+                    if (data?.status === 'suspended') {
+                        console.error('CRITICAL: Suspended account attempting access.');
+                        handleSignOut()
+                        if (typeof window !== 'undefined') {
+                            window.location.href = '/get-started?error=suspended'
+                        }
+                        return
+                    }
+                    if (data) {
+                        setProfile(data)
+                    }
+                })
+                .catch(err => console.error("Profile fetch error.", err))
+        } else {
+            setProfile(null)
+        }
     }, [handleSignOut])
 
     useEffect(() => {
@@ -69,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const fetchInitialSession = async () => {
             try {
                 const { data: { session: currentSession } } = await supabase.auth.getSession()
-                await validateAndSetSession(currentSession)
+                validateAndSetSession(currentSession)
             } catch (error) {
                 console.error("Error fetching session:", error)
                 setSession(null)
@@ -87,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }, 5000)
 
         // Listen for auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
             if (_event === 'SIGNED_OUT') {
                 setSession(null)
                 setUser(null)
@@ -95,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 setLoading(false)
                 return
             }
-            await validateAndSetSession(currentSession)
+            validateAndSetSession(currentSession)
             setLoading(false)
         })
 

@@ -19,14 +19,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const { user, profile, loading, signOut } = useAuth()
 
     useEffect(() => {
-        if (!loading) {
-            if (!user) {
-                router.replace("/get-started?role=admin")
-            } else if (profile && profile.role !== 'admin') {
-                router.replace(profile.role === 'student' ? '/student' : '/faculty')
-            }
+        if (!loading && !user) {
+            router.replace("/get-started")
         }
-    }, [user, profile, loading, router])
+    }, [user, loading, router])
 
     const navItems = [
         { name: "Partner Central", href: "/admin", icon: LayoutDashboard },
@@ -188,7 +184,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     isSidebarOpen ? "md:pl-[292px]" : "md:pl-[104px]"
                 )}>
                     <div id="admin-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
-                        {(loading || !user || profile?.role !== 'admin') ? (
+                        {(loading || !user) ? (
                             <div className="p-6 md:p-10 w-full h-full animate-pulse">
                                 <div className="h-8 bg-slate-200 rounded w-64 mb-2"></div>
                                 <div className="h-4 bg-slate-100 rounded w-96 mb-8"></div>
