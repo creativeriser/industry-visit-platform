@@ -186,9 +186,18 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
             )}>
                 <div id="student-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
                     {(loading || !user || profile?.role !== 'student') ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center">
-                            <div className="w-8 h-8 rounded-full border-4 border-sky-500 border-t-transparent animate-spin mb-4"></div>
-                            <p className="text-slate-500 font-medium animate-pulse">Loading content...</p>
+                        <div className="p-6 md:p-10 w-full h-full animate-pulse">
+                            <div className="h-8 bg-slate-200 rounded w-64 mb-2"></div>
+                            <div className="h-4 bg-slate-100 rounded w-96 mb-8"></div>
+                            <div className="bg-slate-50 p-1.5 rounded-xl flex gap-2 w-fit mb-8">
+                                <div className="h-9 w-32 bg-white rounded-lg shadow-sm border border-slate-200/50"></div>
+                                <div className="h-9 w-32 bg-slate-200/50 rounded-lg"></div>
+                            </div>
+                            <div className="space-y-6">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-32 bg-white shadow-sm border border-slate-100 rounded-2xl"></div>
+                                ))}
+                            </div>
                         </div>
                     ) : (
                         children
