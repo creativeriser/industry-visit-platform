@@ -13,7 +13,13 @@ export function Navbar() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const pathname = usePathname()
-    const { user, loading } = useAuth()
+    const { user, profile, loading } = useAuth()
+
+    const getDashboardRoute = () => {
+        if (profile?.role === 'admin') return '/admin';
+        if (profile?.role === 'student') return '/student';
+        return '/faculty'; // Fallback
+    }
 
     const navLinks: { name: string; href: string }[] = []
 
@@ -69,7 +75,7 @@ export function Navbar() {
                     {loading ? (
                         <div className="w-[124px] h-[36px] bg-slate-100 animate-pulse rounded-full"></div>
                     ) : user ? (
-                        <Link href={user.email?.includes('admin') ? "/admin" : "/faculty"}>
+                        <Link href={getDashboardRoute()}>
                             <Button
                                 variant="default"
                                 size="sm"
