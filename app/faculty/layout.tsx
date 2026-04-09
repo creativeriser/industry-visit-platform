@@ -16,7 +16,8 @@ import {
     LogOut,
     Menu,
     X,
-    UserCheck
+    UserCheck,
+    Loader2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/layout/brand-logo"
