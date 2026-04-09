@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 interface AuthContextType {
     session: Session | null
     user: User | null
+    profile: any | null
     loading: boolean
     signOut: () => Promise<void>
 }
@@ -19,6 +20,7 @@ const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null)
     const [user, setUser] = useState<User | null>(null)
+    const [profile, setProfile] = useState<any | null>(null)
     const [loading, setLoading] = useState(true)
 
     const handleSignOut = useCallback(async () => {
@@ -29,6 +31,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } finally {
             setSession(null)
             setUser(null)
+            setProfile(null)
         }
     }, [])
 
@@ -47,6 +50,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await handleSignOut()
             return
         }
+
+        // Enterprise Security Protocol: Zero-Trust Global Suspension Check
+        if (currentSession?.user) {
+            try {
+                const { data } = await supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
+                if (data?.status === 'suspended') {
+                    console.error('CRITICAL: Suspended account attempting access. Executing forced global platform termination.');
+                    await handleSignOut()
+                    if (typeof window !== 'undefined') {
+                        window.location.href = '/get-started?error=suspended'
+                    }
+                    return
+                }
+                setProfile(data)
+            } catch (err) {
+                console.error("Suspension check failed, proceeding cautiously.");
+            }
+        }
+
         setSession(currentSession)
         setUser(currentSession?.user ?? null)
     }, [isValidSession, handleSignOut])
@@ -101,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [validateAndSetSession, isValidSession, handleSignOut])
 
     return (
-        <AuthContext.Provider value={{ session, user, loading, signOut: handleSignOut }}>
+        <AuthContext.Provider value={{ session, user, profile, loading, signOut: handleSignOut }}>
             {children}
         </AuthContext.Provider>
     )

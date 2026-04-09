@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -9,9 +9,18 @@ import { Label } from "@/components/ui/label"
 import { CheckCircle2, Loader2, Building2, UserCircle2, ArrowRight } from "lucide-react"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import { getCompanies } from "@/lib/companies"
 
 export function PartnerForm() {
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [availableDisciplines, setAvailableDisciplines] = useState<string[]>([])
+
+    useEffect(() => {
+        getCompanies().then(companies => {
+            const unique = Array.from(new Set(companies.map(c => c.discipline).filter(Boolean))).sort()
+            setAvailableDisciplines(unique)
+        })
+    }, [])
     const [isSuccess, setIsSuccess] = useState(false)
     const [type, setType] = useState("")
     const [capacity, setCapacity] = useState("")
@@ -101,15 +110,10 @@ export function PartnerForm() {
                                 <SelectValue placeholder="Select industry sector" />
                             </SelectTrigger>
                             <SelectContent className="rounded-xl">
-                                <SelectItem value="it">Information Technology</SelectItem>
-                                <SelectItem value="manufacturing">Manufacturing</SelectItem>
-                                <SelectItem value="finance">Finance & Consulting</SelectItem>
-                                <SelectItem value="healthcare">Healthcare / Biotech</SelectItem>
-                                <SelectItem value="aerospace">Aerospace & Defense</SelectItem>
-                                <SelectItem value="ecommerce">E-Commerce / Retail</SelectItem>
-                                <SelectItem value="government">Government / Public Sector</SelectItem>
-                                <SelectItem value="startup">Startup / Incubator</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                {availableDisciplines.map(d => (
+                                    <SelectItem key={d} value={d}>{d}</SelectItem>
+                                ))}
+                                <SelectItem value="Other">Other (Manual Mapping Required)</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

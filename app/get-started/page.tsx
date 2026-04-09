@@ -9,6 +9,8 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/context/auth-context"
+import { supabase } from "@/lib/supabase"
 
 export type ActiveRole = "admin" | "faculty" | "student" | null
 
@@ -16,6 +18,20 @@ function GetStartedContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const [activeRole, setActiveRole] = useState<ActiveRole>("faculty")
+    const { user, loading: authLoading } = useAuth()
+
+    // Smart Redirect for Already Authenticated Users
+    useEffect(() => {
+        if (!authLoading && user) {
+            // User is already logged in. Fetch their role to redirect them.
+            supabase.from('profiles').select('role').eq('id', user.id).single()
+                .then(({ data }) => {
+                    if (data?.role) {
+                        router.replace(`/${data.role}`);
+                    }
+                })
+        }
+    }, [user, authLoading, router])
 
     useEffect(() => {
         const roleParam = searchParams.get("role")

@@ -22,36 +22,23 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
-    const { user, loading } = useAuth()
+    const { user, profile, loading } = useAuth()
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.replace("/get-started?role=student")
-            return
-        }
-
-        const checkStudentRole = async () => {
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-                
-                if (error || !data) {
-                    router.replace("/get-started")
-                } else if (data.role === 'faculty') {
+        if (!loading) {
+            if (!user) {
+                router.replace("/get-started?role=student")
+            } else if (profile) {
+                if (profile.role === 'faculty') {
                     router.replace('/faculty')
-                } else if (data.role !== 'student') {
+                } else if (profile.role !== 'student') {
                     router.replace('/')
                 } else {
                     setIsAuthorized(true)
                 }
             }
         }
-
-        checkStudentRole()
-    }, [user, loading, router])
+    }, [user, profile, loading, router])
 
     const navItems = [
         { name: "My Opportunities", href: "/student", icon: LayoutDashboard },

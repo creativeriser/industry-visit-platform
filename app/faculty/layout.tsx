@@ -26,40 +26,26 @@ import { UserProvider } from "@/context/user-context"
 export default function FacultyLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeHash, setActiveHash] = useState("")
-    const [roleChecked, setRoleChecked] = useState(false)
+    const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
-    const { user, loading } = useAuth()
+    const { user, profile, loading } = useAuth()
 
-    // Role-based route guard: ensure only faculty can access /faculty/*
     useEffect(() => {
-        if (loading) return
-        if (!user) {
-            router.replace("/get-started")
-            return
-        }
-
-        const checkRole = async () => {
-            const { data } = await supabase
-                .from('profiles')
-                .select('role')
-                .eq('id', user.id)
-                .single()
-
-            if (!data || data.role !== 'faculty') {
-                // Redirect students/admins to their correct dashboard
-                if (data?.role === 'student') {
+        if (!loading) {
+            if (!user) {
+                router.replace("/get-started?role=faculty")
+            } else if (profile) {
+                if (profile.role === 'student') {
                     router.replace('/student')
+                } else if (profile.role !== 'faculty') {
+                    router.replace('/')
                 } else {
-                    router.replace('/get-started')
+                    setIsAuthorized(true)
                 }
-                return
             }
-            setRoleChecked(true)
         }
-
-        checkRole()
-    }, [user, loading, router])
+    }, [user, profile, loading, router])
 
     useEffect(() => {
         // Set initial hash
@@ -88,8 +74,11 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
         { name: "Selected Students", href: "/faculty/selected", icon: UserCheck },
     ]
 
-    // Don't render anything until role is confirmed
-    if (!roleChecked) return null
+    if (loading || (!isAuthorized && user)) {
+        return <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">Verifying Faculty Access...</div>
+    }
+
+    if (!user) return null; // Wait for redirect
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">

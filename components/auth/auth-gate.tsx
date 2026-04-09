@@ -171,7 +171,9 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                                         <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-[1px]" />
                                         <p className="text-[12px] text-red-500 font-medium leading-[1.3] text-left">
                                             {localError ? localError : (
-                                                errorParam === 'invalid_role' 
+                                                errorParam === 'suspended'
+                                                ? "This account is completely suspended. Contact Admin immediately."
+                                                : errorParam === 'invalid_role' 
                                                 ? `Your Microsoft account is registered for a different role. Please select the correct portal.` 
                                                 : errorParam === 'unauthorized_domain' 
                                                 ? "Email domain is not authorized. Please use your official university email." 
@@ -196,7 +198,9 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                                             <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-[1px]" />
                                             <p className="text-[12px] text-red-500 font-medium leading-[1.3] text-left">
                                                 {localError ? localError : (
-                                                    errorParam === 'invalid_role' 
+                                                    errorParam === 'suspended'
+                                                    ? "This account is suspended. Contact Admin."
+                                                    : errorParam === 'invalid_role' 
                                                     ? `Your Microsoft account is registered for a different role. Please select the correct portal.` 
                                                     : errorParam === 'unauthorized_domain' 
                                                     ? "Email domain is not authorized. Please use your official university email." 

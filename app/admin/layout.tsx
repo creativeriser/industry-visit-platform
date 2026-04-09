@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/context/auth-context"
 import { motion, AnimatePresence } from "framer-motion"
-import { LayoutDashboard, Users, LogOut, Menu, UserCog } from "lucide-react"
+import { LayoutDashboard, Users, LogOut, Menu, UserCog, CalendarClock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/layout/brand-logo"
 import { Button } from "@/components/ui/button"
@@ -16,39 +16,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
-    const { user, loading } = useAuth()
+    const { user, profile, loading } = useAuth()
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.replace("/get-started?role=admin")
-            return
-        }
-
-        const checkAdminRole = async () => {
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', user.id)
-                    .single()
-                
-                if (error || data?.role !== 'admin') {
-                    // Not authorized
-                    await supabase.auth.signOut()
-                    router.replace("/")
-                } else {
-                    setIsAuthorized(true)
-                }
+        if (!loading) {
+            if (!user) {
+                router.replace("/get-started?role=admin")
+            } else if (profile && profile.role !== 'admin') {
+                // Not authorized
+                supabase.auth.signOut().then(() => router.replace("/"))
+            } else if (profile && profile.role === 'admin') {
+                setIsAuthorized(true)
             }
         }
-
-        checkAdminRole()
-    }, [user, loading, router])
+    }, [user, profile, loading, router])
 
     const navItems = [
-        { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-        { name: "User Access", href: "/admin/users", icon: Users },
-        { name: "Settings", href: "/admin/settings", icon: UserCog },
+        { name: "Partner Central", href: "/admin", icon: LayoutDashboard },
+        { name: "Access Control", href: "/admin/users", icon: Users },
+        { name: "Global Schedules", href: "/admin/schedules", icon: CalendarClock },
     ]
 
     if (loading || (!isAuthorized && user)) {
