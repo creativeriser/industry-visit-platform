@@ -90,11 +90,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         fetchInitialSession()
 
+        // Critical Fallback: Force unlock the UI state if the network stalls
+        const timeoutId = setTimeout(() => {
+            setLoading(false)
+        }, 5000)
+
         // Listen for auth changes
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, currentSession) => {
             if (_event === 'SIGNED_OUT') {
                 setSession(null)
                 setUser(null)
+                setProfile(null)
                 setLoading(false)
                 return
             }
@@ -119,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => {
             subscription.unsubscribe()
             clearInterval(intervalId)
+            clearTimeout(timeoutId)
         }
     }, [validateAndSetSession, isValidSession, handleSignOut])
 
