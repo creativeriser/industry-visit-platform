@@ -26,6 +26,7 @@ import { UserProvider } from "@/context/user-context"
 
 export default function FacultyLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isSigningOut, setIsSigningOut] = useState(false)
     const [activeHash, setActiveHash] = useState("")
     const pathname = usePathname()
     const router = useRouter()
@@ -211,15 +212,22 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
                             <div className="my-1 border-t border-slate-200/50" />
 
                             <button
+                                disabled={isSigningOut}
                                 onClick={async () => {
+                                    setIsSigningOut(true)
                                     await signOut()
                                 }}
                                 className={cn(
                                     "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",
-                                    isSidebarOpen ? "justify-start" : "justify-center"
+                                    isSidebarOpen ? "justify-start" : "justify-center",
+                                    isSigningOut ? "opacity-50 cursor-not-allowed" : ""
                                 )}
                             >
-                                <LogOut className="w-4 h-4 flex-shrink-0" />
+                                {isSigningOut ? (
+                                    <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+                                ) : (
+                                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                                )}
                                 <AnimatePresence>
                                     {isSidebarOpen && (
                                         <motion.span
@@ -229,7 +237,7 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
                                             transition={{ duration: 0.2 }}
                                             className="text-sm font-medium whitespace-nowrap"
                                         >
-                                            Sign Out
+                                            {isSigningOut ? "Signing out..." : "Sign Out"}
                                         </motion.span>
                                     )}
                                 </AnimatePresence>

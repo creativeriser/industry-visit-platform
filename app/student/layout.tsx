@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    const [isSigningOut, setIsSigningOut] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const { user, profile, loading, signOut } = useAuth()
@@ -141,30 +142,37 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
                         <div className="my-1 border-t border-slate-200/50" />
 
-                        <button
-                            onClick={async () => {
-                                await signOut()
-                            }}
-                            className={cn(
-                                "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",
-                                isSidebarOpen ? "justify-start" : "justify-center"
-                            )}
-                        >
-                            <LogOut className="w-4 h-4 flex-shrink-0" />
-                            <AnimatePresence>
-                                {isSidebarOpen && (
-                                    <motion.span
-                                        initial={{ opacity: 0, width: 0, marginLeft: 0 }}
-                                        animate={{ opacity: 1, width: "auto", marginLeft: 12 }}
-                                        exit={{ opacity: 0, width: 0, marginLeft: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="text-sm font-medium whitespace-nowrap"
-                                    >
-                                        Sign Out
-                                    </motion.span>
+                            <button
+                                disabled={isSigningOut}
+                                onClick={async () => {
+                                    setIsSigningOut(true)
+                                    await signOut()
+                                }}
+                                className={cn(
+                                    "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",
+                                    isSidebarOpen ? "justify-start" : "justify-center",
+                                    isSigningOut ? "opacity-50 cursor-not-allowed" : ""
                                 )}
-                            </AnimatePresence>
-                        </button>
+                            >
+                                {isSigningOut ? (
+                                    <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" />
+                                ) : (
+                                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                                )}
+                                <AnimatePresence>
+                                    {isSidebarOpen && (
+                                        <motion.span
+                                            initial={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                            animate={{ opacity: 1, width: "auto", marginLeft: 12 }}
+                                            exit={{ opacity: 0, width: 0, marginLeft: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="text-sm font-medium whitespace-nowrap"
+                                        >
+                                            {isSigningOut ? "Signing out..." : "Sign Out"}
+                                        </motion.span>
+                                    )}
+                                </AnimatePresence>
+                            </button>
                     </div>
                 </div>
             </motion.aside>
