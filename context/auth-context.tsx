@@ -14,8 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// Enterprise security constant: Session expires 24 hours after login
-const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000 
+// Removed aggressive custom validation; trusting Supabase Auth token lifecycle.
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null)
@@ -35,43 +34,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, [])
 
-    const isValidSession = useCallback((currentSession: Session | null) => {
-        if (!currentSession?.user?.last_sign_in_at) return false
-
-        const lastSignInDate = new Date(currentSession.user.last_sign_in_at).getTime()
-        const timeElapsed = Date.now() - lastSignInDate
-
-        return timeElapsed < SESSION_MAX_AGE_MS
-    }, [])
-
     const validateAndSetSession = useCallback(async (currentSession: Session | null) => {
-        if (currentSession && !isValidSession(currentSession)) {
-            console.info('Session expired due to 24-hour security policy. Logging out...')
-            await handleSignOut()
-            return
-        }
 
-        // Enterprise Security Protocol: Zero-Trust Global Suspension Check
         if (currentSession?.user) {
             try {
-                const { data } = await supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
+                const { data, error } = await supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
+                
                 if (data?.status === 'suspended') {
-                    console.error('CRITICAL: Suspended account attempting access. Executing forced global platform termination.');
+                    console.error('CRITICAL: Suspended account attempting access.');
                     await handleSignOut()
                     if (typeof window !== 'undefined') {
                         window.location.href = '/get-started?error=suspended'
                     }
                     return
                 }
-                setProfile(data)
+                
+                if (data) {
+                    setProfile(data)
+                }
             } catch (err) {
-                console.error("Suspension check failed, proceeding cautiously.");
+                console.error("Profile fetch error, proceeding cautiously.", err);
             }
         }
 
         setSession(currentSession)
         setUser(currentSession?.user ?? null)
-    }, [isValidSession, handleSignOut])
+    }, [handleSignOut])
 
     useEffect(() => {
         // Fetch initial session
@@ -108,26 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setLoading(false)
         })
 
-        // Setup a periodic check to proactively log out users who exceed the 24h limit
-        // without requiring a page refresh or interaction.
-        const intervalId = setInterval(async () => {
-            try {
-                const { data: { session: activeSession } } = await supabase.auth.getSession()
-                if (activeSession && !isValidSession(activeSession)) {
-                    console.info('Proactive session check: Session expired due to 24-hour policy.')
-                    await handleSignOut()
-                }
-            } catch (error) {
-                // Ignore silent errors from background check
-            }
-        }, 5 * 60 * 1000) // Check every 5 minutes in the background
-
         return () => {
             subscription.unsubscribe()
-            clearInterval(intervalId)
             clearTimeout(timeoutId)
         }
-    }, [validateAndSetSession, isValidSession, handleSignOut])
+    }, [validateAndSetSession, handleSignOut])
 
     return (
         <AuthContext.Provider value={{ session, user, profile, loading, signOut: handleSignOut }}>

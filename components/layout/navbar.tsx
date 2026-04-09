@@ -72,9 +72,7 @@ export function Navbar() {
                         Partner with Us
                     </Link>
                     
-                    {loading ? (
-                        <div className="w-[124px] h-[36px] bg-slate-100 animate-pulse rounded-full"></div>
-                    ) : user ? (
+                    {user ? (
                         <Link href={getDashboardRoute()}>
                             <Button
                                 variant="default"

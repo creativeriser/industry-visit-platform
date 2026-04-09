@@ -13,9 +13,11 @@ import { TrustSection } from "@/components/marketing/trust-section"
 import { Footer } from "@/components/layout/footer"
 import { useState, useEffect } from "react"
 import { getCompanies } from "@/lib/companies"
+import { useAuth } from "@/context/auth-context"
 
 export default function Home() {
   const router = useRouter()
+  const { user, profile } = useAuth()
   const [disciplines, setDisciplines] = useState<string[]>(["Computer Science", "Biotechnology"])
 
   useEffect(() => {
@@ -85,12 +87,12 @@ export default function Home() {
             variants={item}
             className="flex flex-col sm:flex-row gap-4 justify-center mt-4"
           >
-            <Link href="/get-started">
+            <Link href={user ? (profile?.role === 'student' ? '/student' : profile?.role === 'admin' ? '/admin' : '/faculty') : "/get-started"}>
                 <Button
                 size="lg"
                 className="bg-secondary text-white hover:bg-secondary/90 h-14 px-10 text-lg shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
                 >
-                Access Portal <ArrowRight className="ml-2 h-5 w-5" />
+                {user ? "Go to Dashboard" : "Access Portal"} <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
             </Link>
             <Button
