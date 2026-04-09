@@ -232,14 +232,14 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                         <div className="w-12 h-12 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-500 flex items-center justify-center mx-auto mb-3">
                             <Clock className="w-5 h-5" />
                         </div>
-                        <h4 className="text-base font-bold text-slate-900 tracking-tight">Propose Alternate Time</h4>
-                        <p className="text-slate-500 text-[13px] leading-relaxed mt-1">Suggest a new date and time that works better for your team.</p>
+                        <h4 className="text-base font-bold text-slate-900 tracking-tight">Propose Alternate Schedule</h4>
+                        <p className="text-slate-500 text-[13px] leading-relaxed mt-1">Suggest a new date, time, or headcount that works better for your team.</p>
                     </div>
                     
                     <div className="space-y-5 bg-slate-50 border border-slate-100 rounded-2xl p-5">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">New Date <span className="opacity-50 text-[9px] lowercase tracking-normal">(Optional)</span></label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">New Date <span className="text-red-400">*</span></label>
                                 <input 
                                     type="date" 
                                     value={overrideDate}
@@ -248,7 +248,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Headcount <span className="opacity-50 text-[9px] lowercase tracking-normal">(Optional)</span></label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Headcount <span className="text-red-400">*</span></label>
                                 <input 
                                     type="number" 
                                     placeholder="Target"
@@ -260,7 +260,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Start Time</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Start Time <span className="text-red-400">*</span></label>
                                 <input 
                                     type="time" 
                                     value={overrideStartTime}
@@ -269,7 +269,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                                 />
                             </div>
                             <div>
-                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">End Time</label>
+                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">End Time <span className="text-red-400">*</span></label>
                                 <input 
                                     type="time" 
                                     value={overrideEndTime}
@@ -279,7 +279,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                             </div>
                         </div>
                         <div>
-                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Reason for change (Visible to Faculty)</label>
+                            <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block">Reason for change <span className="opacity-50 text-[9px] lowercase tracking-normal">(Visible to Faculty)</span> <span className="text-red-400">*</span></label>
                             <textarea 
                                 value={note}
                                 onChange={(e) => setNote(e.target.value)}
@@ -293,7 +293,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                         <Button onClick={() => setView("default")} variant="ghost" className="w-[100px] rounded-xl h-12 font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-100 text-[13px]">Cancel</Button>
                         <Button 
                             onClick={handleRescheduleSubmit} 
-                            disabled={loadingAction !== "idle" || note.length < 5}
+                            disabled={loadingAction !== "idle" || note.length < 5 || !overrideDate || !overrideHeadcount || !overrideStartTime || !overrideEndTime}
                             className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-600/20 gap-2 text-[13px] transition-all"
                         >
                             {loadingAction === "reschedule" ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Send Proposal <Send className="w-4 h-4" /></>}
@@ -395,7 +395,7 @@ export function ApproveForm({ visitId, currentProposedDate, facultyEmail, initia
                             variant="outline"
                             className="w-full h-12 font-bold rounded-xl text-slate-700 border-slate-200 hover:bg-slate-50 transition-all gap-2 text-[14px]"
                         >
-                            <Clock className="w-4 h-4" /> Propose Alternate Time
+                            <Clock className="w-4 h-4" /> Propose Alternate Schedule
                         </Button>
                     </div>
                     

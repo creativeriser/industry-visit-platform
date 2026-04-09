@@ -44,6 +44,7 @@ export function FacultyApproveButtons({ applicationId, currentStatus, onUpdate }
                         companyName: company.name,
                         visitDate: visit.proposed_date?.split('•')[0]?.trim() || "TBD",
                         magicLink: `${window.location.origin}/student`,
+                        applicationId: applicationId,
                         recipients: [{ email: student.email, name: student.full_name }]
                     })
                 }).catch(e => console.error("Student approval mail dispatch failed:", e))

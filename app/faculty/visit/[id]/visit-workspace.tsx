@@ -773,66 +773,72 @@ export function VisitWorkspace({ company }: VisitWorkspaceProps) {
                                             </Button>
                                         </div>
                                     ) : (
-                                        <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mt-6 animate-in zoom-in-95 duration-200">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Counter-Propose Terms</p>
-                                                <Button onClick={() => setIsCounterProposing(false)} variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 rounded-lg"><X className="w-4 h-4" /></Button>
+                                        <div className="bg-slate-50 p-6 rounded-3xl border border-slate-200 mt-6 animate-in zoom-in-95 duration-200 shadow-sm">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <div>
+                                                    <h4 className="text-base font-bold text-slate-900 tracking-tight flex items-center gap-2">
+                                                        <Clock className="w-4 h-4 text-indigo-500" /> Counter-Propose Terms
+                                                    </h4>
+                                                    <p className="text-slate-500 text-[13px] leading-relaxed mt-1">Suggest a new date, time, or headcount that works better for your class.</p>
+                                                </div>
+                                                <Button onClick={() => setIsCounterProposing(false)} variant="ghost" className="h-8 w-8 p-0 text-slate-400 hover:text-slate-600 bg-white border border-slate-200 shadow-sm rounded-full"><X className="w-4 h-4" /></Button>
                                             </div>
                                             
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
                                                 <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">New Date</label>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">New Date <span className="text-red-400">*</span></label>
                                                     <input 
                                                         type="date" 
                                                         value={counterDate}
                                                         onChange={(e) => setCounterDate(e.target.value)}
-                                                        className="w-full bg-white text-sm font-bold rounded-xl h-11 px-3 border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                                        className="w-full bg-slate-50 text-sm font-bold text-slate-700 rounded-xl h-11 px-4 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">Target Headcount <span className="opacity-50 lowercase tracking-normal text-[9px]">(Optional)</span></label>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">Target Headcount <span className="text-red-400">*</span></label>
                                                     <input 
                                                         type="number" 
                                                         value={counterHeadcount}
                                                         onChange={(e) => setCounterHeadcount(e.target.value)}
                                                         placeholder="e.g. 40"
-                                                        className="w-full bg-white text-sm font-bold rounded-xl h-11 px-3 border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:font-normal placeholder:text-slate-300"
+                                                        className="w-full bg-slate-50 text-sm font-bold text-slate-700 rounded-xl h-11 px-4 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner placeholder:font-normal placeholder:text-slate-300"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">Start Time</label>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">Start Time <span className="text-red-400">*</span></label>
                                                     <input 
                                                         type="time" 
                                                         value={counterStartTime}
                                                         onChange={(e) => setCounterStartTime(e.target.value)}
-                                                        className="w-full bg-white text-sm font-bold rounded-xl h-11 px-3 border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                                        className="w-full bg-slate-50 text-sm font-bold text-slate-700 rounded-xl h-11 px-4 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">End Time</label>
+                                                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">End Time <span className="text-red-400">*</span></label>
                                                     <input 
                                                         type="time" 
                                                         value={counterEndTime}
                                                         onChange={(e) => setCounterEndTime(e.target.value)}
-                                                        className="w-full bg-white text-sm font-bold rounded-xl h-11 px-3 border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                                        className="w-full bg-slate-50 text-sm font-bold text-slate-700 rounded-xl h-11 px-4 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner"
                                                     />
                                                 </div>
                                             </div>
 
-                                            <div className="pt-2">
-                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1.5 pl-1">Attach a Note <span className="opacity-50 lowercase tracking-normal text-[9px]">(Optional)</span></label>
+                                            <div className="mb-6 bg-white p-5 rounded-2xl border border-slate-100 shadow-sm">
+                                                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2 pl-1">Attach a Note <span className="opacity-50 lowercase tracking-normal text-[9px]">(Visible to HR)</span> <span className="text-red-400">*</span></label>
                                                 <textarea 
                                                     value={counterNote}
                                                     onChange={(e) => setCounterNote(e.target.value)}
                                                     placeholder="E.g. We had a conflict with standard curriculum hours. Does this work?"
-                                                    className="w-full bg-white text-sm font-medium rounded-xl p-3 border border-slate-200 outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder:font-normal placeholder:text-slate-300 resize-none shadow-sm"
-                                                    rows={2}
+                                                    className="w-full bg-slate-50 text-sm font-medium text-slate-700 rounded-xl p-4 border border-slate-200 outline-none focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all shadow-inner placeholder:font-normal placeholder:text-slate-400 resize-none"
+                                                    rows={3}
                                                 />
                                             </div>
                                             
-                                            <div className="flex justify-end pt-1">
-                                                <Button onClick={() => handleCounterPropose(activeVisit.id)} disabled={isScheduling || !counterDate || !counterStartTime || !counterEndTime} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-11 rounded-xl px-8 shadow-sm">
-                                                    {isScheduling ? <Loader2 className="w-4 h-4 animate-spin" /> : "Dispatch Counter-Offer"}
+                                            <div className="flex gap-3 pt-2">
+                                                <Button onClick={() => setIsCounterProposing(false)} variant="ghost" className="w-[100px] h-12 font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 rounded-xl text-[13px]">Cancel</Button>
+                                                <Button onClick={() => handleCounterPropose(activeVisit.id)} disabled={isScheduling || !counterDate || !counterStartTime || !counterEndTime || !counterHeadcount || counterNote.length < 5} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold h-12 rounded-xl px-8 shadow-lg shadow-indigo-600/20 text-[13px] gap-2 transition-all">
+                                                    {isScheduling ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Dispatch Counter-Offer <Send className="w-4 h-4" /></>}
                                                 </Button>
                                             </div>
                                         </div>

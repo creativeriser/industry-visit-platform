@@ -9,6 +9,7 @@ export async function POST(req: Request) {
         companyName, 
         visitDate,
         magicLink, // Link to dashboard or specific visit
+        applicationId, // To link to their specific final evaluation report
         recipients // Array of { email, name }
     } = body;
 
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
     const emailPromises = recipients.map(async (student: { email: string, name: string }) => {
         let subject = '';
         let htmlTemplate = '';
+        const baseUrl = magicLink ? magicLink.replace(/\/student$/, '') : '';
+        const reportUrl = applicationId ? `${baseUrl}/student/report/${applicationId}` : magicLink;
 
         if (action === 'publish') {
             subject = `[New Visit Published] ${companyName} is recruiting for an Industry Visit`;
@@ -79,9 +82,10 @@ export async function POST(req: Request) {
                       </p>
                       
                       <div style="text-align: center; padding: 32px 0; margin: 32px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
-                        <h4 style="color: #0f172a; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 8px;">Next Steps</h4>
-                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 24px;">Please review your dashboard immediately for any required clearance forms or logistical data.</p>
-                        <a href="${magicLink}" style="display: inline-block; background-color: #0284c7; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 8px;">View Active Applications</a>
+                        <h4 style="color: #0f172a; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 8px;">View Your Detailed Faculty Evaluation</h4>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 24px;">Please review your dashboard immediately for any required clearance forms and download your finalized acceptance dossier.</p>
+                        <a href="${reportUrl}" style="display: inline-block; background-color: #0284c7; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 8px; margin-right: 12px; margin-bottom: 12px;">View Application Report</a>
+                        <a href="${magicLink}" style="display: inline-block; background-color: #f1f5f9; color: #0f172a !important; border: 1px solid #e2e8f0; font-size: 14px; font-weight: bold; text-decoration: none; padding: 13px 32px; border-radius: 8px; margin-bottom: 12px;">Open Student Portal</a>
                       </div>
 
                       <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">Best regards,<br/><strong>UniVisit Academic Office</strong></p>
@@ -113,6 +117,12 @@ export async function POST(req: Request) {
                         <p style="color: #64748b; margin: 0; font-size: 15px; font-style: italic;">
                           "While you weren't selected this time round due to strict capacity constraints, we strongly encourage you to keep your profile updated and apply for future opportunities soon!"
                         </p>
+                      </div>
+
+                      <div style="text-align: center; padding: 24px 0; margin: 24px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9;">
+                        <h4 style="color: #0f172a; font-size: 16px; font-weight: bold; margin-top: 0; margin-bottom: 8px;">Review Your Performance Metrics</h4>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 0; margin-bottom: 24px;">For transparency, the faculty board has compiled a detailed, data-driven dossier explaining how your application was algorithmically scored. Review your report for actionable feedback to improve your portfolio.</p>
+                        <a href="${reportUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff !important; font-size: 14px; font-weight: bold; text-decoration: none; padding: 14px 32px; border-radius: 8px;">View Detailed Evaluation Report</a>
                       </div>
 
                       <p style="color: #475569; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 16px;">Best regards,<br/><strong>UniVisit Academic Office</strong></p>
