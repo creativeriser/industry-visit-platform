@@ -42,9 +42,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentSession?.user ?? null)
 
         if (currentSession?.user) {
-            // Asynchronously fetch profile without blocking the UI rendering layer
-            supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
-                .then(({ data, error }) => {
+            ;(async () => {
+                try {
+                    const { data, error } = await supabase.from('profiles').select('*').eq('id', currentSession.user.id).single()
                     if (data?.status === 'suspended') {
                         console.error('CRITICAL: Suspended account attempting access.');
                         handleSignOut()
@@ -56,8 +56,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     if (data) {
                         setProfile(data)
                     }
-                })
-                .catch(err => console.error("Profile fetch error.", err))
+                } catch (err) {
+                    console.error("Profile fetch error.", err)
+                }
+            })()
         } else {
             setProfile(null)
         }
