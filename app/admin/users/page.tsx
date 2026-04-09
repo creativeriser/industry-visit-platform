@@ -28,24 +28,7 @@ export default function UsersAccessManagement() {
         fetchProfiles()
     }, [])
 
-    const handleRoleChange = async (userId: string, newRole: string) => {
-        // Optimistic UI Update
-        const originalProfiles = [...profiles]
-        setProfiles(prev => prev.map(p => p.id === userId ? { ...p, role: newRole } : p))
-        
-        const { data, error } = await supabase
-            .from('profiles')
-            .update({ role: newRole })
-            .eq('id', userId)
-            .select()
 
-        if (error || !data || data.length === 0) {
-            alert(`SECURITY BLOCK: Cannot modify role. Your database requires an RLS policy granting 'admin' accounts UPDATE privileges on the 'profiles' table. \n\nExecute this SQL in Supabase: \ncreate policy "Admins can manage profiles" on profiles for update using (exists (select 1 from profiles as auth_prof where auth_prof.id = auth.uid() and auth_prof.role = 'admin'));`)
-            setProfiles(originalProfiles) // Absolute Rollback
-        } else {
-            alert("Role successfully locked and updated.")
-        }
-    }
 
     const handleToggleSuspension = async (userId: string, isCurrentlySuspended: boolean) => {
         const newStatus = isCurrentlySuspended ? 'active' : 'suspended';
@@ -162,49 +145,24 @@ export default function UsersAccessManagement() {
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                {(user.role === 'student' || user.role === 'faculty') && (
-                                                    <Button 
-                                                        variant="ghost" 
-                                                        size="sm"
-                                                        onClick={() => handleToggleSuspension(user.id, user.status === 'suspended')}
-                                                        className={user.status === 'suspended' ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs h-8" : "text-amber-500 hover:text-amber-600 hover:bg-amber-50 text-xs h-8"}
-                                                    >
-                                                        {user.status === 'suspended' ? (
-                                                            <><Check className="w-3.5 h-3.5 mr-1" /> Restore Access</>
-                                                        ) : (
-                                                            <><Ban className="w-3.5 h-3.5 mr-1" /> Suspend Access</>
-                                                        )}
-                                                    </Button>
-                                                )}
-
-                                                {user.role === 'admin' ? (
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-xs font-semibold text-slate-400 flex items-center justify-end gap-1 px-2">
-                                                            <Check className="w-3.5 h-3.5" /> Highest Clearance
-                                                        </span>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="sm"
-                                                            onClick={() => handleRoleChange(user.id, 'faculty')}
-                                                            className="text-red-500 hover:text-red-600 border-red-200 hover:bg-red-50 text-[10px] h-7 px-2"
-                                                        >
-                                                            Revoke Admin
-                                                        </Button>
-                                                    </div>
-                                                ) : user.role === 'faculty' ? (
-                                                    <Button 
-                                                        variant="outline" 
-                                                        size="sm"
-                                                        onClick={() => handleRoleChange(user.id, 'admin')}
-                                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 text-xs h-8"
-                                                    >
-                                                        <ShieldAlert className="w-3.5 h-3.5 mr-1" /> Elevate to Admin
-                                                    </Button>
-                                                ) : (
-                                                    <span className="text-[10px] font-semibold text-slate-400 uppercase mr-1">Promotion Restricted</span>
-                                                )}
-                                            </div>
+                                            {user.role === 'admin' ? (
+                                                <span className="text-xs font-semibold text-slate-400 flex items-center justify-end gap-1 px-2">
+                                                    <ShieldAlert className="w-3.5 h-3.5" /> Superuser
+                                                </span>
+                                            ) : (
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm"
+                                                    onClick={() => handleToggleSuspension(user.id, user.status === 'suspended')}
+                                                    className={user.status === 'suspended' ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs h-8" : "text-amber-500 hover:text-amber-600 hover:bg-amber-50 text-xs h-8 font-medium"}
+                                                >
+                                                    {user.status === 'suspended' ? (
+                                                        <><Check className="w-3.5 h-3.5 mr-1" /> Restore Access</>
+                                                    ) : (
+                                                        <><Ban className="w-3.5 h-3.5 mr-1" /> Suspend Access</>
+                                                    )}
+                                                </Button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
