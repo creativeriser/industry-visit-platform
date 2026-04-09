@@ -6,14 +6,13 @@ import { usePathname, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/context/auth-context"
 import { motion, AnimatePresence } from "framer-motion"
-import { LayoutDashboard, Users, LogOut, Menu, UserCog, CalendarClock } from "lucide-react"
+import { LayoutDashboard, Users, LogOut, Menu, ShieldAlert, Loader2, CalendarClock } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogo } from "@/components/layout/brand-logo"
 import { Button } from "@/components/ui/button"
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-    const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const { user, profile, loading } = useAuth()
@@ -23,10 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             if (!user) {
                 router.replace("/get-started?role=admin")
             } else if (profile && profile.role !== 'admin') {
-                // Not authorized
                 supabase.auth.signOut().then(() => router.replace("/"))
-            } else if (profile && profile.role === 'admin') {
-                setIsAuthorized(true)
             }
         }
     }, [user, profile, loading, router])
@@ -37,11 +33,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: "Global Schedules", href: "/admin/schedules", icon: CalendarClock },
     ]
 
-    if (loading || (!isAuthorized && user)) {
-        return <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">Verifying Admin Access...</div>
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC]">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-4" />
+                <p className="text-slate-500 font-medium animate-pulse">Initializing Administrative Node...</p>
+            </div>
+        )
     }
 
-    if (!user) return null; // Wait for redirect
+    if (!user || profile?.role !== 'admin') {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC] text-center px-4">
+                <ShieldAlert className="w-12 h-12 text-red-500 mb-4" />
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">Security Clearance Protocol Failure</h1>
+                <p className="text-slate-500">System architecture does not recognize administrative permissions on this node. Terminating access...</p>
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">

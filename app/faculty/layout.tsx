@@ -26,23 +26,17 @@ import { UserProvider } from "@/context/user-context"
 export default function FacultyLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const [activeHash, setActiveHash] = useState("")
-    const [isAuthorized, setIsAuthorized] = useState(false)
     const pathname = usePathname()
     const router = useRouter()
     const { user, profile, loading } = useAuth()
-
     useEffect(() => {
         if (!loading) {
             if (!user) {
                 router.replace("/get-started?role=faculty")
-            } else if (profile) {
-                if (profile.role === 'student') {
-                    router.replace('/student')
-                } else if (profile.role !== 'faculty') {
-                    router.replace('/')
-                } else {
-                    setIsAuthorized(true)
-                }
+            } else if (profile?.role === 'student') {
+                router.replace('/student')
+            } else if (profile?.role !== 'faculty') {
+                router.replace('/')
             }
         }
     }, [user, profile, loading, router])
@@ -74,11 +68,26 @@ export default function FacultyLayout({ children }: { children: React.ReactNode 
         { name: "Selected Students", href: "/faculty/selected", icon: UserCheck },
     ]
 
-    if (loading || (!isAuthorized && user)) {
-        return <div className="min-h-screen bg-[#F8F9FC] flex items-center justify-center">Verifying Faculty Access...</div>
+    if (loading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC]">
+                <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-4" />
+                <p className="text-slate-500 font-medium animate-pulse">Initializing Faculty Node...</p>
+            </div>
+        )
     }
 
-    if (!user) return null; // Wait for redirect
+    if (!user || profile?.role !== 'faculty') {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC] text-center px-4">
+                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                    <X className="w-6 h-6 text-red-500" />
+                </div>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2">Academic Authorization Required</h1>
+                <p className="text-slate-500">Your profile cannot access the academic operations node. Rerouting...</p>
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">
