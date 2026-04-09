@@ -10,6 +10,7 @@ export default function UsersAccessManagement() {
     const [profiles, setProfiles] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [activeTab, setActiveTab] = useState<'active' | 'suspended'>('active')
+    const [updatingId, setUpdatingId] = useState<string | null>(null)
 
     const fetchProfiles = async () => {
         setLoading(true)
@@ -32,12 +33,11 @@ export default function UsersAccessManagement() {
 
     const handleToggleSuspension = async (userId: string, isCurrentlySuspended: boolean) => {
         const newStatus = isCurrentlySuspended ? 'active' : 'suspended';
-        const actionText = isCurrentlySuspended ? 'restore' : 'suspend';
+        const actionText = isCurrentlySuspended ? 'restore access' : 'suspend access';
         
-        if (!confirm(`Are you sure you want to ${actionText} this user's access?`)) return;
+        if (!confirm(`Are you sure you want to ${actionText} for this identity?`)) return;
         
-        const originalProfiles = [...profiles]
-        setProfiles(prev => prev.map(p => p.id === userId ? { ...p, status: newStatus } : p))
+        setUpdatingId(userId)
         
         const { data, error } = await supabase
             .from('profiles')
@@ -47,8 +47,12 @@ export default function UsersAccessManagement() {
 
         if (error || !data || data.length === 0) {
             alert(`SECURITY BLOCK: The action failed silently because Admin RLS Policies are missing on the 'profiles' table. \n\nExecute this SQL in your Supabase SQL Editor to grant Admins the power to suspend accounts:\n\ncreate policy "Admins can update profiles" on profiles for update using (exists (select 1 from profiles as p where p.id = auth.uid() and p.role = 'admin'));`)
-            setProfiles(originalProfiles) // Instant UI Revert to prevent the "wiped out on refresh" bug
+        } else {
+            // Confirm database sync before hiding row
+            setProfiles(prev => prev.map(p => p.id === userId ? { ...p, status: newStatus } : p))
         }
+        
+        setUpdatingId(null)
     }
 
     return (
@@ -153,10 +157,13 @@ export default function UsersAccessManagement() {
                                                 <Button 
                                                     variant="ghost" 
                                                     size="sm"
+                                                    disabled={updatingId === user.id}
                                                     onClick={() => handleToggleSuspension(user.id, user.status === 'suspended')}
                                                     className={user.status === 'suspended' ? "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 text-xs h-8" : "text-amber-500 hover:text-amber-600 hover:bg-amber-50 text-xs h-8 font-medium"}
                                                 >
-                                                    {user.status === 'suspended' ? (
+                                                    {updatingId === user.id ? (
+                                                        <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                                                    ) : user.status === 'suspended' ? (
                                                         <><Check className="w-3.5 h-3.5 mr-1" /> Restore Access</>
                                                     ) : (
                                                         <><Ban className="w-3.5 h-3.5 mr-1" /> Suspend Access</>
