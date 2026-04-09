@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { User, Mail, Building2, Phone, BrainCircuit, Edit2, Camera, Save, X, Check, Loader2 } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -8,10 +8,8 @@ import { Button } from "@/components/ui/button"
 import { useUser } from "@/context/user-context"
 import { useAuth } from "@/context/auth-context"
 
-import { COMPANIES } from "@/lib/companies"
+import { getCompanies } from "@/lib/companies"
 import { getDisciplineIcon } from "@/lib/utils"
-
-const DISCIPLINES = Array.from(new Set(COMPANIES.map(c => c.discipline))).sort()
 
 const SaveControls = ({ mode, currentMode, onSave, onCancel, saving }: any) => {
     if (currentMode !== mode) return null;
@@ -45,6 +43,14 @@ export default function ProfilePage() {
     const { user, updateUser } = useUser()
     const { user: authUser } = useAuth()
     const [tempData, setTempData] = useState(user)
+    const [availableDisciplines, setAvailableDisciplines] = useState<string[]>([])
+
+    useEffect(() => {
+        getCompanies().then(companies => {
+            const unique = Array.from(new Set(companies.map(c => c.discipline).filter(Boolean))).sort()
+            setAvailableDisciplines(unique)
+        })
+    }, [])
 
     const isEditingPersonal = editMode === 'personal'
     const isEditingAcademic = editMode === 'academic'
@@ -248,7 +254,7 @@ export default function ProfilePage() {
                                             className="w-full bg-transparent outline-none cursor-pointer"
                                         >
                                             <option value="" disabled>Select Discipline</option>
-                                            {DISCIPLINES.map(d => (
+                                            {availableDisciplines.map(d => (
                                                 <option key={d} value={d}>{d}</option>
                                             ))}
                                         </select>
