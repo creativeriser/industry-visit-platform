@@ -56,12 +56,6 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
             if (!profile) {
                 // If the profile query comes up empty, rely on the self-healing block below
                 // rather than abruptly signing out
-            } else if (profile.role && profile.role !== activeRole) {
-                // The user explicitly prefers a strict gate on the login UI.
-                await supabase.auth.signOut()
-                setLocalError(`Access Denied: Your credentials belong to a ${profile.role}. Please select the ${profile.role} portal.`)
-                setLoading(false)
-                return
             }
 
             // Database Self-Healing: Auto-populate ALL missing baseline data (email, name, institution, roll_number)
