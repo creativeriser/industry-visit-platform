@@ -2049,13 +2049,13 @@ export const getCompanies = async (): Promise<Company[]> => {
     }
     if (!data || data.length === 0) return COMPANIES
     
-    // Merge Supabase data with local fallback to inject the newly added `logo` field
+    // Merge Supabase data with local fallback correctly
     return data.map((dbCompany: any) => {
-        const localCompany = COMPANIES.find(c => c.id === dbCompany.id)
+        const localCompany = COMPANIES.find(c => c.name === dbCompany.name)
         return {
             ...localCompany,
             ...dbCompany,
-            logo: localCompany?.logo || dbCompany.logo // Ensure logo gets passed if it exists locally
+            logo: dbCompany.logo || localCompany?.logo 
         }
     }) as Company[]
 }
@@ -2067,10 +2067,10 @@ export const getCompanyById = async (id: number): Promise<Company | undefined> =
         return COMPANIES.find(c => c.id === id)
     }
     
-    const localCompany = COMPANIES.find(c => c.id === id)
+    const localCompany = COMPANIES.find(c => c.name === data.name)
     return {
         ...localCompany,
         ...data,
-        logo: localCompany?.logo || data.logo
+        logo: data.logo || localCompany?.logo
     } as Company
 }
