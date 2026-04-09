@@ -27,7 +27,7 @@ import {
 } from "lucide-react"
 import { getInstitutionOptions } from "@/lib/domain-mapping"
 import { PdfViewer } from "@/components/ui/pdf-viewer"
-import { COMPANIES } from "@/lib/companies"
+import { getCompanies } from "@/lib/companies"
 
 const SaveControls = ({ mode, currentMode, onSave, onCancel, saving }: any) => {
     if (currentMode !== mode) return null;
@@ -89,6 +89,7 @@ export default function StudentProfilePage() {
     const [tempData, setTempData] = useState<any>({})
     const [githubData, setGithubData] = useState<any>(null)
     const [leetcodeData, setLeetcodeData] = useState<any>(null)
+    const [availableDisciplines, setAvailableDisciplines] = useState<string[]>([])
 
     const [validGithub, setValidGithub] = useState<boolean>(false)
     const [validLeetcode, setValidLeetcode] = useState<boolean>(false)
@@ -148,6 +149,11 @@ export default function StudentProfilePage() {
                     }
                     setLoading(false)
                 })
+
+            getCompanies().then(companies => {
+                const unique = Array.from(new Set(companies.map(c => c.discipline).filter(Boolean))).sort()
+                setAvailableDisciplines(unique)
+            })
         }
     }, [user])
 
@@ -270,7 +276,6 @@ export default function StudentProfilePage() {
     if (loading) return null
 
     const activeTaxonomy = getInstitutionOptions(profile.institution)
-    const availableDisciplines = Array.from(new Set(COMPANIES.map(c => c.discipline))).sort()
 
     return (
         <div className="h-full overflow-y-auto w-full">

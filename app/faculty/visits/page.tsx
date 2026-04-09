@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/context/auth-context"
 import { supabase } from "@/lib/supabase"
-import { COMPANIES } from "@/lib/companies"
+import { getCompanies, Company } from "@/lib/companies"
 import { Building2, Calendar, Clock, MapPin, ArrowRight, XCircle, CheckCircle, RotateCcw, AlertCircle, Loader2, Route, Radio } from "lucide-react"
 import { getDisciplineIcon } from "@/lib/utils"
 
@@ -13,6 +13,7 @@ export default function FacultyVisitsPage() {
     const router = useRouter()
     
     const [visits, setVisits] = useState<any[]>([])
+    const [companies, setCompanies] = useState<Company[]>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
@@ -23,8 +24,14 @@ export default function FacultyVisitsPage() {
 
         if (user) {
             loadActiveVisits()
+            loadCompanies()
         }
     }, [user, authLoading, router])
+
+    const loadCompanies = async () => {
+        const data = await getCompanies()
+        setCompanies(data)
+    }
 
     const loadActiveVisits = async () => {
         try {
@@ -125,7 +132,7 @@ export default function FacultyVisitsPage() {
             {visits.length > 0 ? (
                 <div className="flex flex-col gap-5">
                     {visits.map((visit: any) => {
-                        const company = COMPANIES.find(c => c.id === visit.company_id)
+                        const company = companies.find(c => c.id === visit.company_id)
                         const theme = getStatusTheme(visit.status)
                         const DisciplineIcon = getDisciplineIcon(company?.discipline || "")
                         

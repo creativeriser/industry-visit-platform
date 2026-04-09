@@ -11,10 +11,21 @@ import { ProcessTimeline } from "@/components/marketing/process-timeline"
 import { DisciplineCard } from "@/components/marketing/discipline-card"
 import { TrustSection } from "@/components/marketing/trust-section"
 import { Footer } from "@/components/layout/footer"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { getCompanies } from "@/lib/companies"
 
 export default function Home() {
   const router = useRouter()
+  const [disciplines, setDisciplines] = useState<string[]>(["Computer Science", "Biotechnology"])
+
+  useEffect(() => {
+     getCompanies().then(companies => {
+         const unique = Array.from(new Set(companies.map(c => c.discipline).filter(Boolean)))
+         if (unique.length > 0) {
+             setDisciplines(unique.sort())
+         }
+     })
+  }, [])
 
   const container: Variants = {
     hidden: { opacity: 0 },
@@ -122,16 +133,11 @@ export default function Home() {
             </motion.h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[ 
-              "Computer Science",
-              "Biotechnology"
-            ].map((discipline, index) => (
+            {disciplines.map((discipline, index) => (
               <DisciplineCard
                 key={discipline}
                 name={discipline}
-                href={discipline === "Computer Science"
-                  ? `/get-started?role=faculty&discipline=${encodeURIComponent(discipline)}#discovery`
-                  : "/get-started"}
+                href={`/get-started?role=faculty&discipline=${encodeURIComponent(discipline)}#discovery`}
                 index={index}
               />
             ))}

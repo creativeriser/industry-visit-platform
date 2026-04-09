@@ -8,26 +8,7 @@ import { Button } from "@/components/ui/button"
 import { CompanyCard } from "./company-card"
 import { Company } from "@/lib/companies"
 
-const PRIMARY_DISCIPLINES = [
-    "All",
-    "Computer Science",
-    "Mechanical Engineering",
-    "Biotechnology",
-    "Business Administration"
-]
-
-const SECONDARY_DISCIPLINES = [
-    "Civil Engineering",
-    "Electrical Engineering",
-    "Chemical Engineering",
-    "Aerospace Engineering",
-    "Architecture",
-    "Psychology",
-    "Law",
-    "Medicine",
-    "Physics",
-    "Mathematics"
-]
+// Disciplines are derived dynamically from the companies array to support database additions
 
 interface IndustryGridProps {
     companies: Company[]
@@ -46,6 +27,11 @@ export function IndustryGrid({
     const initialDiscipline = searchParams?.get("discipline") || "All"
     const [activeTab, setActiveTab] = useState(initialDiscipline)
     const [isExpanded, setIsExpanded] = useState(false)
+
+    // Dynamically calculate disciplines from active company pool
+    const allDisciplines = Array.from(new Set(companies.map(c => c.discipline).filter(Boolean))).sort()
+    const PRIMARY_DISCIPLINES = ["All", ...allDisciplines.slice(0, 4)]
+    const SECONDARY_DISCIPLINES = allDisciplines.slice(4)
 
     // Sync tab if URL changes
     useEffect(() => {
