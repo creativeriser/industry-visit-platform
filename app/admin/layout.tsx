@@ -139,7 +139,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <button
                                 onClick={async () => {
                                     await signOut()
-                                    router.push("/")
                                 }}
                                 className={cn(
                                     "flex items-center w-full px-2 py-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors overflow-hidden",

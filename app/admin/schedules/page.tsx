@@ -53,8 +53,25 @@ export default function ScheduledVisitsSupervision() {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 animate-pulse">
+                    {[1,2,3,4].map(i => (
+                        <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                            <div className="flex justify-between items-start mb-6">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 rounded-xl bg-slate-200 shrink-0"></div>
+                                    <div className="flex flex-col">
+                                        <div className="h-5 bg-slate-200 rounded w-32 mb-2"></div>
+                                        <div className="h-3 bg-slate-100 rounded w-24"></div>
+                                    </div>
+                                </div>
+                                <div className="w-24 h-6 bg-slate-200 rounded-full"></div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="h-24 bg-slate-50 rounded-xl border border-slate-100"></div>
+                                <div className="h-24 bg-slate-50 rounded-xl border border-slate-100"></div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             ) : schedules.length === 0 ? (
                 <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-100">

@@ -204,8 +204,23 @@ export default function AdminDashboard() {
             {activeTab === 'pending' || activeTab === 'history' ? (
                 <>
                     {loading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        <div className="space-y-6 animate-pulse">
+                            {[1, 2, 3].map(i => (
+                                <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                                    <div className="flex flex-col lg:flex-row justify-between gap-6">
+                                        <div className="space-y-4 flex-1">
+                                            <div>
+                                                <div className="h-6 bg-slate-200 rounded w-48 mb-2"></div>
+                                                <div className="h-4 bg-slate-100 rounded w-32"></div>
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 rounded-xl p-4 border border-slate-100">
+                                                <div><div className="h-3 bg-slate-200 rounded w-24 mb-3"></div><div className="h-4 bg-slate-200 rounded w-32 mb-2"></div><div className="h-4 bg-slate-100 rounded w-40"></div></div>
+                                                <div><div className="h-3 bg-slate-200 rounded w-24 mb-3"></div><div className="h-4 bg-slate-200 rounded w-20 mb-2"></div><div className="h-4 bg-slate-100 rounded w-full"></div></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : (activeTab === 'pending' ? pendingRequests : historyRequests).length === 0 ? (
                 <div className="text-center py-20 bg-slate-50 rounded-2xl border border-slate-100">
@@ -307,8 +322,22 @@ export default function AdminDashboard() {
             ) : (
                 <div className="space-y-6">
                     {isLoadingCompanies ? (
-                        <div className="flex items-center justify-center py-20">
-                            <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+                        <div className="space-y-4 animate-pulse">
+                            {[1, 2, 3, 4].map(i => (
+                                <div key={i} className="p-5 border border-slate-200 bg-white shadow-sm rounded-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                                    <div className="flex items-start gap-5 flex-1">
+                                        <div className="w-14 h-14 rounded-xl bg-slate-200 shrink-0"></div>
+                                        <div className="flex flex-col w-full">
+                                            <div className="h-5 bg-slate-200 rounded w-40 mb-2"></div>
+                                            <div className="h-3 bg-slate-100 rounded w-24 mb-3"></div>
+                                            <div className="space-y-2"><div className="h-3 bg-slate-100 rounded w-full"></div><div className="h-3 bg-slate-100 rounded w-4/5"></div></div>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col sm:flex-row gap-4 lg:w-[450px] shrink-0 border-t lg:border-t-0 lg:border-l border-slate-100 pt-4 lg:pt-0 lg:pl-6">
+                                        <div className="flex-1 h-20 bg-slate-50 rounded-xl"></div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : companies.length === 0 ? (
                         <div className="text-center py-20 bg-slate-50 rounded-2xl border border-slate-100">

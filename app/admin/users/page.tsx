@@ -81,8 +81,24 @@ export default function UsersAccessManagement() {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 animate-spin text-indigo-400" />
+                <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden auto-cols-auto animate-pulse">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 border-b border-slate-200 uppercase text-xs tracking-wider text-slate-500 font-semibold">
+                                <th className="px-6 py-4">User Alias / Email</th><th className="px-6 py-4">Current Role</th><th className="px-6 py-4">Institution Context</th><th className="px-6 py-4 text-right">Access Controls</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                            {[1,2,3,4].map(i => (
+                                <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-32 mb-2"></div><div className="h-3 bg-slate-100 rounded w-48"></div></td>
+                                    <td className="px-6 py-4"><div className="h-6 bg-slate-200 rounded-full w-24"></div></td>
+                                    <td className="px-6 py-4"><div className="h-4 bg-slate-200 rounded w-40 mb-2"></div><div className="h-3 bg-slate-100 rounded w-24"></div></td>
+                                    <td className="px-6 py-4 text-right"><div className="h-8 bg-slate-200 rounded w-28 ml-auto"></div></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             ) : profiles.length === 0 ? (
                 <div className="text-center py-20 bg-slate-50 rounded-xl border border-slate-100">

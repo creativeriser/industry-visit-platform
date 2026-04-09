@@ -31,6 +31,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setSession(null)
             setUser(null)
             setProfile(null)
+            if (typeof window !== 'undefined') {
+                window.location.href = '/'
+            }
         }
     }, [])
 
