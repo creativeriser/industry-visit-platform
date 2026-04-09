@@ -389,49 +389,49 @@ export default function AdminDashboard() {
                 description="Manually insert an enterprise partner into the Live Directory. This bypasses the inbox queue entirely."
                 className="max-w-2xl"
             >
-                <form onSubmit={handleCreateCompany} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
+                <form onSubmit={handleCreateCompany} className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                        <div className="space-y-1.5">
                             <Label htmlFor="c-name">Entity Name *</Label>
-                            <Input id="c-name" required placeholder="e.g., Google India" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value})} />
+                            <Input id="c-name" required placeholder="e.g., Google India" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value})} className="h-9"/>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <Label htmlFor="c-disc">Discipline / Sector *</Label>
-                            <Input id="c-disc" required placeholder="e.g., Computer Science" value={newCompany.discipline} onChange={e => setNewCompany({...newCompany, discipline: e.target.value})} />
+                            <Input id="c-disc" required placeholder="e.g., Computer Science" value={newCompany.discipline} onChange={e => setNewCompany({...newCompany, discipline: e.target.value})} className="h-9"/>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <Label htmlFor="c-loc">Location *</Label>
-                            <Input id="c-loc" required placeholder="e.g., Hyderabad Node" value={newCompany.location} onChange={e => setNewCompany({...newCompany, location: e.target.value})} />
+                            <Input id="c-loc" required placeholder="e.g., Hyderabad Node" value={newCompany.location} onChange={e => setNewCompany({...newCompany, location: e.target.value})} className="h-9"/>
                         </div>
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <Label htmlFor="c-cap">Max Capacity *</Label>
-                            <Input id="c-cap" type="number" required placeholder="50" min="1" value={newCompany.capacity} onChange={e => setNewCompany({...newCompany, capacity: e.target.value})} />
+                            <Input id="c-cap" type="number" required placeholder="50" min="1" value={newCompany.capacity} onChange={e => setNewCompany({...newCompany, capacity: e.target.value})} className="h-9"/>
                         </div>
                     </div>
                     
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <Label htmlFor="c-desc">Overview & Logistics</Label>
-                        <Textarea id="c-desc" placeholder="Operational details, requirements, etc..." className="h-24" value={newCompany.description} onChange={e => setNewCompany({...newCompany, description: e.target.value})} />
+                        <Textarea id="c-desc" placeholder="Operational details, requirements, etc..." className="h-16 min-h-[4rem] resize-none" value={newCompany.description} onChange={e => setNewCompany({...newCompany, description: e.target.value})} />
                     </div>
 
                     <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
                         <h4 className="text-sm font-semibold text-slate-700 mb-3 flex items-center gap-2"><UserCheck className="w-4 h-4"/> Representative Context</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="r-name">Name *</Label>
-                                <Input id="r-name" required placeholder="Jane Doe" value={newCompany.repName} onChange={e => setNewCompany({...newCompany, repName: e.target.value})} />
+                                <Input id="r-name" required placeholder="Jane Doe" value={newCompany.repName} onChange={e => setNewCompany({...newCompany, repName: e.target.value})} className="h-9"/>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="r-title">Title / Role *</Label>
-                                <Input id="r-title" required placeholder="University Relations" value={newCompany.repTitle} onChange={e => setNewCompany({...newCompany, repTitle: e.target.value})} />
+                                <Input id="r-title" required placeholder="University Relations" value={newCompany.repTitle} onChange={e => setNewCompany({...newCompany, repTitle: e.target.value})} className="h-9"/>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="r-email">Email Address *</Label>
-                                <Input id="r-email" type="email" required placeholder="contact@company.com" value={newCompany.repEmail} onChange={e => setNewCompany({...newCompany, repEmail: e.target.value})} />
+                                <Input id="r-email" type="email" required placeholder="contact@company.com" value={newCompany.repEmail} onChange={e => setNewCompany({...newCompany, repEmail: e.target.value})} className="h-9"/>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 <Label htmlFor="r-phone">Phone Number</Label>
-                                <Input id="r-phone" placeholder="+1..." value={newCompany.repPhone} onChange={e => setNewCompany({...newCompany, repPhone: e.target.value})} />
+                                <Input id="r-phone" placeholder="+1..." value={newCompany.repPhone} onChange={e => setNewCompany({...newCompany, repPhone: e.target.value})} className="h-9"/>
                             </div>
                         </div>
                     </div>

@@ -59,8 +59,9 @@ export function Modal({ isOpen, onClose, children, className, contentClassName, 
                             exit={{ opacity: 0, scale: 0.95, y: 20 }}
                             transition={{ type: "spring", duration: 0.5, bounce: 0.3 }}
                             className={cn(
-                                "relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden pointer-events-auto",
+                                "relative w-full max-w-lg bg-white rounded-2xl shadow-2xl pointer-events-auto",
                                 "border border-slate-100 dark:border-slate-800",
+                                "flex flex-col max-h-[calc(100vh-2rem)]",
                                 className
                             )}
                         >
@@ -79,7 +80,7 @@ export function Modal({ isOpen, onClose, children, className, contentClassName, 
                                 </div>
                             )}
 
-                            <div className={cn("p-6", contentClassName)}>
+                            <div className={cn("p-6 overflow-y-auto overscroll-contain", contentClassName)}>
                                 {children}
                             </div>
                         </motion.div>
