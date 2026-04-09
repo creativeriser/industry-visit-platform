@@ -16,7 +16,7 @@ export default function ScheduledVisitsSupervision() {
             .from('scheduled_visits')
             .select(`
                 *,
-                companies (name, location, type, discipline, logo),
+                companies (name, location, type, discipline),
                 profiles (full_name, email, institution, department)
             `)
             .order('created_at', { ascending: false })
