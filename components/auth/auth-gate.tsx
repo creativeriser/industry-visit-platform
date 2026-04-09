@@ -66,19 +66,31 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
 
             // Database Self-Healing: Auto-populate ALL missing baseline data (email, name, institution, roll_number)
             // if they were left NULL by an admin doing a manual setup in the database dashboard
-            const isMissingData = !profile.email || !profile.full_name || !profile.institution || (profile.role === 'student' && !profile.roll_number)
+            const isMissingData = !profile || !profile.email || !profile.full_name || !profile.institution || (profile.role === 'student' && !profile.roll_number)
             
             if (isMissingData) {
                 const derivedName = data.user.email ? data.user.email.split('@')[0] : 'User'
                 const derivedInstitution = data.user.email ? resolveInstitutionFromEmail(data.user.email) : null
                 const derivedRoll = data.user.email ? extractRollNumberFromEmail(data.user.email) : null
                 
-                await supabase.from('profiles').update({
-                    email: data.user.email,
-                    full_name: profile.full_name || derivedName,
-                    institution: profile.institution || derivedInstitution,
-                    ...(profile.role === 'student' && !profile.roll_number && derivedRoll ? { roll_number: derivedRoll } : {})
-                }).eq('id', data.user.id)
+                // If profile doesn't exist, we must use upsert, otherwise update
+                if (!profile) {
+                    await supabase.from('profiles').insert({
+                        id: data.user.id,
+                        email: data.user.email,
+                        full_name: derivedName,
+                        role: activeRole, // assume default of what they logged into if it truly didn't exist
+                        institution: derivedInstitution,
+                        ...(activeRole === 'student' && derivedRoll ? { roll_number: derivedRoll } : {})
+                    })
+                } else {
+                    await supabase.from('profiles').update({
+                        email: data.user.email,
+                        full_name: profile?.full_name || derivedName,
+                        institution: profile?.institution || derivedInstitution,
+                        ...(profile?.role === 'student' && !profile?.roll_number && derivedRoll ? { roll_number: derivedRoll } : {})
+                    }).eq('id', data.user.id)
+                }
             }
         }
 
