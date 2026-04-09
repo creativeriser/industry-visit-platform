@@ -21,7 +21,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
     const pathname = usePathname()
     const router = useRouter()
-    const { user, profile, loading } = useAuth()
+    const { user, profile, loading, signOut } = useAuth()
     useEffect(() => {
         if (!loading) {
             if (!user) {
@@ -39,26 +39,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         { name: "My Applications", href: "/student/applications", icon: ClipboardList },
     ]
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC]">
-                <div className="w-8 h-8 rounded-full border-4 border-sky-500 border-t-transparent animate-spin mb-4"></div>
-                <p className="text-slate-500 font-medium animate-pulse">Initializing Student Node...</p>
-            </div>
-        )
-    }
 
-    if (!user || profile?.role !== 'student') {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-[#F8F9FC] text-center px-4">
-                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center mb-4">
-                    <span className="text-2xl">🛑</span>
-                </div>
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">Student Access Required</h1>
-                <p className="text-slate-500">Your profile is restricted from the student portal. Rerouting...</p>
-            </div>
-        )
-    }
 
     return (
         <div className="min-h-screen bg-[#F8F9FC] flex">
@@ -162,7 +143,7 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
 
                         <button
                             onClick={async () => {
-                                await supabase.auth.signOut()
+                                await signOut()
                                 router.push("/")
                             }}
                             className={cn(
@@ -205,7 +186,14 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
                 isSidebarOpen ? "md:pl-[292px]" : "md:pl-[104px]"
             )}>
                 <div id="student-content-wrapper" className="w-full h-full bg-white rounded-[24px] shadow-sm border border-slate-100 relative overflow-hidden">
-                    {children}
+                    {(loading || !user || profile?.role !== 'student') ? (
+                        <div className="w-full h-full flex flex-col items-center justify-center">
+                            <div className="w-8 h-8 rounded-full border-4 border-sky-500 border-t-transparent animate-spin mb-4"></div>
+                            <p className="text-slate-500 font-medium animate-pulse">Loading content...</p>
+                        </div>
+                    ) : (
+                        children
+                    )}
                 </div>
             </main>
         </div>

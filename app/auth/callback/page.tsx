@@ -170,12 +170,14 @@ export default function AuthCallbackPage() {
                 return
             }
 
-            if (role === 'faculty') {
+            if (role === 'admin') {
+                router.push('/admin')
+            } else if (role === 'faculty') {
                 router.push(pendingRedirect || '/faculty')
             } else if (role === 'student') {
                 router.push(pendingRedirect || '/student')
             } else {
-                router.push(pendingRedirect || '/faculty')
+                router.push('/')
             }
         }
 

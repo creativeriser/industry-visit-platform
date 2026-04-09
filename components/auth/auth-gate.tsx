@@ -54,14 +54,10 @@ export function AuthGate({ activeRole, onRoleSelect }: AuthGateProps) {
                 .single()
                 
             if (!profile) {
-                await supabase.auth.signOut()
-                setLocalError(`Account configuration incomplete. Please contact IT Support for assistance.`)
-                setLoading(false)
-                return
-            }
-                
-            if (profile.role !== activeRole) {
-                // Instantly bounce them out if the role doesn't match
+                // If the profile query comes up empty, rely on the self-healing block below
+                // rather than abruptly signing out
+            } else if (profile.role && profile.role !== activeRole) {
+                // The user explicitly prefers a strict gate on the login UI.
                 await supabase.auth.signOut()
                 setLocalError(`Access Denied: Your credentials belong to a ${profile.role}. Please select the ${profile.role} portal.`)
                 setLoading(false)
